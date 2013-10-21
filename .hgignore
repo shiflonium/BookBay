@@ -1,0 +1,6 @@
+syntax: glob
+*.sw[po]
+*.py[co]
+*~
+*.env
+
