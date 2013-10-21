@@ -7,5 +7,5 @@ SECRET_KEY = 'super secret key'
 CSRF_ENABLED = True
 
 #
-SQLALCHEMY_DATABASE_URI = 'mysql://sofeng:sofeng@localhost/sofeng'
+SQLALCHEMY_DATABASE_URI = 'mysql://softeng:softeng@localhost/softeng'
 SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')

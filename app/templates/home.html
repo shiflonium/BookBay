@@ -1,0 +1,14 @@
+
+{% extends "base.html" %}
+{% block content %}
+
+<h1> Hi this is h1 block of text </h1><br>
+{% if g.user.is_authenticated() %}
+<h2> username is {{ g.user.username }}<br> </h2>
+<h3> last logged in {{ g.user.last_seen }} </h3>
+{% else %}
+<h2> You are not logged in </h2>
+{% endif %}
+
+{% endblock %}
+

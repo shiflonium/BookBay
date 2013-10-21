@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		{% if title %}
+		<title>{{title}}Soft Eng</title>
+		{% else %}
+		<title> this is the else clause </title>
+		{% endif %}
+	</head>
+	<body>
+		<div>BookBay:
+			<a href="{{ url_for('home') }}"<a>Home</a>
+			<a href="{{ url_for('profile') }}"<a>Profile</a>
+			<a href="{{ url_for('signup') }}"<a>Signup</a>
+			<a href="{{ url_for('login') }}"<a>Login</a>
+			<a href="{{ url_for('logout') }}"<a>Logout</a>
+			</div>
+		<hr>
+		{% block content %}{% endblock %}
+	</body>
+
+</html>

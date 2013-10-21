@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2> Sign In </h2>
+
+{% for message in form.username.errors %}
+	<div class="flash">{{ message }}</div>
+	{% endfor %}
+	
+{% for message in form.password.errors %}
+	<div class="flash">{{ message }}</div>
+{% endfor %}
+
+<form action="{{ url_for('login') }}" method=post>
+	{{ form.hidden_tag() }}
+
+	{{ form.username.label }}
+	{{ form.username }}
+	<br>
+	{{ form.password.label }}
+	{{ form.password}}
+	<br>
+	{{ form.submit }}
+
+</form>
+
+{% endblock %}
+
