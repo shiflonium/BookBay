@@ -31,15 +31,15 @@ mysql> create database softeng character set utf8 collate utf8_bin;
 mysql> create user 'softeng'@'localhost' identified by 'softeng';
 ```
 
-identifed by = password
+password is now set as 'softeng'
 
 ```
-mysql> grant all privileges on softeng.* to 'apps'@'localhost';
+mysql> grant all privileges on softeng.* to 'softeng'@'localhost';
 ```
 
 ```
 mysql> flush privileges;
 ```
 
-
+for simplicity sake, the username and pw = softeng softeng
 After this, you can run python db_create
