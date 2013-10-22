@@ -12,10 +12,15 @@ def load_user(id):
 
 @app.before_request
 def before_request():
+    '''this is executed before every routing request.
+    g is a global user variable that is automatically
+    passed in to templates. i.e. {{% if g.user.is_anonymous %}} '''
+    # do something before each request
     g.user = current_user
     if g.user.is_authenticated():
         db.session.add(g.user)
         db.session.commit()
+        
 
 
 @app.route('/', methods = ['GET', 'POST'])
@@ -29,8 +34,10 @@ def signup():
     form = SignUpForm()
     if request.method == 'POST' and form.validate():
         u = User(
-                form.username.data, form.first_name.data,
-                form.last_name.data, form.email.data,
+                form.username.data,
+                form.first_name.data,
+                form.last_name.data,
+                form.email.data,
                 form.password.data
                 )
         db.session.add(u)
@@ -45,10 +52,10 @@ def signup():
 @app.route('/login', methods = ['GET', 'POST'])
 def login():
     form = LoginForm()
-    if form.validate_on_submit(): # password is checked by custom validator
+    if form.validate_on_submit(): 
+        # if username is valid on submit, login the user
         user = User.query.filter_by(username = form.username.data).first()
         login_user(user)
-        #g.user = user
         flash("logged in sucessfully :)")
         return redirect(request.args.get('next') or url_for('profile'))
         #return redirect(url_for('profile'))
