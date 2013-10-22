@@ -15,17 +15,16 @@ class User(db.Model):
     last_name = db.Column(db.String(64))
     email = db.Column(db.String(64), unique = True)
     pwdhash = db.Column(db.String(100))
-    last_seen = db.Column(db.DateTime)
     # 1-5 star personal rating
-    rating = db.Column(db.Float)
+    #rating = db.Column(db.Float)
 
-    def __init__(self, username, first_name, last_name, email, password, rating):
+    def __init__(self, username, first_name, last_name, email, password):
         self.username = username
         self.first_name = first_name.title()
         self.last_name = last_name.title()
         self.email = email.lower()
         self.set_password(password)
-        self.rating = 0.0
+        self.rating = float(0)
 
     def set_password(self, password):
         self.pwdhash = generate_password_hash(password)

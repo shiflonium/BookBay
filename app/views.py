@@ -36,7 +36,7 @@ def signup():
         db.session.add(u)
         db.session.commit()
         # adding email token to session, might use later.
-        session['email'] = u.email
+        #session['email'] = u.email
         return redirect(url_for('home'))
     # this executes if GET request
     return render_template('signup.html', form=form)
@@ -67,6 +67,6 @@ def profile():
 def logout():
     logout_user()
     # delete session created during login
-    del session['email']
+    #del session['email']
     return redirect(url_for('home'))
 
