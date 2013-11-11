@@ -70,7 +70,6 @@ class ChangePersonalDetails(Form):
 
     first_name = TextField('First Name:', validators=[validators.Required()])
     last_name = TextField('Last Name:', validators=[validators.Required()])
-
     updateDatails = SubmitField("Change Details")
 
     def __init__(self, *args, **kwargs):
