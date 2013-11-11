@@ -45,3 +45,36 @@ class LoginForm(Form):
             return True
         else:
             self.password.errors.append("invalid password")
+
+
+class ChangePassword(Form):
+    oldPassword = TextField('Old Password:', validators=[validators.Required()])
+    newPassword = TextField('New Password:', validators=[validators.Required("Please enter a password")])
+    newPassword2 = TextField('New Password:', validators=[validators.Required("Passwords does not match")])
+    submit = SubmitField("Change Password")
+
+    def __init__(self, *args, **kwargs):
+        Form.__init__(self, *args, **kwargs)
+
+    def validate(self):
+        if not Form.validate(self):
+            return False
+        if user and user.check_password(self.oldPassword.data):
+            if (self.newPassword == newPassword2):
+                return True
+        return False
+
+
+
+class ChangePersonalDetails(Form):
+
+    first_name = TextField('First Name:', validators=[validators.Required()])
+    last_name = TextField('Last Name:', validators=[validators.Required()])
+
+    updateDatails = SubmitField("Change Details")
+
+    def __init__(self, *args, **kwargs):
+        Form.__init__(self, *args, **kwargs)
+
+
+

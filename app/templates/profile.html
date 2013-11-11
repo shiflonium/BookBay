@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Change Personal Details:</h2>
+<form action= "{{ url_for('changeDetails') }}" method="POST">
+    <label>Username:</label>
+    <input type="text" value="{{g.user.username}}" readonly="readonly" name="username"><br>
+    <label>Email Address:</label>
+    <input type="text" value="{{g.user.email}}" readonly="readonly"><br>
+
+    
+	{{ form2.first_name.label}}
+	{{ form2.first_name}}<br>
+
+	{{ form2.last_name.label}}
+	{{ form2.last_name}}<br>
+
+	{{ form2.updateDatails }}<br>
+</form>
+
+
+<h2>Change Password</h2>
+<form action="{{ url_for('changePass') }}" method="POST">
+		{{ form1.hidden_tag() }}
+
+		<input type="hidden" name="username" value="{{g.user.username}}">
+
+		{{ form1.oldPassword.label}}
+		{{ form1.oldPassword}}<br>
+
+		{{ form1.newPassword.label}}
+		{{ form1.newPassword}}<br>
+
+		{{ form1.newPassword2.label}}
+		{{ form1.newPassword2}}<br>
+
+		{{form1.submit}}
+</form>
+
+
+		
+
+
+
+
+{% endblock %}

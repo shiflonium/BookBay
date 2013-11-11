@@ -2,7 +2,8 @@ from flask import render_template, flash, redirect, session, url_for, request, g
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from app import app, db, login_manager
 from models import User
-from forms import SignUpForm, LoginForm
+from forms import SignUpForm, LoginForm, ChangePassword, ChangePersonalDetails
+from werkzeug import generate_password_hash, check_password_hash
 
 @login_manager.user_loader
 def load_user(id):
@@ -57,10 +58,64 @@ def login():
         return render_template('login.html',form=form)
     return render_template("login.html",form=form)
 
+
 @app.route('/profile', methods = ['GET', 'POST'])
 @login_required
 def profile():
-    return 'this is the profile page, if you can see this, you are logged in'
+    #return 'this is the profile page, if you can see this, you are logged in'
+    form1 = ChangePassword()
+    form2 = ChangePersonalDetails()
+    return render_template('profile.html', form1=form1, form2=form2)
+
+
+@app.route('/changePassword', methods = ['POST'])
+@login_required
+def changePass():
+    '''
+    Chage user password
+    '''
+    u = request.form['username']
+    oldPass = request.form['oldPassword']
+    newPass = request.form['newPassword']
+    newPass2 = request.form['newPassword2']
+    user = User.query.filter_by(username = str(u)).first()
+
+    if check_password_hash(user.pwdhash, oldPass):
+        if newPass == newPass2:         #Case everything is right
+            newHash = generate_password_hash(newPass)
+            user.pwdhash = newHash
+            db.session.commit()
+            redirect(url_for('profile'))
+
+
+        else: 
+            return "Passwords doesn't match, please click the back button and try again."
+
+    else:
+        return "Wrong Password, please use the back button."
+
+    return "good"
+    user = User.query.filter_by(username = u).first()
+    #return request.form['username']
+
+
+@app.route('/changePersonalDetails', methods = ['POST'])
+@login_required
+def changeDetails():
+    '''
+    Change first and last name in the database
+    '''
+    u = request.form['username']
+    user = User.query.filter_by(username = str(u)).first()
+    firstName = request.form['first_name']
+    lastName = request.form['last_name']
+    if firstName:
+        user.first_name = firstName
+    if lastName:
+        user.last_name = lastName
+    db.session.commit()
+    return redirect(url_for('profile'))
+
 
 @app.route('/signout')
 @login_required
