@@ -4,6 +4,7 @@ from app import app, db, login_manager
 from models import User
 from forms import SignUpForm, LoginForm, ChangePassword, ChangePersonalDetails, SearchForm
 from werkzeug import generate_password_hash, check_password_hash
+from datetime import datetime
 
 @login_manager.user_loader
 def load_user(id):
@@ -21,7 +22,6 @@ def before_request():
     if g.user.is_authenticated():
         db.session.add(g.user)
         db.session.commit()
-        
 
 
 @app.route('/', methods = ['GET', 'POST'])
@@ -68,6 +68,12 @@ def login():
         # if username is valid on submit, login the user
         user = User.query.filter_by(username = form.username.data).first()
         login_user(user)
+
+        # add timestamp for last_login
+        user.last_login = datetime.utcnow()
+        db.session.add(user)
+        db.session.commit()
+        
         flash("logged in sucessfully :)")
         return redirect(request.args.get('next') or url_for('profile'))
         #return redirect(url_for('profile'))

@@ -17,9 +17,11 @@ class User(db.Model):
     rating = db.Column(db.Float, default=0.0)
     superuser = db.Column(db.Boolean, default=False)
     suspended = db.Column(db.Boolean, default=False)
+    apr_by_admin = db.Column(db.Boolean, default=False)
     num_bids = db.Column(db.Integer, default=0)
     num_purchases = db.Column(db.Integer, default=0)
     credits = db.Column(db.Float, default=100.0)
+    last_login = db.Column(db.DateTime)
     
     books = db.relationship('Book', backref='owner', lazy='dynamic')
     bids = db.relationship('Bid', backref='bidder', lazy='dynamic')
@@ -32,11 +34,9 @@ class User(db.Model):
         self.last_name = last_name.title()
         self.email = email.lower()
         self.set_password(password)
-        #self.rating = float(0)
 
     def complain(self, user):
         self.complained.append(user)
-        #self.complained.append('msg')
         return self
         pass
 
