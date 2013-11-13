@@ -3,6 +3,33 @@
 ## if you choose to install virtualenv in hidden folder, do this
 
 
+# Any DB issues:
+
+Since i should be updating db models quite a few times, the best way(from experience without errors) to get
+most recent copy of DB is to
+
+1. log in to mysql
+
+```
+mysql> DROP DATABASE softeng
+```
+
+then in the project directory
+
+```
+rm -r db_repository
+```
+
+then run
+
+```
+python db_create
+```
+
+these steps should ensure that you get a clean version of the database. when only small changes to the model are made,
+running db_migrate && db_upgrade should be sufficient
+
+
 ```
 $ virtualenv --no-site-packages --distribute .env && source .env/bin/activate && pip install -r requirements.txt
 ```
