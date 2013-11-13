@@ -23,24 +23,25 @@
 		<div class="flash">{{ message }}</div>
 	{% endfor %}
 
-	<form action="{{ url_for('signup') }}" method=post>
+	<form class="navbar-form navbar-left" role="search" action="{{ url_for('signup') }}" method=post>
+		<div class="form-group">
 		{{ form.hidden_tag() }}
 
 		{{ form.username.label}}
-		{{ form.username}}
+		{{ form.username}}<br>
 
 		{{ form.first_name.label}}
-		{{ form.first_name}}
+		{{ form.first_name}}<br>
 
 		{{ form.last_name.label }}
-		{{ form.last_name}}
+		{{ form.last_name}}<br>
 
 		{{ form.email.label}}
-		{{ form.email}}
+		{{ form.email}}<br>
 
 		{{ form.password.label}}
-		{{ form.password}}
-
+		{{ form.password}}<br>
+</div>
 		{{ form.submit}}
 	</form>
 

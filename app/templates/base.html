@@ -6,17 +6,77 @@
 		{% else %}
 		<title> this is the else clause </title>
 		{% endif %}
+		<link rel="stylesheet" href="{{url_for('static',filename='bootstrap/css/bootstrap.min.css') }}")>
+		<script type="text/javascript" src="{{ url_for('static', filename='JQuery/jquery-1.10.1.js') }}"></script>
+
+
+		
+
+
 	</head>
 	<body>
-		<div>BookBay:
-			<a href="{{ url_for('home') }}"<a>Home</a>
-			<a href="{{ url_for('profile') }}"<a>Profile</a>
-			<a href="{{ url_for('signup') }}"<a>Signup</a>
-			<a href="{{ url_for('login') }}"<a>Login</a>
-			<a href="{{ url_for('logout') }}"<a>Logout</a>
-			</div>
-		<hr>
-		{% block content %}{% endblock %}
-	</body>
+		
+		
+  <nav class="navbar navbar-default" role="navigation" id="mainNav">
+  <!-- Brand and toggle get grouped for better mobile display -->
+	  <div class="navbar-header">
+		  <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#mainNav">
+		      
+		      <span class="icon-bar"></span>
+		      <span class="icon-bar"></span>
+		      <span class="icon-bar"></span>
+	      </button>
+		  <a href="{{ url_for('home') }}" class="navbar-brand">Book-Bay</a>
+	  </div>
+
+  <!-- Collect the nav links, forms, and other content for toggling -->
+	  <div class="collapse navbar-collapse">
+	    <ul class="nav navbar-nav">
+	      <li id="home"><a href="{{ url_for ('home') }}">Home</a></li>
+	      <li id="signup"><a href="{{ url_for('signup') }}">Sign Up</a></li>
+	      <li id="login"><a href="{{ url_for('login') }}">Login</a></li>
+	      <li id="profile"><a href="{{ url_for('profile') }}">Profile</a></li>
+	      <li id="logout"><a href="{{ url_for('logout') }}">Logout</a></li>
+	    </ul>
+      
+		</div><!-- /.navbar-collapse -->
+	</nav>
+
+
+	{% block content %}{% endblock %}
+
+
+	<script>
+	$(document).ready(function()
+	{
+			var loc = window.location;
+			var pathName = loc.pathname.substring(0, loc.pathname.lastIndexOf('/') + 10);
+			
+			 if((pathName=='/home')||(pathName == '/'))
+			 	$('#home').addClass('active');
+
+			 if(pathName=='/signup')
+			 	$('#signup').addClass('active');
+
+			 if(pathName=='/login')
+			 	$('#login').addClass('active');
+
+			 if(pathName=='/profile')
+			 	$('#ptofile').addClass('active');
+
+	});
+			
+	</script>
+</body>
 
 </html>
+<!-- <div>BookBay:
+			<ul class="nav nav-pills">
+				<li class="active"><a href="{{ url_for('home') }}"<a><span class="glyphicon glyphicon-home">  Home</span></a></li>
+			    <li> <a href="{{ url_for('profile') }}"<a>Profile</a> </li>
+			    <li> <a href="{{ url_for('signup') }}"<a>Signup</a> </li>
+			    <li> <a href="{{ url_for('login') }}"<a>Login</a> </li>
+			    <li> <a href="{{ url_for('logout') }}"<a>Logout</a> </li>
+			</ul>
+			</div>
+		<hr> -->
