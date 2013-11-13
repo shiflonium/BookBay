@@ -11,7 +11,8 @@ most recent copy of DB is to
 1. log in to mysql
 
 ```
-mysql> DROP DATABASE softeng
+mysql> DROP DATABASE softeng;
+mysql> CREATE DATABASE softeng;
 ```
 
 then in the project directory
