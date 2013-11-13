@@ -3,6 +3,18 @@
 {% block content %}
 
 <h1> Hi this is h1 block of text </h1><br>
+<form action = "{{url_for('home')}}" method=get>
+	{{ form.csrf_token }}
+	
+	{{form.search_field.label}}
+	{{form.search_field}}
+	
+	{{form.search_type.label}}
+	{{form.search_type}}
+	
+	{{form.submit}}	
+
+</form>
 {% if g.user.is_authenticated() %}
 <h2> username is {{ g.user.username }}<br> </h2>
 <h3> last logged in {{ g.user.last_seen }} </h3>

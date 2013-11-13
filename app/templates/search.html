@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<p>Serach Results for "{{results}}"</p>
+<table>
+<!-- <tr><td>Username</td></tr> -->
+{%for user in query%}
+<tr><td>{{user}}</td></tr>
+</table>
+{% endfor %}
+{% endblock %}

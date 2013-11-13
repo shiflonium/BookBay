@@ -2,7 +2,7 @@ from flask import render_template, flash, redirect, session, url_for, request, g
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from app import app, db, login_manager
 from models import User
-from forms import SignUpForm, LoginForm, ChangePassword, ChangePersonalDetails
+from forms import SignUpForm, LoginForm, ChangePassword, ChangePersonalDetails, SearchForm
 from werkzeug import generate_password_hash, check_password_hash
 
 @login_manager.user_loader
@@ -13,16 +13,32 @@ def load_user(id):
 
 @app.before_request
 def before_request():
+    '''this is executed before every routing request.
+    g is a global user variable that is automatically
+    passed in to templates. i.e. {{% if g.user.is_anonymous %}} '''
+    # do something before each request
     g.user = current_user
     if g.user.is_authenticated():
         db.session.add(g.user)
         db.session.commit()
+        
 
 
 @app.route('/', methods = ['GET', 'POST'])
 @app.route('/home', methods = ['GET', 'POST'])
 def home():
-    return render_template('home.html')
+    search_data = None
+    form = SearchForm(request.form)    
+    if request.method == 'GET':
+        search_data = request.args.get('search_field')
+        session['parameter'] = search_data
+        if search_data != None:
+            full_url = url_for('search')
+            return redirect(full_url)
+        else:
+            return render_template('home.html', form=form)
+    else:
+        return render_template('home.html', form=form)
 
 
 @app.route('/signup', methods = ['GET', 'POST'])
@@ -30,8 +46,10 @@ def signup():
     form = SignUpForm()
     if request.method == 'POST' and form.validate():
         u = User(
-                form.username.data, form.first_name.data,
-                form.last_name.data, form.email.data,
+                form.username.data,
+                form.first_name.data,
+                form.last_name.data,
+                form.email.data,
                 form.password.data
                 )
         db.session.add(u)
@@ -46,10 +64,10 @@ def signup():
 @app.route('/login', methods = ['GET', 'POST'])
 def login():
     form = LoginForm()
-    if form.validate_on_submit(): # password is checked by custom validator
+    if form.validate_on_submit(): 
+        # if username is valid on submit, login the user
         user = User.query.filter_by(username = form.username.data).first()
         login_user(user)
-        #g.user = user
         flash("logged in sucessfully :)")
         return redirect(request.args.get('next') or url_for('profile'))
         #return redirect(url_for('profile'))
@@ -125,3 +143,9 @@ def logout():
     #del session['email']
     return redirect(url_for('home'))
 
+@app.route('/search', methods = ['GET', 'POST'])
+def search():
+    search_data = session['parameter']
+    query = User.query.filter(User.username.like("%"+search_data+"%")).all()
+    usernames=[u for u in query]
+    return render_template("search.html", query = usernames, results = search_data)

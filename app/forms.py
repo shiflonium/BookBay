@@ -1,5 +1,5 @@
 from flask_wtf import Form
-from wtforms import TextField, BooleanField, TextAreaField, SubmitField, PasswordField, validators
+from wtforms import TextField, BooleanField, TextAreaField, SubmitField, PasswordField,SelectField, validators
 from app.models import User
 
 class SignUpForm(Form):
@@ -77,3 +77,7 @@ class ChangePersonalDetails(Form):
 
 
 
+class SearchForm(Form):
+    search_field = TextField(u'Search:')
+    search_type = SelectField(u'Type of Search', choices=[('books','Books'), ('users', 'People')])
+    submit = SubmitField("Submit")
