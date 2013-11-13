@@ -2,7 +2,7 @@ from flask import render_template, flash, redirect, session, url_for, request, g
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from app import app, db, login_manager
 from models import User
-from forms import SignUpForm, LoginForm, ChangePassword, ChangePersonalDetails
+from forms import SignUpForm, LoginForm, ChangePassword, ChangePersonalDetails, SearchForm
 from werkzeug import generate_password_hash, check_password_hash
 
 @login_manager.user_loader
@@ -27,7 +27,18 @@ def before_request():
 @app.route('/', methods = ['GET', 'POST'])
 @app.route('/home', methods = ['GET', 'POST'])
 def home():
-    return render_template('home.html')
+    search_data = None
+    form = SearchForm(request.form)    
+    if request.method == 'GET':
+        search_data = request.args.get('search_field')
+        session['parameter'] = search_data
+        if search_data != None:
+            full_url = url_for('search')
+            return redirect(full_url)
+        else:
+            return render_template('home.html', form=form)
+    else:
+        return render_template('home.html', form=form)
 
 
 @app.route('/signup', methods = ['GET', 'POST'])
@@ -132,3 +143,9 @@ def logout():
     #del session['email']
     return redirect(url_for('home'))
 
+@app.route('/search', methods = ['GET', 'POST'])
+def search():
+    search_data = session['parameter']
+    query = User.query.filter(User.username.like("%"+search_data+"%")).all()
+    usernames=[u for u in query]
+    return render_template("search.html", query = usernames, results = search_data)

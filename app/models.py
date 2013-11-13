@@ -66,7 +66,8 @@ class User(db.Model):
         return unicode(self.id)
 
     def __repr__(self):
-        return '<User %r>' % (self.username)
+        #return '<User %r>' % (self.username)
+        return self.username
 
 
 class Book(db.Model):
