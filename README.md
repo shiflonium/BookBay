@@ -18,13 +18,13 @@ mysql> CREATE DATABASE softeng;
 then in the project directory
 
 ```
-rm -r db_repository
+$ rm -r db_repository
 ```
 
 then run
 
 ```
-python db_create
+$ python db_create
 ```
 
 these steps should ensure that you get a clean version of the database. when only small changes to the model are made,
