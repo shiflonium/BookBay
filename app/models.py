@@ -13,7 +13,7 @@ class User(db.Model):
     username = db.Column(db.String(64), unique=True)
     first_name = db.Column(db.String(64))
     last_name = db.Column(db.String(64))
-    email = db.Column(db.String(64), unique = True)
+    email = db.Column(db.String(64), unique=True)
     pwdhash = db.Column(db.String(100))
     # 1-5 star personal rating
     rating = db.Column(db.Float, default=0.0)
@@ -21,10 +21,10 @@ class User(db.Model):
     suspended = db.Column(db.Boolean, default=False)
     num_bids = db.Column(db.Integer, default=0)
     num_purchases = db.Column(db.Integer, default=0)
+    coins = db.Column(db.Integer, default=100)
     # one user has many books
     books = db.relationship('Book', backref='owner', lazy='dynamic')
     #bids = db.relationship('Bid', backref='bidder', lazy='dynamic')
-    
     
     # one user has many complaints
     #complaints = db.relationship('Complaint', backref='user', lazy='dynamic')
@@ -37,6 +37,16 @@ class User(db.Model):
         self.set_password(password)
         #self.rating = float(0)
 
+    def is_suspended(self):
+        """method for checking whether user is suspended."""
+        return False
+    
+    
+    def is_superuser(self):
+        """method to check if user is super user."""
+        return False
+    
+    
     def set_password(self, password):
         self.pwdhash = generate_password_hash(password)
 
@@ -60,6 +70,7 @@ class User(db.Model):
 
 
 class Book(db.Model):
+    """  """
     id = db.Column(db.Integer, primary_key=True)
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     name = db.Column(db.String(256))
