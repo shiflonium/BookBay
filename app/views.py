@@ -112,7 +112,7 @@ def changePass():
     else:
         return "Wrong Password, please use the back button."
 
-    return "good"
+    return redirect(url_for('profile'))
     user = User.query.filter_by(username = u).first()
     #return request.form['username']
 
