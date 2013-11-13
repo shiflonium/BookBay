@@ -35,16 +35,7 @@ class User(db.Model):
     bids = db.relationship('Bid', backref='bidder', lazy='dynamic')
     book_comment = db.relationship('Book_Comments', backref='commenter', lazy='dynamic')
     
-#    complained = db.relationship('User',
-#            secondary = complaints,
-#            primaryjoin = (complaints.c.complainer_id == id),
-#            secondaryjoin = (complaints.c.complainee_id == id),
-#            backref = db.backref('complaints', lazy='dynamic'),
-#            lazy = 'dynamic')
-    
-    # one user has many books
-    #complaints = db.relationship('Complaint', backref='complainer', lazy='dynamic')
-    
+   
     def __init__(self, username, first_name, last_name, email, password):
         self.username = username
         self.first_name = first_name.title()
@@ -60,7 +51,7 @@ class User(db.Model):
         pass
 
 
-    def made_bid(self):
+    def make_bid(self):
         """this method should be called after every bid. it should increment
         num_bids and then commit to database"""
         pass
@@ -74,11 +65,9 @@ class User(db.Model):
         """method for checking whether user is suspended."""
         return False
     
-
     def is_superuser(self):
         """method to check if user is super user."""
         return False
-    
     
     def set_password(self, password):
         self.pwdhash = generate_password_hash(password)
@@ -126,6 +115,9 @@ class Book(db.Model):
     bids = db.relationship('Bid', backref='book', lazy='dynamic')
     commented_by = db.relationship('Book_Comments', backref='book', lazy='dynamic')
 
+    def __repr__(self):
+        return '<Book: %s owner: %s>' %(self.name, self.owner)
+
 
 class Bid(db.Model):
     __tablename__ = "bid"
@@ -142,27 +134,35 @@ class Book_Comments(db.Model):
     pass
 
 
-
-
 class User_Comments(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     commenter_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     commented_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    
+    commenter = db.relationship('User',
+            primaryjoin = (commenter_id==User.id),
+            backref=db.backref('commenter', order_by=id))
+
+    commented = db.relationship('User',
+            primaryjoin = (commented_id==User.id),
+            backref=db.backref('commented', order_by=id))
+    
     comment = db.Column(db.String(256))
 
-#class User_Comments(db.Model):
-#    id = db.Column(db.Integer, primary_key=True)
-#
-#    pass
+class User_Complaints(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    complainer_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    complained_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
-# many to many relationship
-# many books can have many bids...i think..
+    complainer = db.relationship('User',
+            primaryjoin = (complainer_id==User.id),
+            backref=db.backref('complainer', order_by=id))
 
-#class Complaint(db.Model):
-#    id = db.Column(db.Integer, primary_key=True)
-#    complainer_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-#    complainee_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-#    message = db.Column(db.String(256))
+    complained = db.relationship('User',
+            primaryjoin = (complained_id==User.id),
+            backref=db.backref('complained', order_by=id))
+
+    comment = db.Column(db.String(256))
 
 
 if __name__ == '__main__':
@@ -173,13 +173,17 @@ if __name__ == '__main__':
     # won't run if you run from here, need to open ipython in virtualenv or .env/bin/python
     
     # add a user
-    u1 = User(username='brian', email='brian', password='brian', first_name='brian', last_name='brian')
+    u1 = models.User(username='brian', email='brian', password='brian', first_name='brian', last_name='brian')
     # add a book
-    p = models.Book(owner=u, name='book1', information ='ads', price=22)
+    p = models.Book(owner=u1, name='book1', information ='ads', price=22)
     # add a bid
     bid = models.Bid(bidder=u1, book=p, bid_price = 25)
     # add a comment
-    c = models.Book_Comment(commenter=u1, book=p, comment='comment')
+    c = models.Book_Comments(commenter=u1, book=p, comment='comment')
+    # add a user comment
+    d = models.User_Comments(commenter=u1, commentee=u1, comment='ads')
+    # add a user complaint
+    e = models.User_Complaints(complainer=u1, complained=u, comment='ads')
 
 
 
