@@ -60,10 +60,16 @@ db.session.add(e3)
 db.session.add(e4)
 db.session.add(e5)
 
-    # make transaction occur
+# make transaction occur
+db.session.commit()
 
 # create the transaction
 t = models.Transaction(seller=u2, buyer=u1, book=book4, amt_sold_for=book4.buyout_price, bought_out=True, time_sold = datetime.utcnow())
+book = models.Book.query.filter_by(name='book4').first()
+book.sold = True
+
+db.session.add(t)
+db.session.add(book)
 
 #modify book status
 

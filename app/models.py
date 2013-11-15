@@ -97,7 +97,7 @@ class Book(db.Model):
     rating = db.Column(db.Float, default=0.0)
     # simple way to implement books that are for auction with no buyout. 
     # no one should have 10,000 coins. can change value later.
-    buyout_price = db.Column(db.Float, default=10000.0)
+    buyout_price = db.Column(db.Float, default=100000.0)
     # user set starting bid price.
     current_bid = db.Column(db.Float, default=0.0)
     date_added = db.Column(db.DateTime)
