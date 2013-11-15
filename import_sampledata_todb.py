@@ -8,10 +8,11 @@ u2 = models.User(username='user2', email='user2@gmail.com', password='user2', fi
 db.session.add(u1)
 db.session.add(u2)
 # add a book
-book1 = models.Book(owner=u1, name='book1', information ='book 1 info', price=22, date_added = datetime.utcnow())
-book2 = models.Book(owner=u1, name='book2', information ='book 2 info', price=21, date_added = datetime.utcnow())
-book3 = models.Book(owner=u2, name='book3', information ='book 3 info', price=10, date_added = datetime.utcnow())
-book4 = models.Book(owner=u2, name='book4', information ='book 4 info', price=15, date_added = datetime.utcnow())
+book1 = models.Book(owner=u1, name='book1', information ='book 1 info', date_added = datetime.utcnow())
+book2 = models.Book(owner=u1, name='book2', information ='book 2 info', date_added = datetime.utcnow())
+book3 = models.Book(owner=u2, name='book3', information ='book 3 info', date_added = datetime.utcnow())
+# this book is buyout only.
+book4 = models.Book(owner=u2, name='book4', information ='book 4 info', buyout_price = 25, date_added = datetime.utcnow())
 
 db.session.add(book1)
 db.session.add(book2)
@@ -21,12 +22,10 @@ db.session.add(book4)
 bid1 = models.Bid(bidder=u1, book=book1, bid_price = 25, timestamp = datetime.utcnow())
 bid2 = models.Bid(bidder=u1, book=book2, bid_price = 125, timestamp = datetime.utcnow())
 bid3 = models.Bid(bidder=u2, book=book3, bid_price = 225, timestamp = datetime.utcnow())
-bid4 = models.Bid(bidder=u2, book=book4, bid_price = 325, timestamp = datetime.utcnow())
 
 db.session.add(bid1)
 db.session.add(bid2)
 db.session.add(bid3)
-db.session.add(bid4)
     # add a comment to book
 c1 = models.Book_Comments(commenter=u1, book=book1, comment='comment on book 1', timestamp = datetime.utcnow())
 c2 = models.Book_Comments(commenter=u1, book=book2, comment='comment on book 2', timestamp = datetime.utcnow())
@@ -61,10 +60,16 @@ db.session.add(e3)
 db.session.add(e4)
 db.session.add(e5)
 
+    # make transaction occur
 
-try:
-    db.session.commit()
-except:
-    print 'something went wrong'
+# create the transaction
+t = models.Transaction(seller=u2, buyer=u1, book=book4, amt_sold_for=book4.buyout_price, bought_out=True, time_sold = datetime.utcnow())
+
+#modify book status
+
+#z = models.Book(owner=t.seller, sold=True)
+# need to figure out how to dhtis nicely. 
+
+db.session.commit()
 
 
