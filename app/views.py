@@ -84,12 +84,14 @@ def login():
 
 
 @app.route('/profile', methods = ['GET', 'POST'])
-@login_required
 def profile():
     #return 'this is the profile page, if you can see this, you are logged in'
     form1 = ChangePassword()
     form2 = ChangePersonalDetails()
-    return render_template('profile.html', form1=form1, form2=form2)
+    if g.user.is_authenticated():
+        return render_template('profile.html', form1=form1, form2=form2)
+    else:
+        return "Page is available to registered users only<br> Please click the back button."
 
 
 @app.route('/changePassword', methods = ['POST'])
