@@ -32,18 +32,25 @@
   <!-- Collect the nav links, forms, and other content for toggling -->
 	  <div class="collapse navbar-collapse">
 	    <ul class="nav navbar-nav">
-	      <li id="home"><a href="{{ url_for ('home') }}">Home</a></li>
-	      <li id="signup"><a href="{{ url_for('signup') }}">Sign Up</a></li>
-	      <li id="login"><a href="{{ url_for('login') }}">Login</a></li>
+	    
+	      <li id="home"><a href="{{ url_for ('home') }}">Home</a></li>	
+	    
+	      {% if g.user.is_authenticated() %}
 	      <li id="profile"><a href="{{ url_for('profile') }}">Profile</a></li>
 	      <li id="logout"><a href="{{ url_for('logout') }}">Logout</a></li>
+	    
+	      {% else %}
+	      <li id="signup"><a href="{{ url_for('signup') }}">Sign Up</a></li>
+	      <li id="login"><a href="{{ url_for('login') }}">Login</a></li>
+	      {% endif %}
 	    </ul>
-      
+	
 		</div><!-- /.navbar-collapse -->
 	</nav>
 
 
 	{% block content %}{% endblock %}
+
 
 
 	<script>
