@@ -81,3 +81,35 @@ class SearchForm(Form):
     search_field = TextField(u'Search:')
     search_type = SelectField(u'Type of Search', choices=[('books','Books'), ('users', 'People')])
     submit = SubmitField("Submit")
+
+
+
+class sellForm(Form):
+    title = TextField('Title:', validators=[validators.Required()])
+    author = TextField('Author', validators=[validators.Required()])
+    isbn = TextField('ISBN', validators=[validators.Required()])
+    price = TextField('Price:', validators=[validators.Required()])
+    saleDuration = TextField('Sale duration (days):', validators=[validators.Required()])
+    publisher = TextField('Publisher:', validators=[validators.Required()])
+    numOfPages = TextField('No. of Pages:', validators=[validators.Required()])
+    lang = TextField('Language:', validators=[validators.Required()])
+    genere = TextField('Genere:', validators=[validators.Required()])
+    edition = TextField('Edition:', validators=[validators.Required()])
+    condition = SelectField('Condition', choices=[('new','New'),('used','Used')])
+    bookType = SelectField('Type:', choices=[('paperBack','Paper back'),('hardCover','Hard Cover')])
+    submit = SubmitField("Post For Sale!")
+    
+    def __init__(self, *args, **kwargs):
+        Form.__init__(self, *args, **kwargs)
+
+    def validate(self):
+        print "XXXXX"
+        if not Form.validate(self):
+            return False
+        else:
+            return True
+        
+
+
+
+

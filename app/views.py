@@ -2,9 +2,23 @@ from flask import render_template, flash, redirect, session, url_for, request, g
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from app import app, db, login_manager
 from models import User
-from forms import SignUpForm, LoginForm, ChangePassword, ChangePersonalDetails, SearchForm
-from werkzeug import generate_password_hash, check_password_hash
+from forms import SignUpForm, LoginForm, ChangePassword, ChangePersonalDetails, SearchForm, sellForm
+from werkzeug import generate_password_hash, check_password_hash, secure_filename
 from datetime import datetime
+import os
+import random
+import string
+
+
+'''
+This function defines the files which are allowed to be uploaded
+'''
+def allowed_file(filename):
+    print app.config['UPLOAD_FOLDER']
+    ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+
 
 @login_manager.user_loader
 def load_user(id):
@@ -157,3 +171,25 @@ def search():
     query = User.query.filter(User.username.like("%"+search_data+"%")).all()
     usernames=[u for u in query]
     return render_template("search.html", query = usernames, results = search_data)
+
+@app.route('/sell', methods = ['GET', 'POST'])
+@login_required
+def sell():
+    form = sellForm()
+    if (request.method == 'POST') and form.validate_on_submit(): 
+        filename = ''.join(random.choice(string.ascii_letters+string.digits) for x in range(20))
+        file = request.files['bookImage']
+        file.filename = filename+".jpg"
+        print file.filename
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            return "<meta http-equiv='refresh' content=5;url="+url_for('home')+">"
+            return "X"
+    
+    return render_template('sell.html', form=form)
+
+
+@app.route('/success')
+def suceess():
+    return render_template('sucess.html');

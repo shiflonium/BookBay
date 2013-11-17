@@ -1,7 +1,18 @@
 {% extends "base.html" %}
 
 {% block content %}
+<style type="text/css">
+label {
+	width: 150px;
+	float: left;;
+	text-align: left;
+}
 
+input {
+	width: 150px;
+}
+
+</style>
 {%if g.user.is_authenticated() %}
 <h2>Change Personal Details:</h2>
 <form class="navbar-form navbar-left" role="search" action= "{{ url_for('changeDetails') }}" method="POST">
