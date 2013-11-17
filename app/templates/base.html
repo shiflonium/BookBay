@@ -38,13 +38,19 @@
 	      {% if g.user.is_authenticated() %}
 	      <li id="profile"><a href="{{ url_for('profile') }}">Profile</a></li>
 	      <li id="logout"><a href="{{ url_for('logout') }}">Logout</a></li>
-	    
+		  
 	      {% else %}
 	      <li id="signup"><a href="{{ url_for('signup') }}">Sign Up</a></li>
 	      <li id="login"><a href="{{ url_for('login') }}">Login</a></li>
+
 	      {% endif %}
+
 	    </ul>
-	
+	     {% if g.user.is_authenticated() %}
+	     <h5 align="right"> Hello {{g.user.username}} | <a href="{{ url_for('logout') }}">Logout </a> </h5>
+	     {% else %}
+	     <h5 align="right"> Hello Guest | <a href="{{ url_for('login') }}">Login</a> </h5>    
+		 {% endif %}
 		</div><!-- /.navbar-collapse -->
 	</nav>
 
