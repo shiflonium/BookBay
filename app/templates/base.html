@@ -46,7 +46,22 @@
 
 	      {% endif %}
 
-	    </ul>
+
+	      <form class="navbar-form navbar-left" role="search" name="bookSearchForm">
+	      	<div class="form-group">
+		        <input type="text" class="form-control" placeholder="Search Books">
+	        </div>
+	        <button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-search"></span></button>
+	     </form>
+	     
+	     <form class="navbar-form navbar-left" role="search" name="userSearchForm">
+	      	<div class="form-group">
+		        <input type="text" class="form-control" placeholder="Search Users">
+	        </div>
+	        <button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-search"></span></button>
+	     </form>
+
+	     </ul>
 	     {% if g.user.is_authenticated() %}
 	     <h5 align="right"> Hello {{g.user.username}} | <a href="{{ url_for('logout') }}">Logout </a> </h5>
 	     {% else %}
