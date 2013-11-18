@@ -153,17 +153,17 @@ class Book(db.Model):
         if self.biddable is False and self.buyable is True:
             # if the book cannot be bid on, set the price of bids
             # equivalent to the value of the initial price.
-            self.current_bid = self.price
-            self.starting_bid = self.price
+            self.current_bid = self.buyout_price
+            self.starting_bid = self.buyout_price
         
         elif self.biddable is True:
             # if the book CAN be bid on, make sure that:
             # the current bid is less than the buyout price(self.price)
-            assert not (self.current_bid > self.price)
+            assert not (self.current_bid > self.buyout_price)
             # the starting bid is less than the buyout price(self.price)
-            assert not (self.starting_bid > self.price)
+            assert not (self.starting_bid > self.buyout_price)
             # the starting bid is less than the buyout price(self.price)
-            assert self.starting_bid < self.price
+            assert self.starting_bid < self.buyout_price
             self.current_bid = self.starting_bid
 
     def get_seller(self):
@@ -204,6 +204,19 @@ class Transaction(db.Model):
             primaryjoin = (buyer_id==User.id),
             backref=db.backref('buyer', order_by=id))
 
+    def __init__(self, seller=None, buyer=None, book=None,
+            bid_id=None, amt_sold_for=None, bought_out=None, time_sold=None):
+        
+        self.seller = seller
+        self.buyer = buyer
+        self.book = book
+        self.bid_id = bid_id
+        self.amt_sold_for = amt_sold_for
+        self.bought_out = bought_out
+        self.time_sold = time_sold
+
+    
+    
     def __repr__(self):
         return '<Seller:%s, Owner:%s, book:%s, amt_sold_for:%s>' %( 
                 self.seller, self.buyer, self.book.title, self.book.price )

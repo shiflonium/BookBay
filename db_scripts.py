@@ -47,7 +47,7 @@ def add_book():
             author = 'prof asdf',
             isbn = '978-3-16-148410-2',
             # this is the buyout price.
-            price = 35,
+            buyout_price = 35,
             # bids start at 10.
             starting_bid = 10,
             current_bid = 10,
@@ -71,7 +71,7 @@ def add_book():
             title = 'book_a',
             author = 'prof gertner',
             isbn = '978-3-16-148410-0',
-            price = 10,
+            buyout_price = 10,
             saleDuration = 2,
             publisher = 'a publisher',
             information = 'book 2 info',
@@ -89,7 +89,7 @@ def add_book():
             title = 'book_b',
             author = 'prof grossberg',
             isbn = '978-3-16-148410-1',
-            price = 20,
+            buyout_price = 20,
             saleDuration = 2,
             publisher = 'a publisher',
             information = 'book 2 info',
@@ -125,7 +125,9 @@ def add_bid_transaction():
     u3 = models.User.query.filter_by(username='user3').first()
     book_c = models.Book.query.filter_by(title='book_c', isbn= '978-3-16-148410-2').first()
 
+    # make a bid
     b1 = models.Bid(bidder=u3, book=book_c, bid_price = 20)
+    # modify current_bid
     book_c.current_bid = b1.bid_price
 
     q_b1 = models.Bid.query.filter_by(bidder=u3, book=book_c).first()
@@ -133,7 +135,31 @@ def add_bid_transaction():
         db.session.add(b1)
         db.session.add(book_c)
         db.session.commit()
+
+    # assume u3 wins book_c
     
+    #create the transaction
+    t1 = models.Transaction(
+            seller = book_c.owner,
+            buyer = u3,
+            book = book_c,
+            bid_id = q_b1.id, 
+            amt_sold_for = book_c.current_bid,
+            bought_out=False,
+            time_sold=datetime.utcnow()
+            )
+
+    book_c.sold = True
+    u3.credits = (u3.credits - book_c.current_bid)
+    u3.num_bids += 1
+    book_c_owner = book_c.owner
+    book_c_owner.credits = (book_c_owner.credits + book_c.current_bid)
+    q_t1 = models.Transaction.query.filter_by(bid_id = q_b1.id).first()
+    if q_t1 is None:
+        db.session.add(t1)
+        db.session.add(u3)
+        db.session.add(book_c_owner)
+        db.session.commit()
 
 
 
@@ -150,13 +176,13 @@ def add_sell_transaction():
 
     # create a transaction.
     # u2 buys book book_a from u1
-    t1 = models.Transaction(seller=u1, buyer=u2, book=book_a, amt_sold_for=book_a.price, bought_out=True, time_sold = datetime.utcnow())
+    t1 = models.Transaction(seller=u1, buyer=u2, book=book_a, amt_sold_for=book_a.buyout_price, bought_out=True, time_sold = datetime.utcnow())
     # mark book_a as sold
     book_a.sold = True
     # deduct credits from u2 and apply credits to u1
-    u2.credits = (u2.credits - book_b.price)
+    u2.credits = (u2.credits - book_b.buyout_price)
     u2.num_purchases += 1
-    u1.credits = (u1.credits + book_b.price)
+    u1.credits = (u1.credits + book_b.buyout_price)
     
     q_t1 = models.Transaction.query.filter_by(seller=u1, buyer=u2, book=book_a).first()
     if q_t1 is None:
@@ -167,11 +193,11 @@ def add_sell_transaction():
         db.session.commit()
 
     # create another transaction
-    t2 = models.Transaction(seller=u2, buyer=u1, book=book_b, amt_sold_for=book_b.price, bought_out=True, time_sold = datetime.utcnow())
+    t2 = models.Transaction(seller=u2, buyer=u1, book=book_b, amt_sold_for=book_b.buyout_price, bought_out=True, time_sold = datetime.utcnow())
     book_b.sold = True
-    u1.credits = (u1.credits - book_a.price)
+    u1.credits = (u1.credits - book_a.buyout_price)
     u1.num_purchases += 1
-    u2.credits = (u2.credits + book_a.price)
+    u2.credits = (u2.credits + book_a.buyout_price)
 
     q_t2 = models.Transaction.query.filter_by(seller=u2, buyer=u1, book=book_b).first()
     if q_t2 is None:
