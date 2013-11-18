@@ -3,7 +3,7 @@ from app import db
 from app import app
 from werkzeug import generate_password_hash, check_password_hash
 import re
-from datetime import datetime
+from datetime import date, datetime
 
 
 class User(db.Model):
@@ -57,7 +57,7 @@ class User(db.Model):
         """this method should be called after every sucessfull purchase. it should
         increment num_purchases and then commit changes to database"""
         pass
-    
+
     def is_suspended(self):
         """method for checking whether user is suspended."""
         return self.suspended
@@ -65,7 +65,6 @@ class User(db.Model):
     def is_superuser(self):
         """method to check if user is super user."""
         return self.superuser
-
 
     def set_password(self, password):
         self.pwdhash = generate_password_hash(password)
@@ -98,7 +97,6 @@ class Book(db.Model):
     title = db.Column(db.String(256))
     author = db.Column(db.String(256))
     isbn = db.Column(db.String(25))
-    price = db.Column(db.Float, default=100000.0)
     saleDuration = db.Column(db.Integer)
     publisher = db.Column(db.String(256))
     numOfPages = db.Column(db.Integer)
@@ -107,17 +105,20 @@ class Book(db.Model):
     edition = db.Column(db.Integer)
     condition = db.Column(db.String(25))
     bookType = db.Column(db.String(25))
-    
     information = db.Column(db.Text)
     rating = db.Column(db.Float, default=0.0)
     
     # simple way to implement books that are for auction with no buyout. 
-    # no one should have 10,000 coins. can change value later.
+    # no one should have 9,999 coins. can change value later.
     # user set starting bid price.
-    current_bid = db.Column(db.Float, default=0.0)
+    # if a book can only be bought out and not auctioned, current_price will be set to price
+    # if a book can be biddable
+    biddable = db.Column(db.Boolean) # if True, book can be bid on.
+    buyable = db.Column(db.Boolean)  # if True, book can be bought out. else: only can win through bid. 
+    price = db.Column(db.Float)
+    current_bid = db.Column(db.Float)
+    starting_bid = db.Column(db.Float)
     date_added = db.Column(db.DateTime)
-    
-    
     
     #could possibly use this to view all sold, avail books.
     sold = db.Column(db.Boolean, default=False)
@@ -125,7 +126,29 @@ class Book(db.Model):
     # one book has many bids
     bids = db.relationship('Bid', backref='book', lazy='dynamic')
     commented_by = db.relationship('Book_Comments', backref='book', lazy='dynamic')
-    
+
+    """
+    def __init__(self, date_added, biddable, buyable, price, current_bid, starting_bid):
+        '''init method. so this only runs during the creation of book object.'''
+        
+        self.date_added = datetime.utc.now()
+        
+        if self.biddable is False and self.buyable is True:
+            # if the book cannot be bid on, set the price of bids
+            # equivalent to the value of the initial price.
+            self.current_bid = self.price
+            self.starting_bid = self.price
+        
+        elif self.biddable is True:
+            # if the book CAN be bid on, make sure that:
+            # the current bid is less than the buyout price(self.price)
+            assert not (self.current_bid > self.price)
+            # the starting bid is less than the buyout price(self.price)
+            assert not (self.starting_bid > self.price)
+            # the starting bid is less than the buyout price(self.price)
+            assert self.starting_bid < self.price
+            self.current_bid = self.starting_bid
+    """
     
     def get_seller(self):
         """returns user that sold book"""
