@@ -93,7 +93,7 @@ class sellForm(Form):
     publisher = TextField('Publisher:', validators=[validators.Required()])
     numOfPages = TextField('No. of Pages:', validators=[validators.Required()])
     lang = TextField('Language:', validators=[validators.Required()])
-    genere = TextField('Genere:', validators=[validators.Required()])
+    genre = TextField('Genre:', validators=[validators.Required()])
     edition = TextField('Edition:', validators=[validators.Required()])
     condition = SelectField('Condition', choices=[('new','New'),('used','Used')])
     bookType = SelectField('Type:', choices=[('paperBack','Paper back'),('hardCover','Hard Cover')])

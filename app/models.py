@@ -46,11 +46,13 @@ class User(db.Model):
         return self
         pass
 
+    # probably don't need this. should automatically do this action during a bid.
     def make_bid(self):
         """this method should be called after every bid. it should increment
         num_bids and then commit to database"""
         pass
 
+    # probably don't need this. shuold automatically do this action during a transaction.
     def made_purchase(self):
         """this method should be called after every sucessfull purchase. it should
         increment num_purchases and then commit changes to database"""
@@ -58,12 +60,13 @@ class User(db.Model):
     
     def is_suspended(self):
         """method for checking whether user is suspended."""
-        return False
-    
+        return self.suspended
+
     def is_superuser(self):
         """method to check if user is super user."""
-        return False
-    
+        return self.superuser
+
+
     def set_password(self, password):
         self.pwdhash = generate_password_hash(password)
 
@@ -92,28 +95,52 @@ class Book(db.Model):
     __tablename__ = "book"
     id = db.Column(db.Integer, primary_key=True)
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    name = db.Column(db.String(256))
+    title = db.Column(db.String(256))
+    author = db.Column(db.String(256))
+    isbn = db.Column(db.String(25))
+    price = db.Column(db.Float, default=100000.0)
+    saleDuration = db.Column(db.Integer)
+    publisher = db.Column(db.String(256))
+    numOfPages = db.Column(db.Integer)
+    lang = db.Column(db.String(25))
+    genre = db.Column(db.String(25))
+    edition = db.Column(db.Integer)
+    condition = db.Column(db.String(25))
+    bookType = db.Column(db.String(25))
+    
     information = db.Column(db.Text)
     rating = db.Column(db.Float, default=0.0)
+    
     # simple way to implement books that are for auction with no buyout. 
     # no one should have 10,000 coins. can change value later.
-    buyout_price = db.Column(db.Float, default=100000.0)
     # user set starting bid price.
     current_bid = db.Column(db.Float, default=0.0)
     date_added = db.Column(db.DateTime)
-    # could possibly use this to view all sold, avail books.
+    
+    
+    
+    #could possibly use this to view all sold, avail books.
     sold = db.Column(db.Boolean, default=False)
     transac_id = db.relationship('Transaction', backref='book', lazy='dynamic')
-    
     # one book has many bids
     bids = db.relationship('Bid', backref='book', lazy='dynamic')
     commented_by = db.relationship('Book_Comments', backref='book', lazy='dynamic')
     
     
-    #isbn = db.Column(db.Integer)
+    def get_seller(self):
+        """returns user that sold book"""
+        pass
+
+    def get_buyer(self):
+        """return user that bought the book, if there is a buyer"""
+        pass
+    
+    def is_sold(self):
+        """method that determines whether book is sold or not"""
+        return self.sold
 
     def __repr__(self):
-        return '<Book: %s owner: %s>' %(self.name, self.owner)
+        return '<Book: %s owner: %s>' %(self.title, self.owner)
 
 
 class Transaction(db.Model):
@@ -137,6 +164,11 @@ class Transaction(db.Model):
     buyer = db.relationship('User',
             primaryjoin = (buyer_id==User.id),
             backref=db.backref('buyer', order_by=id))
+
+    def __repr__(self):
+        return '<Seller:%s, Owner:%s, book:%s, amt_sold_for:%s>' %( 
+                self.seller, self.buyer, self.book.title, self.book.price )
+
 
 class Bid(db.Model):
     __tablename__ = "bid"
