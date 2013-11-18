@@ -128,9 +128,11 @@ def add_bid_transaction():
     b1 = models.Bid(bidder=u3, book=book_c, bid_price = 20)
     book_c.current_bid = b1.bid_price
 
-    db.session.add(b1)
-    db.session.add(book_c)
-    db.session.commit()
+    q_b1 = models.Bid.query.filter_by(bidder=u3, book=book_c).first()
+    if q_b1 is None:
+        db.session.add(b1)
+        db.session.add(book_c)
+        db.session.commit()
     
 
 
