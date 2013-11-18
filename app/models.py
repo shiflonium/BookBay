@@ -41,11 +41,6 @@ class User(db.Model):
         self.email = email.lower()
         self.set_password(password)
 
-    def complain(self, user):
-        self.complained.append(user)
-        return self
-        pass
-
     # probably don't need this. should automatically do this action during a bid.
     def make_bid(self):
         """this method should be called after every bid. it should increment
@@ -107,15 +102,14 @@ class Book(db.Model):
     bookType = db.Column(db.String(25))
     information = db.Column(db.Text)
     rating = db.Column(db.Float, default=0.0)
-    
     # simple way to implement books that are for auction with no buyout. 
     # no one should have 9,999 coins. can change value later.
     # user set starting bid price.
     # if a book can only be bought out and not auctioned, current_price will be set to price
     # if a book can be biddable
-    biddable = db.Column(db.Boolean) # if True, book can be bid on.
-    buyable = db.Column(db.Boolean)  # if True, book can be bought out. else: only can win through bid. 
-    price = db.Column(db.Float)
+    biddable = db.Column(db.Boolean, nullable=False) # if True, book can be bid on.
+    buyable = db.Column(db.Boolean, nullable=False)  # if True, book can be bought out. else: only can win through bid. 
+    buyout_price = db.Column(db.Float)
     current_bid = db.Column(db.Float)
     starting_bid = db.Column(db.Float)
     date_added = db.Column(db.DateTime)
@@ -126,12 +120,35 @@ class Book(db.Model):
     # one book has many bids
     bids = db.relationship('Bid', backref='book', lazy='dynamic')
     commented_by = db.relationship('Book_Comments', backref='book', lazy='dynamic')
+    
 
-    """
-    def __init__(self, date_added, biddable, buyable, price, current_bid, starting_bid):
+    def __init__(self, title=None, author=None, isbn=None, saleDuration=None, 
+            publisher=None, numOfPages=None, lang=None,genre=None, edition=None,
+            condition=None, bookType=None, information=None, rating=None,
+            biddable=None, buyable=None, buyout_price=None, current_bid=None,
+            starting_bid=None, date_added=None, owner=None, image_name=None):
         '''init method. so this only runs during the creation of book object.'''
-        
-        self.date_added = datetime.utc.now()
+        self.title = title
+        self.author = author
+        self.isbn = isbn
+        self.saleDuration = saleDuration
+        self.publisher = publisher
+        self.numOfPages = numOfPages
+        self.lang = lang
+        self.genre = genre
+        self.edition = edition
+        self.condition = condition
+        self.bookType = bookType
+        self.information = information
+        self.rating = rating
+        self.biddable = biddable
+        self.buyable = buyable
+        self.buyout_price = buyout_price
+        self.current_bid = current_bid
+        self.starting_bid = starting_bid
+        self.date_added = datetime.utcnow()
+        self.owner = owner
+        self.image_name = image_name
         
         if self.biddable is False and self.buyable is True:
             # if the book cannot be bid on, set the price of bids
@@ -148,8 +165,7 @@ class Book(db.Model):
             # the starting bid is less than the buyout price(self.price)
             assert self.starting_bid < self.price
             self.current_bid = self.starting_bid
-    """
-    
+
     def get_seller(self):
         """returns user that sold book"""
         pass
@@ -201,6 +217,12 @@ class Bid(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     timestamp = db.Column(db.DateTime)
     bid_price = db.Column(db.Integer, nullable=False)
+
+    def __init__(self, book, bidder, bid_price):
+        self.bidder = bidder
+        self.book = book
+        self.bid_price = bid_price
+        self.timestamp = datetime.utcnow()
 
 
 class Book_Comments(db.Model):
