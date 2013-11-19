@@ -1,0 +1,32 @@
+<!DCOTYPE html>
+<html>
+	<head>
+		<title>Sucess</title>
+		<script type="text/javascript" src="{{ url_for('static', filename='JQuery/jquery-1.10.1.js') }}"></script>
+		<meta http-equiv='refresh' content=4;url="{{url_for('home')}}">
+	</head>
+	<body>
+		<h1 align="center">Your book has been posted for sale</h1>
+		<h2  align="center"> You will be redirected in <span id='timer'>4z </span> seconds</h2>
+		<h3 align="center">click <a href="{{url_for('home')}}">here</a> if nothing happens</h3>
+	</body>
+
+	<script type="text/javascript">
+	$(document).ready(function(){
+		var index=3;
+		var time = [3,2,1];
+		
+		setInterval(function() {
+        index++ < time.length - 1 || (index = 0);
+        $('#timer').fadeOut(function() {
+            $('#timer').text(time[index]).fadeIn();
+        });
+    }, 1000); 
+
+
+	});
+
+	</script>
+
+
+</html>
