@@ -229,14 +229,31 @@ def sell():
             db.session.add(b)
             db.session.commit()
 
-
-
-            #return "<meta http-equiv='refresh' content=5;url="+url_for('success')+">"
             return render_template('success.html')
     
     return render_template('sell.html', form=form)
 
 
-@app.route('/success')
+@app.route('/success', methods=['POST'])
+@login_required
 def success():
     return render_template('success.html');
+
+@app.route('/browse')
+def browse():
+    b = Book()
+    query = b.query.order_by(b.owner_id).all()
+    numOfRows = len(query)
+
+    print query[0]
+
+
+
+    print query
+
+
+
+    return render_template('browse.html', obj=query)
+
+
+

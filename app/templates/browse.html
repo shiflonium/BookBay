@@ -1,5 +1,18 @@
-{% extends base.html %}
+{% extends "base.html" %}
 
-{%block content}
+{% block content %}
 
-{$ end block %}
+
+<div>
+	{% for i in obj %}
+	{% for col in i.columns() %}
+	{{ i.get_title() }}<br>
+	{% endfor %}
+	{% endfor %}
+
+</div>
+
+
+
+
+{% endblock %}

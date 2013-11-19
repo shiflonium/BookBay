@@ -4,6 +4,7 @@ from app import app
 from werkzeug import generate_password_hash, check_password_hash
 import re
 from datetime import date, datetime
+from sqlalchemy.orm import class_mapper, ColumnProperty
 
 
 class User(db.Model):
@@ -123,6 +124,12 @@ class Book(db.Model):
     commented_by = db.relationship('Book_Comments', backref='book', lazy='dynamic')
     
 
+    def columns(self):
+        """Return the actual columns of a SQLAlchemy-mapped object"""
+        return [prop.key for prop in class_mapper(self.__class__).iterate_properties
+            if isinstance(prop, ColumnProperty)]
+
+
     def __init__(self, title=None, author=None, isbn=None, saleDuration=None, 
             publisher=None, numOfPages=None, lang=None,genre=None, edition=None,
             condition=None, bookType=None, information=None, rating=None,
@@ -166,6 +173,71 @@ class Book(db.Model):
             # the starting bid is less than the buyout price(self.price)
             assert self.starting_bid < self.buyout_price
             self.current_bid = self.starting_bid
+
+    #GETTERS FOR ALL ATTRIBUITES FOR THE JINJA2 TEMPLATES
+    def get_title(self):
+        return self.title
+
+    def get_author(self):
+        return self.author
+
+    def get_isbn(self):
+        return self.isbn
+
+    def get_saleDuration(self):
+        return self.saleDuration
+
+    def get_publish(self):
+        return self.publisher
+
+    def get_numOfPages(self):
+        return self.numOfPages
+
+    def get_language(self):
+        return self.lang
+
+    def get_genre(self):
+        return self.genre
+
+    def get_edition(self):
+        return self.edition
+
+    def get_condition(self):
+        return self.condition
+
+    def get_booktype(self):
+        return self.bookType
+
+    def get_information(self):
+        return self.information
+
+    def get_rating(self):
+        return self.rating
+
+    def get_biddable(self):
+        return self.biddable
+
+    def get_buyable(self):
+        return self.buyable
+
+    def get_buyout_price(self):
+        return self.buyout_price
+
+    def get_current_bid(self):
+        return self.current_bid
+
+    def get_starting_bid(self):
+        return self.starting_bid
+
+    def get_date_added(self):
+        return self.date_added
+
+    def get_owner(self):
+        return self.owner_id
+
+    def get_image_name(self):
+        return self.image_name
+
 
     def get_seller(self):
         """returns user that sold book"""
