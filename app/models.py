@@ -22,7 +22,6 @@ class User(db.Model):
     num_bids = db.Column(db.Integer, default=0)
     num_purchases = db.Column(db.Integer, default=0)
     credits = db.Column(db.Float, default=100.0)
-    
     # maybe we can have as our extra feature an analytics to tell admins
     # how long users are signed in. lol.
     # duration = last_login - last_logout
@@ -113,6 +112,8 @@ class Book(db.Model):
     current_bid = db.Column(db.Float)
     starting_bid = db.Column(db.Float)
     date_added = db.Column(db.DateTime)
+
+    image_name = db.Column(db.String(25))
     
     #could possibly use this to view all sold, avail books.
     sold = db.Column(db.Boolean, default=False)

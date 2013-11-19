@@ -16,6 +16,13 @@ input {
 </style>
 <title>Sell Your Book</title>
 
+<style>
+#information{
+	width: 300px;
+	height: 100px;
+}
+</style>
+
 </head>
 <body>
 <h1> Sell Your Book</h1>
@@ -23,6 +30,8 @@ input {
 	<div class="form-group">
 		{{ form.csrf_token }}
 
+		<input type="hidden" name="username" value="{{g.user.username}}">
+		
 		{{form.title.label}}
 		{{form.title}}<br>
 	
@@ -44,7 +53,6 @@ input {
 		
 		{{form.numOfPages.label}}
 		{{form.numOfPages}}<br>
-
 		
 		{{form.lang.label}}
 		{{form.lang}}<br>
@@ -52,14 +60,26 @@ input {
 		{{form.condition.label}}
 		{{form.condition}}<br>
 
-		{{form.genere.label}}
-		{{form.genere}}<br>
+		{{form.genre.label}}
+		{{form.genre}}<br>
 		
 		{{form.bookType.label}}
 		{{form.bookType}}<br>
 		
 		{{form.edition.label}}
-		{{form.edition}}<br><br>
+		{{form.edition}}<br>
+
+		{{form.information.label}}
+		{{form.information}}<br><br>
+
+		{{form.buyable.label}}
+		{{form.buyable}}<br>
+
+		{{form.buynowPrice.label}}
+		{{form.buynowPrice}}<br><br>
+
+
+		
 		
 		<label>Image:</label>
 		<input type="file" name="bookImage"><br><br>
@@ -71,4 +91,19 @@ input {
 	
 	
 </form>
+
+<script type="text/javascript">
+	$(document).ready(function(){
+		document.getElementById("buynowPrice").disabled=true;
+
+		//ENABLE AND DISABLE PRICE OF BUY NOW
+		$('#buyable').change(function(){
+			if (this.checked)
+				document.getElementById("buynowPrice").disabled=false;
+			else
+				document.getElementById("buynowPrice").disabled=true;
+
+		});
+	});
+</script>
 {% endblock %}

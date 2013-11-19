@@ -97,8 +97,13 @@ class sellForm(Form):
     edition = TextField('Edition:', validators=[validators.Required()])
     condition = SelectField('Condition', choices=[('new','New'),('used','Used')])
     bookType = SelectField('Type:', choices=[('paperBack','Paper back'),('hardCover','Hard Cover')])
+    information = TextAreaField('Book Information')
     submit = SubmitField("Post For Sale!")
-    
+    buyable = BooleanField("Enable Buy Now")
+    buynowPrice = TextField("Buy Now Price:")
+
+
+
     def __init__(self, *args, **kwargs):
         Form.__init__(self, *args, **kwargs)
 

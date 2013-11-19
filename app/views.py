@@ -1,7 +1,7 @@
 from flask import render_template, flash, redirect, session, url_for, request, g
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from app import app, db, login_manager
-from models import User
+from models import User, Book
 from forms import SignUpForm, LoginForm, ChangePassword, ChangePersonalDetails, SearchForm, sellForm
 from werkzeug import generate_password_hash, check_password_hash, secure_filename
 from datetime import datetime
@@ -177,19 +177,66 @@ def search():
 def sell():
     form = sellForm()
     if (request.method == 'POST') and form.validate_on_submit(): 
+        
+        tempBool = 0
+
         filename = ''.join(random.choice(string.ascii_letters+string.digits) for x in range(20))
         file = request.files['bookImage']
         file.filename = filename+".jpg"
         print file.filename
         if file and allowed_file(file.filename):
+            #UPLOAD FILE
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return "<meta http-equiv='refresh' content=5;url="+url_for('home')+">"
-            return "X"
+            
+            #GET USER ID
+            username = request.form['username']
+            user = User.query.filter_by(username = str(username)).first()
+            userid = user.id
+        
+            #PUSH DATA TO DB
+            b = Book()
+            b.title = request.form['title']
+            b.author = request.form['author']
+            b.isbn = request.form['isbn']
+            b.price = float(request.form['price'])
+            b.saleDuration = int(request.form['saleDuration'])
+            b.publisher = request.form['publisher']
+            b.numOfPages = int(request.form['numOfPages'])
+            b.lang = request.form['lang']
+            b.condition = request.form['condition']
+            b.genre = request.form['genre']
+            b.bookType = request.form['bookType']
+            b.edition = int(request.form['edition'])
+            b.information = request.form['information']
+
+            tempBool=0
+            if (request.form['buyable'] == 'y'):
+                tempBool = 1;
+            else:
+                tempBool = 0;
+
+            b.buyable = tempBool
+            b.buyout_price = float(request.form['buynowPrice'])
+            b.image_name = filename
+
+            b.current_bid=float(0)
+
+            b.biddable= 1
+
+            b.starting_bid=float(request.form['price'])
+            b.owner_id=int(userid)
+            db.session.add(b)
+            db.session.commit()
+
+
+
+            #return "<meta http-equiv='refresh' content=5;url="+url_for('success')+">"
+            return render_template('success.html')
     
     return render_template('sell.html', form=form)
 
 
 @app.route('/success')
-def suceess():
-    return render_template('sucess.html');
+def success():
+    return render_template('success.html');
