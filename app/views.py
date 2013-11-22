@@ -1,7 +1,7 @@
 from flask import render_template, flash, redirect, session, url_for, request, g
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from app import app, db, login_manager
-from models import User, Book
+from models import User, Book, Transaction
 from forms import SignUpForm, LoginForm, ChangePassword, ChangePersonalDetails, SearchForm, sellForm
 from werkzeug import generate_password_hash, check_password_hash, secure_filename
 from datetime import datetime
@@ -85,6 +85,8 @@ def login():
 
         # add timestamp for last_login
         user.last_login = datetime.utcnow()
+        # put user_id in session for later use
+        session['user_id'] = user.id
         db.session.add(user)
         db.session.commit()
         
@@ -155,6 +157,34 @@ def changeDetails():
         user.last_name = lastName
     db.session.commit()
     return redirect(url_for('profile'))
+
+
+@app.route('/admin/transaction_history', methods=['GET', 'POST'])
+@login_required
+def transaction_history():
+    user = User.query.filter_by(id = session['user_id']).first()
+
+    #RIGHT NOW SET TO FALSE FOR EASIER DEBUGGING
+    if user.superuser == False:
+        trans = Transaction.query.all()
+        return render_template('transaction_history.html', trans=trans)
+    else:
+        return redirect(url_for('home'))
+
+
+
+@app.route('/admin/user_list', methods=['GET', 'POST'])
+@login_required
+def get_all_users():
+    user = User.query.filter_by(id = session['user_id']).first()
+
+    if user.superuser == False:
+        user_data = User.query.all()
+        return render_template('user_list.html',
+                user_data = user_data
+                )
+
+
 
 
 @app.route('/signout')
