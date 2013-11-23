@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+
+{% for data in trans %}
+  <header>
+  <h4 align="center"> Transaction Number: {{ data.id }}</h4>
+  </header>
+	<p align="center"> <strong> Transaction time: </strong> {{ data.time_sold }} </p>
+	
+	<p align="center"> <strong>Seller:</strong> {{ data.seller.username }} <strong>Buyer:</strong> {{ data.buyer.username }}  </p>
+	<p align="center"> <strong>Book:</strong> {{ data.book.title }}
+	<strong> ISBN: </strong> {{ data.book.isbn }} 
+	<strong> Genre: </strong> {{ data.book.genre }}
+ 	<strong> Rating: </strong> {{ data.book.rating }}	
+
+	</p>
+	<p align="center"> <strong>Price Sold:</strong> {{ data.amt_sold_for }} </p>
+	<br>
+	
+{% endfor %}
+{% endblock %}

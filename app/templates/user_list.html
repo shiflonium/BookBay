@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+
+{% for data in user_data %}
+  <header>
+  <h4 align="center"> Username: {{ data.username }}</h4>
+  </header>
+	<p align="center"> <strong>First Name:</strong> {{ data.first_name }} 
+	<strong>Last Name: </strong> {{ data.last_name }}  
+	<strong>Email: </strong> {{ data.email }}  
+	</p>
+	<p align="center"> <strong>Credits: </strong> {{ data.credits }}
+	<strong> num_bids: </strong> {{ data.num_bids }} 
+	<strong> num_purchases: </strong> {{ data.num_purchases }}
+	<strong> Rating: </strong> {{ data.rating }}	</p>
+	<br>
+	
+{% endfor %}
+{% endblock %}
