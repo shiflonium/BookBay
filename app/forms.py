@@ -1,6 +1,7 @@
 from flask_wtf import Form
-from wtforms import TextField, BooleanField, TextAreaField, SubmitField, PasswordField,SelectField, validators
+from wtforms import TextField, BooleanField, TextAreaField, SubmitField, PasswordField,SelectField, validators, ValidationError
 from app.models import User
+from flask import flash
 
 class SignUpForm(Form):
     username = TextField('Username', validators=[validators.Required()])
@@ -85,6 +86,9 @@ class SearchForm(Form):
 
 
 class sellForm(Form):
+
+
+
     title = TextField('Title:', validators=[validators.Required()])
     author = TextField('Author', validators=[validators.Required()])
     isbn = TextField('ISBN', validators=[validators.Required()])
@@ -108,12 +112,17 @@ class sellForm(Form):
         Form.__init__(self, *args, **kwargs)
 
     def validate(self):
-        print "XXXXX"
+        
         if not Form.validate(self):
             return False
+        if (self.data.get('buyable') == True):
+            if self.data.get('buynowPrice') == '':
+                return False
+        
         else:
             return True
-        
+
+    
 
 
 

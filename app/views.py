@@ -102,11 +102,8 @@ def profile():
     #return 'this is the profile page, if you can see this, you are logged in'
     form1 = ChangePassword()
     form2 = ChangePersonalDetails()
-    if g.user.is_authenticated():
-        return render_template('profile.html', form1=form1, form2=form2)
-    else:
-        return "Page is available to registered users only<br> Please click the back button."
-
+    return render_template('profile.html', form1=form1, form2=form2)
+ 
 
 @app.route('/changePassword', methods = ['POST'])
 @login_required
@@ -180,10 +177,15 @@ def sell():
         
         tempBool = 0
 
+        
+
         filename = ''.join(random.choice(string.ascii_letters+string.digits) for x in range(20))
         file = request.files['bookImage']
         file.filename = filename+".jpg"
         print file.filename
+
+        
+
         if file and allowed_file(file.filename):
             #UPLOAD FILE
             filename = secure_filename(file.filename)
@@ -211,20 +213,28 @@ def sell():
             b.information = request.form['information']
 
             tempBool=0
-            if (request.form['buyable'] == 'y'):
+            
+            
+
+            if (form.data.get('buyable') == 'True'):
                 tempBool = 1;
             else:
                 tempBool = 0;
 
             b.buyable = tempBool
-            b.buyout_price = float(request.form['buynowPrice'])
+            
+            if (tempBool == 1):
+                b.buyout_price = float(request.form['buynowPrice'])
+            
+
             b.image_name = filename
 
             b.current_bid=float(0)
 
             b.biddable= 1
-
+            
             b.starting_bid=float(request.form['price'])
+
             b.owner_id=int(userid)
             db.session.add(b)
             db.session.commit()

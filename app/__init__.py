@@ -7,7 +7,7 @@ from flask.ext.login import LoginManager
 
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
 
-UPLOAD_FOLDER = os.getcwd() + '/userImages'
+UPLOAD_FOLDER = os.getcwd() + '/app/static/userImages'
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER

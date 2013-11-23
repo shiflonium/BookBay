@@ -187,7 +187,7 @@ class Book(db.Model):
     def get_saleDuration(self):
         return self.saleDuration
 
-    def get_publish(self):
+    def get_publisher(self):
         return self.publisher
 
     def get_numOfPages(self):

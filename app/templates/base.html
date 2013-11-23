@@ -44,7 +44,10 @@
 	      <li id="signup"><a href="{{ url_for('signup') }}">Sign Up</a></li>
 	      <li id="login"><a href="{{ url_for('login') }}">Login</a></li>
 
+
 	      {% endif %}
+
+	      <li id="browseBooks"> <a href="{{ url_for('browse')}}">Browse Books </a> </li>
 
 
 	      <form class="navbar-form navbar-left" role="search" name="bookSearchForm">
@@ -91,10 +94,13 @@
 			 	$('#login').addClass('active');
 
 			 if(pathName=='/profile')
-			 	$('#ptofile').addClass('active');
+			 	$('#profile').addClass('active');
 
 			 if(pathName=='/sell')
 			 	$('#sellBooks').addClass('active');
+
+			 if (pathName =='/browse')
+			 	$('#browseBooks	').addClass('active');
 
 	});
 			
