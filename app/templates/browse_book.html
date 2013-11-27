@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+.images
+{
+	max-height: 20%;
+}
+.outer
+{
+	position: relative;
+	float: left;
+	width: 20%;
+	display: inline-block;
+	clear: both;
+	margin-left: 30px;
+	margin-bottom: 30px;
+	
+	
+}
+
+.inner
+{
+	display: inline-block;
+	position: relative;
+	float: left;
+	width: 20%;
+}
+	
+
+.inner2
+{
+	display: inline-block;
+	position: relative;
+	float: left;
+	width: 20%;
+}
+</style>
+
+
+	<div class="outer">
+	
+		<img class = "images" src= "{{ url_for('static',filename='userImages/'+book.get_image_name()) }}" alt="TEST">
+		
+	</div>
+	<div class="inner">
+		<label> Title: {{ book.get_title() }} </label><br>
+		<label> Author: {{ book.get_author() }} </label><br>
+		<label> Language: {{ book.get_language() }}</label><br>
+		<label> Publisher: {{ book.get_publisher() }} </label><br>
+		<label> Condition: {{ book.get_condition() }}</label><br>
+	</div>
+
+	<div class="inner2">
+		<label> ISBN: {{book.get_isbn()}} </label><br>
+		<label> Edition: {{book.get_edition() }}</label><br>
+		<label> Price: {{ book.get_starting_bid()}} </label><br>
+		{% if book.get_buyable() == True %}
+			<label> Buy Now Price: {{book.get_buyout_price() }}</label> <br>
+		{% endif %}
+		<label> Book Type: {{ book.get_booktype() }}</label><br>
+	</div>
+
+
+
+
+
+
+{% endblock %}

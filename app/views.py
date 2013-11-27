@@ -175,6 +175,7 @@ def transaction_history():
 def get_all_users():
     user = User.query.filter_by(id = session['user_id']).first()
 
+    # setting to false for now
     if user.superuser == False:
         user_data = User.query.all()
         return render_template('user_list.html',
@@ -294,6 +295,17 @@ def browse():
 
 
     return render_template('browse.html', obj=query)
+
+@app.route('/browse/<book_id>', methods=['POST', 'GET'])
+def browse_book(book_id):
+    """test template to show one book so you can bid or buy
+    pass in book.id as parameter to load book.
+    """
+    book = Book.query.filter_by(id = book_id).first()
+
+    return render_template('browse_book.html', book=book)
+
+
 
 
 
