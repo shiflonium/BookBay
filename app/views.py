@@ -302,6 +302,9 @@ def browse_book(book_id):
     pass in book.id as parameter to load book.
     """
     book = Book.query.filter_by(id = book_id).first()
+    if book is None:
+        # temporary
+        return 'book does not exist'
 
     return render_template('browse_book.html', book=book)
 
