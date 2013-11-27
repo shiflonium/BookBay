@@ -98,6 +98,20 @@ def login():
         return render_template('login.html',form=form)
     return render_template("login.html",form=form)
 
+@app.route('/signout')
+@login_required
+def logout():
+    user = User.query.filter_by(id = session['user_id']).first()
+    user.last_logout = datetime.utcnow()
+    # put user_id in session for later use
+    db.session.commit()
+    del session['user_id']
+    logout_user()
+    # delete session created during login
+    #del session['email']
+    return redirect(url_for('home'))
+
+
 
 @app.route('/profile', methods = ['GET', 'POST'])
 def profile():
@@ -106,6 +120,20 @@ def profile():
     form2 = ChangePersonalDetails()
     return render_template('profile.html', form1=form1, form2=form2)
  
+
+@app.route('/profile/<username>', methods=['POST', 'GET'])
+@login_required
+def show_user(username):
+    
+    # add comment form
+    # add rating form
+    user = User.query.filter_by(username=username).first()
+    if user is None:
+        #temp
+        return 'user does not exist'
+    return render_template('browse_user.html', user=user)
+    
+
 
 @app.route('/changePassword', methods = ['POST'])
 @login_required
@@ -169,7 +197,6 @@ def transaction_history():
         return redirect(url_for('home'))
 
 
-
 @app.route('/admin/user_list', methods=['GET', 'POST'])
 @login_required
 def get_all_users():
@@ -181,22 +208,6 @@ def get_all_users():
         return render_template('user_list.html',
                 user_data = user_data
                 )
-
-
-
-
-@app.route('/signout')
-@login_required
-def logout():
-    user = User.query.filter_by(id = session['user_id']).first()
-    user.last_logout = datetime.utcnow()
-    # put user_id in session for later use
-    db.session.commit()
-    del session['user_id']
-    logout_user()
-    # delete session created during login
-    #del session['email']
-    return redirect(url_for('home'))
 
 @app.route('/search', methods = ['GET', 'POST'])
 def search():
@@ -302,16 +313,23 @@ def browse():
     return render_template('browse.html', obj=query)
 
 @app.route('/browse/<book_id>', methods=['POST', 'GET'])
+@login_required
 def browse_book(book_id):
     """test template to show one book so you can bid or buy
     pass in book.id as parameter to load book.
     """
+    # make bid form
+    # add comment form for book
+
     book = Book.query.filter_by(id = book_id).first()
     if book is None:
         # temporary
         return 'book does not exist'
 
     return render_template('browse_book.html', book=book)
+
+
+
 
 
 
