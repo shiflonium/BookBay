@@ -1,10 +1,11 @@
 from flask import render_template, flash, redirect, session, url_for, request, g
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from app import app, db, login_manager
-from models import User, Book, Transaction
+from models import User, Book, Transaction, Bid
 from forms import SignUpForm, LoginForm, ChangePassword, ChangePersonalDetails, SearchForm, sellForm
 from werkzeug import generate_password_hash, check_password_hash, secure_filename
 from datetime import datetime
+from sqlalchemy import desc
 import os
 import random
 import string
@@ -192,6 +193,19 @@ def transaction_history():
     if user.superuser == False:
         trans = Transaction.query.all()
         return render_template('transaction_history.html', trans=trans)
+    else:
+        return redirect(url_for('home'))
+
+
+@app.route('/admin/bid_history', methods=['GET', 'POST'])
+@login_required
+def bid_history():
+    user = User.query.filter_by(id = session['user_id']).first()
+    
+    # debug
+    if user.superuser == False:
+        bids = Bid.query.order_by(desc(Bid.timestamp)).all()
+        return render_template('bid_history.html', bids=bids)
     else:
         return redirect(url_for('home'))
 

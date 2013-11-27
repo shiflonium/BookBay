@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+
+{% for data in bids %}
+  <header>
+  <h4 align="center"> Bid Time: {{ data.timestamp }}</h4>
+  </header>
+	<p align="center"> <strong> Bid Price: </strong> {{ data.bid_price }} </p>
+	
+	<p align="center"> <strong>Seller:</strong> {{ data.book.owner }} <strong>Bidder:</strong> {{ data.bidder }}  </p>
+	<p align="center"> <strong>Book:</strong> {{ data.book.title }}
+	<strong> ISBN: </strong> {{ data.book.isbn }} 
+	<strong> Genre: </strong> {{ data.book.genre }}
+	<strong> Rating: </strong> {{ data.book.rating }}	
+	</p>
+	<br><br>
+
+	
+{% endfor %}
+{% endblock %}

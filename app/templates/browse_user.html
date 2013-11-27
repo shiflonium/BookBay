@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+
+  <header>
+  <h4 align="center"> Username: {{ user.username }}</h4>
+  </header>
+	<p align="center"> <strong>First Name:</strong> {{ user.first_name }} 
+	<strong>Last Name: </strong> {{ user.last_name }}  
+	<strong>Email: </strong> {{ user.email }}  
+	</p>
+	<p align="center"> <strong> Rating: </strong> {{ user.rating }}	</p>
+	<br>
+	
+{% endblock %}

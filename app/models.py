@@ -251,6 +251,43 @@ class Book(db.Model):
         """method that determines whether book is sold or not"""
         return self.sold
 
+    
+    def create_bid(self, session_id, bid_amount=None):
+        """creates a bid transaction for the book
+        user_session variable passed in from views. returns user_id."""
+        # get the user
+        user = User.query.filter_by(id = session_id).first()
+        if user is None:
+            raise Exception('create bid error. user returned none. should not happen.')
+        else:
+            # check user has enough credits
+            if user.credits < (self.current_bid + 1.0):
+                # temporary
+                return 'you do not have enough credits to bid'
+            else:
+                # if bid_amount is not passed in, automatically bid + 1.0
+                if bid_amount is None:
+                    # for now, the bid will just be +1 current_bid
+                    user_bid_amount = self.current_bid + 1.0
+                else:
+                    user_bid_amount = float(bid_amount)
+                    # if user is bidding more than he can afford
+                    if user_bid_amount > user.credits:
+                        # just make the user bid + 1.0 of current_bid
+                        user_bid_amount = self.current_bid + 1.0
+
+                # create the bid transaction
+                bid = Bid(bidder = user, book=self, bid_price = user_bid_amount)
+                db.session.add(bid)
+                # update book current_bid
+                self.current_bid = user_bid_amount
+                # increment bid count for user
+                user.num_bids += 1
+                db.session.commit()
+
+        pass
+
+
     def __repr__(self):
         return '<Book: %s owner: %s>' %(self.title, self.owner)
 
