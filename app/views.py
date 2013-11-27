@@ -188,6 +188,11 @@ def get_all_users():
 @app.route('/signout')
 @login_required
 def logout():
+    user = User.query.filter_by(id = session['user_id']).first()
+    user.last_logout = datetime.utcnow()
+    # put user_id in session for later use
+    db.session.commit()
+    del session['user_id']
     logout_user()
     # delete session created during login
     #del session['email']
