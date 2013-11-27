@@ -152,12 +152,15 @@ class Book(db.Model):
         self.biddable = biddable
         self.buyable = buyable
         self.buyout_price = buyout_price
+        # force starting_bid to be current_bid
         self.current_bid = current_bid
         self.starting_bid = starting_bid
         self.date_added = datetime.utcnow()
         self.owner = owner
         self.image_name = image_name
         
+        
+        '''
         if self.biddable is False and self.buyable is True:
             # if the book cannot be bid on, set the price of bids
             # equivalent to the value of the initial price.
@@ -173,8 +176,8 @@ class Book(db.Model):
             # the starting bid is less than the buyout price(self.price)
             assert self.starting_bid < self.buyout_price
             self.current_bid = self.starting_bid
-
-    #GETTERS FOR ALL ATTRIBUITES FOR THE JINJA2 TEMPLATES
+        '''
+           #GETTERS FOR ALL ATTRIBUITES FOR THE JINJA2 TEMPLATES
     def get_title(self):
         return self.title
 
@@ -259,33 +262,33 @@ class Book(db.Model):
         user = User.query.filter_by(id = session_id).first()
         if user is None:
             raise Exception('create bid error. user returned none. should not happen.')
+        
+        # check user has enough credits
+        if user.credits < (self.current_bid + 1.0):
+            print 'user.credits:%s' % user.credits
+            print 'self.current_bid:%s' % self.current_bid
+            # temporary
+            return 'you do not have enough credits to bid'
         else:
-            # check user has enough credits
-            if user.credits < (self.current_bid + 1.0):
-                # temporary
-                return 'you do not have enough credits to bid'
-            else:
-                # if bid_amount is not passed in, automatically bid + 1.0
-                if bid_amount is None:
-                    # for now, the bid will just be +1 current_bid
-                    user_bid_amount = self.current_bid + 1.0
-                else:
-                    user_bid_amount = float(bid_amount)
-                    # if user is bidding more than he can afford
-                    if user_bid_amount > user.credits:
-                        # just make the user bid + 1.0 of current_bid
-                        user_bid_amount = self.current_bid + 1.0
+            # if bid_amount is not passed in, automatically bid + 1.0
+            try:
+                user_bid_amount = float(bid_amount)
+            except ValueError:
+                # this executes if user does not input a value.
+                # defaults to 1.0 greater than current_bid
+                print 'catching ValueError'
+                user_bid_amount = self.current_bid + 1.0
 
+            if (user_bid_amount < user.credits) and (user_bid_amount > self.current_bid):
                 # create the bid transaction
                 bid = Bid(bidder = user, book=self, bid_price = user_bid_amount)
-                db.session.add(bid)
-                # update book current_bid
                 self.current_bid = user_bid_amount
                 # increment bid count for user
+                db.session.add(bid)
+                # update book current_bid
                 user.num_bids += 1
                 db.session.commit()
 
-        pass
 
 
     def __repr__(self):

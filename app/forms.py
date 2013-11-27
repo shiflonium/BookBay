@@ -1,5 +1,5 @@
 from flask_wtf import Form
-from wtforms import TextField, BooleanField, TextAreaField, SubmitField, PasswordField,SelectField, validators, ValidationError
+from wtforms import TextField, BooleanField, TextAreaField, SubmitField, PasswordField,SelectField, validators, ValidationError, FloatField
 from app.models import User
 from flask import flash
 
@@ -122,7 +122,18 @@ class sellForm(Form):
         else:
             return True
 
-    
+class BidForm(Form):
+
+    bid_amount = FloatField('Amount bid:', validators=[validators.Required()])
+    submit_bid = SubmitField('Submit Bid')
+
+    def __init__(self, *args, **kwargs):
+        Form.__init__(self, *args, **kwargs)
+
+    def validate(self):
+        return True
+
+
 
 
 

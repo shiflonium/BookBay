@@ -2,7 +2,7 @@ from flask import render_template, flash, redirect, session, url_for, request, g
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from app import app, db, login_manager
 from models import User, Book, Transaction, Bid
-from forms import SignUpForm, LoginForm, ChangePassword, ChangePersonalDetails, SearchForm, sellForm
+from forms import SignUpForm, LoginForm, ChangePassword, ChangePersonalDetails, SearchForm, sellForm, BidForm
 from werkzeug import generate_password_hash, check_password_hash, secure_filename
 from datetime import datetime
 from sqlalchemy import desc
@@ -329,17 +329,24 @@ def browse():
 @login_required
 def browse_book(book_id):
     """test template to show one book so you can bid or buy
-    pass in book.id as parameter to load book.
-    """
-    # make bid form
+    pass in book.id as parameter to load book. """
+    form = BidForm()
     # add comment form for book
 
     book = Book.query.filter_by(id = book_id).first()
     if book is None:
         # temporary
         return 'book does not exist'
+    else:
+        if request.method == 'POST' and form.validate_on_submit():
+            bid_amount = request.form['bid_amount']
+            book.create_bid(session['user_id'], bid_amount)
+            #if bid_amount < book.current_bid:
+            #    print 'current_bid %s' % book.current_bid
+            #    print 'bid amount: %s' % bid_amount
+            #    return 'bid amount too low, current bid: %s ' % book.current_bid
 
-    return render_template('browse_book.html', book=book)
+    return render_template('browse_book.html', book=book, form=form, book_id=book_id)
 
 
 

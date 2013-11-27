@@ -55,16 +55,27 @@
 	<div class="inner2">
 		<label> ISBN: {{book.get_isbn()}} </label><br>
 		<label> Edition: {{book.get_edition() }}</label><br>
-		<label> Price: {{ book.get_starting_bid()}} </label><br>
 		{% if book.get_buyable() == True %}
 			<label> Buy Now Price: {{book.get_buyout_price() }}</label> <br>
 		{% endif %}
 		<label> Book Type: {{ book.get_booktype() }}</label><br>
+		<label> <Strong>Current Bid:</Strong> {{ book.get_current_bid() }} </label><br>
 	</div>
 
 
 
+<form class="navbar-form navbar-left" action= "{{ url_for('browse_book', book_id=book_id) }}" method="POST" enctype="multipart/form-data">
+  <div class="form-group">
+    
+		{{ form.csrf_token }}
+
+    {{ form.bid_amount.label }}
+    {{ form.bid_amount }}<br>
+		</div>
+
+    {{ form.submit_bid }}
 
 
 
+</form>
 {% endblock %}
