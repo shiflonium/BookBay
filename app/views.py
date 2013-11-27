@@ -42,18 +42,17 @@ def before_request():
 @app.route('/', methods = ['GET', 'POST'])
 @app.route('/home', methods = ['GET', 'POST'])
 def home():
-    search_data = None
-    form = SearchForm(request.form)    
+    search_data = None 
     if request.method == 'GET':
-        search_data = request.args.get('search_field')
+        search_data = request.args.get('user_search_field')
         session['parameter'] = search_data
         if search_data != None:
             full_url = url_for('search')
             return redirect(full_url)
         else:
-            return render_template('home.html', form=form)
+            return render_template('home.html')
     else:
-        return render_template('home.html', form=form)
+        return render_template('home.html')
 
 
 @app.route('/signup', methods = ['GET', 'POST'])
@@ -222,8 +221,10 @@ def get_all_users():
                 user_data = user_data
                 )
 
-@app.route('/search', methods = ['GET', 'POST'])
+@app.route('/search_users', methods = ['GET', 'POST'])
 def search():
+    usernames = []
+    search_data =""
     search_data = session['parameter']
     query = User.query.filter(User.username.like("%"+search_data+"%")).all()
     usernames=[u for u in query]

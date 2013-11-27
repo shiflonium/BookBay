@@ -2,19 +2,7 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h1> HomePage</h1><br>
-<form action = "{{url_for('home')}}" method=get>
-	{{ form.csrf_token }}
-	
-	{{form.search_field.label}}
-	{{form.search_field}}
-	
-	{{form.search_type.label}}
-	{{form.search_type}}
-	
-	{{form.submit}}	
 
-</form>
 {% if g.user.is_authenticated() %}
 <p> username is {{ g.user.username }}<br> </p>
 <p> last logged in {{ g.user.last_login }} </p>
