@@ -105,10 +105,9 @@ def logout():
     user.last_logout = datetime.utcnow()
     # put user_id in session for later use
     db.session.commit()
+    # delete session created during login
     del session['user_id']
     logout_user()
-    # delete session created during login
-    #del session['email']
     return redirect(url_for('home'))
 
 
