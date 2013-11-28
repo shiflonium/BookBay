@@ -48,6 +48,7 @@
 	      {% else %}
 	      <li id="signup"><a href="{{ url_for('signup') }}">Sign Up</a></li>
 	      <li id="login"><a href="{{ url_for('login') }}">Login</a></li>
+	      
 
 
 	      {% endif %}
@@ -71,7 +72,7 @@
 
 	     </ul>
 	     {% if g.user.is_authenticated() %}
-			 <h5 align="right"> Hello {{g.user.username}} $:{{ g.user.credits }} | <a href="{{ url_for('logout') }}">Logout </a> </h5>
+			 <h5 align="right"> Hello {{g.user.username}} | Balance:{{ g.user.credits }}$ | <a href="{{ url_for('logout') }}">Logout </a> </h5>
 	     {% else %}
 	     <h5 align="right"> Hello Guest | <a href="{{ url_for('login') }}">Login</a> </h5>    
 		 {% endif %}

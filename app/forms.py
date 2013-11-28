@@ -87,24 +87,31 @@ class SearchForm(Form):
 
 class sellForm(Form):
 
+    def buy_now_validator(self,field):
+        if (self.data.get('buyable') == True):
+            if self.data.get('buynowPrice') == '':
+                raise ValidationError('You must specify a price for the Buy Now option')
+                return False
+        return True
+        
 
-
-    title = TextField('Title:', validators=[validators.Required()])
-    author = TextField('Author', validators=[validators.Required()])
-    isbn = TextField('ISBN', validators=[validators.Required()])
-    price = TextField('Price:', validators=[validators.Required()])
-    saleDuration = TextField('Sale duration (days):', validators=[validators.Required()])
-    publisher = TextField('Publisher:', validators=[validators.Required()])
-    numOfPages = TextField('No. of Pages:', validators=[validators.Required()])
-    lang = TextField('Language:', validators=[validators.Required()])
-    genre = TextField('Genre:', validators=[validators.Required()])
-    edition = TextField('Edition:', validators=[validators.Required()])
+    
+    title = TextField('Title:', validators=[validators.Required(message = 'Required field')])
+    author = TextField('Author', validators=[validators.Required(message = 'Required field')])
+    isbn = TextField('ISBN', validators=[validators.Required(message = 'Required field')])
+    price = TextField('Price:', validators=[validators.Required(message = 'Required field')])
+    saleDuration = TextField('Sale duration (days):', validators=[validators.Required(message = 'Required field')])
+    publisher = TextField('Publisher:', validators=[validators.Required(message = 'Required field')])
+    numOfPages = TextField('No. of Pages:', validators=[validators.Required( message = 'Required field')])
+    lang = TextField('Language:', validators=[validators.Required(message = 'Required field')])
+    genre = TextField('Genre:', validators=[validators.Required(message = 'Required field')])
+    edition = TextField('Edition:', validators=[validators.Required(message = 'Required field')])
     condition = SelectField('Condition', choices=[('new','New'),('used','Used')])
     bookType = SelectField('Type:', choices=[('paperBack','Paper back'),('hardCover','Hard Cover')])
-    information = TextAreaField('Book Information')
+    information = TextAreaField('Book Information', validators = [validators.Length(min=0, max=100, message="Please enter at most 100 characters")])
     submit = SubmitField("Post For Sale!")
     buyable = BooleanField("Enable Buy Now")
-    buynowPrice = TextField("Buy Now Price:")
+    buynowPrice = TextField("Buy Now Price:", [buy_now_validator])
 
 
 
@@ -112,12 +119,11 @@ class sellForm(Form):
         Form.__init__(self, *args, **kwargs)
 
     def validate(self):
-        
         if not Form.validate(self):
             return False
-        if (self.data.get('buyable') == True):
-            if self.data.get('buynowPrice') == '':
-                return False
+        # if (self.data.get('buyable') == True):
+            # if self.data.get('buynowPrice') == '':
+                # return False
         
         else:
             return True

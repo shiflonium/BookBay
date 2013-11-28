@@ -13,17 +13,20 @@ input {
 	width: 180px;
 }
 
-</style>
-<title>Sell Your Book</title>
-
-<style>
 #information{
 	width: 300px;
 	height: 100px;
 }
-</style>
 
+.error{
+	color: red;
+	width:400px;
+}
+
+</style>
+	<title>Sell Your Book</title>
 </head>
+
 <body>
 <h1> Sell Your Book</h1>
 <form class="navbar-form navbar-left" role="search" action= "{{ url_for('sell') }}" method="POST"  enctype="multipart/form-data">
@@ -33,50 +36,164 @@ input {
 		<input type="hidden" name="username" value="{{g.user.username}}">
 
 		{{form.title.label}}
-		{{form.title}}<br>
+		{{form.title}}
+		{% if form.title.errors %}
+			{% for error in form.title.errors %}
+				<label class="error">{{error}}</label><br>
+			{% endfor %}
+
+		{% else %}
+			<br>
+		{% endif %}
 	
 
 		{{form.author.label}}
-		{{form.author}}<br>
+		{{form.author}}
+		{% if form.author.errors %}
+			{% for error in form.author.errors %}
+				<label class="error">{{error}}</label><br>
+			{% endfor %}
+
+		{% else %}
+			<br>
+		{% endif %}
 		
 		{{form.isbn.label}}
-		{{form.isbn}}<br>
+		{{form.isbn}}
+
+		{% if form.isbn.errors %}
+			{% for error in form.isbn.errors %}
+				<label class="error">{{error}}</label><br>
+			{% endfor %}
+
+		{% else %}
+			<br>
+		{% endif %}
 
 		{{form.price.label}}
-		{{form.price}}<br>
+		{{form.price}}
+
+		{% if form.price.errors %}
+			{% for error in form.price.errors %}
+				<label class="error">{{error}}</label><br>
+			{% endfor %}
+
+		{% else %}
+			<br>
+		{% endif %}
 
 		{{form.saleDuration.label}}
-		{{form.saleDuration}}<br>
+		{{form.saleDuration}}
+
+		{% if form.saleDuration.errors %}
+			{% for error in form.saleDuration.errors %}
+				<label class="error">{{error}}</label><br>
+			{% endfor %}
+
+		{% else %}
+			<br>
+		{% endif %}
 
 		{{form.publisher.label}}
-		{{form.publisher}}<br>
+		{{form.publisher}}
+
+		{% if form.publisher.errors %}
+			{% for error in form.publisher.errors %}
+				<label class="error">{{error}}</label><br>
+			{% endfor %}
+
+		{% else %}
+			<br>
+		{% endif %}
 		
 		{{form.numOfPages.label}}
-		{{form.numOfPages}}<br>
+		{{form.numOfPages}}
+
+		{% if form.numOfPages.errors %}
+			{% for error in form.numOfPages.errors %}
+				<label class="error">{{error}}</label><br>
+			{% endfor %}
+
+		{% else %}
+			<br>
+		{% endif %}
 		
 		{{form.lang.label}}
-		{{form.lang}}<br>
+		{{form.lang}}
+
+		{% if form.lang.errors %}
+			{% for error in form.lang.errors %}
+				<label class="error">{{error}}</label><br>
+			{% endfor %}
+
+		{% else %}
+			<br>
+		{% endif %}
 
 		{{form.condition.label}}
-		{{form.condition}}<br>
+		{{form.condition}}
+
+		{% if form.condition.errors %}
+			{% for error in form.condition.errors %}
+				<label class="error">{{error}}</label><br>
+			{% endfor %}
+
+		{% else %}
+			<br>
+		{% endif %}
 
 		{{form.genre.label}}
-		{{form.genre}}<br>
+		{{form.genre}}
+
+		{% if form.genre.errors %}
+			{% for error in form.genre.errors %}
+				<label class="error">{{error}}</label><br>
+			{% endfor %}
+
+		{% else %}
+			<br>
+		{% endif %}
 		
 		{{form.bookType.label}}
 		{{form.bookType}}<br>
 		
 		{{form.edition.label}}
-		{{form.edition}}<br>
+		{{form.edition}}
+
+		{% if form.edition.errors %}
+			{% for error in form.edition.errors %}
+				<label class="error">{{error}}</label><br>
+			{% endfor %}
+
+		{% else %}
+			<br>
+		{% endif %}
 
 		{{form.information.label}}
-		{{form.information}}<br><br>
+		{{form.information}}
+
+		{% if form.information.errors %}
+			{% for error in form.information.errors %}
+				<label class="error">{{error}}</label><br><br>
+			{% endfor %}
+
+		{% else %}
+			<br><br>
+		{% endif %}
 
 		{{form.buyable.label}}
 		{{form.buyable}}<br>
 
 		{{form.buynowPrice.label}}
-		{{form.buynowPrice}}<br><br>
+		{{form.buynowPrice}}
+		{% if form.title.errors %}
+			{% for error in form.buynowPrice.errors %}
+				<label class="error">{{error}}</label><br><br>
+			{% endfor %}
+
+		{% else %}
+		<br><br>	
+		{% endif %}
 
 		<label>Image</label>
 		<input type="file" name="bookImage"></br></br>

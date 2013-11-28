@@ -234,74 +234,79 @@ def search():
 @login_required
 def sell():
     form = sellForm()
+    print form.validate_on_submit()
     if (request.method == 'POST') and form.validate_on_submit(): 
+        file = form.data.get('bookImage')
+        
         
         tempBool = 0
-
+        b = Book()
         
 
         filename = ''.join(random.choice(string.ascii_letters+string.digits) for x in range(20))
-        file = request.files['bookImage']
-        file.filename = filename+".jpg"
-        print file.filename
-
         
-
-        if file and allowed_file(file.filename):
-            #UPLOAD FILE
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        if (str(request.files['bookImage']) == "<FileStorage: u'' ('application/octet-stream')>"):    
+            print "NO IMAGE"
+            b.image_name = "noImage.jpg"
+        else:
+            file = form.data.get('bookImage')
+            file.filename = filename+".jpg"
+            if file and allowed_file(file.filename):
+                #UPLOAD FILE
+                filename = secure_filename(file.filename)
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                b.image_name = filename
             
-            #GET USER ID
-            username = request.form['username']
-            user = User.query.filter_by(username = str(username)).first()
-            userid = user.id
-        
-            #PUSH DATA TO DB
-            b = Book()
-            b.title = request.form['title']
-            b.author = request.form['author']
-            b.isbn = request.form['isbn']
-            b.price = float(request.form['price'])
-            b.saleDuration = int(request.form['saleDuration'])
-            b.publisher = request.form['publisher']
-            b.numOfPages = int(request.form['numOfPages'])
-            b.lang = request.form['lang']
-            b.condition = request.form['condition']
-            b.genre = request.form['genre']
-            b.bookType = request.form['bookType']
-            b.edition = int(request.form['edition'])
-            b.information = request.form['information']
-
-            tempBool=0
-            
-            
-
-            if (form.data.get('buyable') == 'True'):
-                tempBool = 1;
-            else:
-                tempBool = 0;
-
-            b.buyable = tempBool
-            
-            if (tempBool == 1):
-                b.buyout_price = float(request.form['buynowPrice'])
-            
-
-            b.image_name = filename
-
-            b.current_bid=float(0)
-
-            b.biddable= 1
-            
-            b.starting_bid=float(request.form['price'])
-
-            b.owner_id=int(userid)
-            db.session.add(b)
-            db.session.commit()
-
-            return render_template('success.html')
+        #GET USER ID
+        username = request.form['username']
+        user = User.query.filter_by(username = str(username)).first()
+        userid = user.id
     
+        #PUSH DATA TO DB
+        
+        b.title = request.form['title']
+        b.author = request.form['author']
+        b.isbn = request.form['isbn']
+        b.price = float(request.form['price'])
+        b.saleDuration = int(request.form['saleDuration'])
+        b.publisher = request.form['publisher']
+        b.numOfPages = int(request.form['numOfPages'])
+        b.lang = request.form['lang']
+        b.condition = request.form['condition']
+        b.genre = request.form['genre']
+        b.bookType = request.form['bookType']
+        b.edition = int(request.form['edition'])
+        b.information = request.form['information']
+
+        tempBool=0
+        
+        
+
+        if (form.data.get('buyable') == 'True'):
+            tempBool = 1;
+        else:
+            tempBool = 0;
+
+        b.buyable = tempBool
+        
+        if (tempBool == 1):
+            b.buyout_price = float(request.form['buynowPrice'])
+        
+
+        
+
+        b.current_bid=float(0)
+
+        b.biddable= 1
+        
+        b.starting_bid=float(request.form['price'])
+
+        b.owner_id=int(userid)
+        db.session.add(b)
+        db.session.commit()
+
+        return render_template('success.html')
+
     return render_template('sell.html', form=form)
 
 
@@ -352,7 +357,13 @@ def browse_book(book_id):
 
 
 
-
+@app.route('/view_profile', methods=['GET'])
+def viewProfile():
+    if (request.method == 'GET'):
+        username = request.args.get('username')
+        first_name = request.args.get('lastName')
+        last_name = request.args.get('firstName')
+    return render_template('view_profile.html', username = username, first_name = first_name, last_name = last_name)
 
 
 

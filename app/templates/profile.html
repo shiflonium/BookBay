@@ -13,7 +13,7 @@ input {
 }
 
 </style>
-{%if g.user.is_authenticated() %}
+
 <h2>Change Personal Details:</h2>
 <form class="navbar-form navbar-left" role="search" action= "{{ url_for('changeDetails') }}" method="POST">
 	<div class="form-group">
@@ -51,25 +51,7 @@ input {
 		{{ form1.newPassword2}}<br>
 	</div>
 		{{form1.submit}}
-</form>
-
-{% else %} <!-- public user details for read only -->
- 
- <form class="navbar-form navbar-left" role="search" action= "{{ url_for('changeDetails') }}" method="POST">
-	<div class="form-group">
-	    <label>Username:</label>
-	    <input type="text" value= "{{username}}" readonly="readonly" name="username"><br>
-	    <label>First Name:</label>
-	    <input type="text" value= "{{first_name}}" readonly="readonly"><br>
-	    <label>Last Name:</label>
-	    <input type="text" value="{{last_name}}" readonly="readonly"><br>
-	</div>
-</form>
-
-
-{% endif %}
-
-		
+</form>		
 
 
 

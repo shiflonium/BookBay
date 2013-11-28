@@ -178,6 +178,9 @@ class Book(db.Model):
             self.current_bid = self.starting_bid
         '''
            #GETTERS FOR ALL ATTRIBUITES FOR THE JINJA2 TEMPLATES
+
+    def get_id(self):
+        return self.id
     def get_title(self):
         return self.title
 

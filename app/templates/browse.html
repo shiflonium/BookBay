@@ -40,10 +40,9 @@
 
 
 	{% for i in obj %}
-	<div class="outer">
 	
-		<img class = "images" src= "{{ url_for('static',filename='userImages/'+i.get_image_name()) }}" alt="TEST">
-		
+	<div class="outer">
+		<a href = "{{ url_for('browse') }}/{{i.get_id()}}"> <img class = "images" src= "{{ url_for('static',filename='userImages/'+i.get_image_name()) }}" alt="TEST"></a>	
 	</div>
 
 	<div class="inner">
@@ -63,6 +62,7 @@
 		{% endif %}
 		<label> Book Type: {{ i.get_booktype() }}</label><br>
 	</div>
+	
 	{% endfor %}
 
 

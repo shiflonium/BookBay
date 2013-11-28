@@ -1,0 +1,15 @@
+{% include 'base.html' %}
+
+<body>
+<form class="navbar-form navbar-left" role="search" action= "{{ url_for('changeDetails') }}" method="GET">
+	<div class="form-group">
+	    <label>Username:</label>
+	    <input type="text" value= "{{username}}" readonly="readonly" name="username"><br>
+	    <label>First Name:</label>
+	    <input type="text" value= "{{first_name}}" readonly="readonly"><br>
+	    <label>Last Name:</label>
+	    <input type="text" value="{{last_name}}" readonly="readonly"><br>
+	</div>
+</form>
+
+</body>
