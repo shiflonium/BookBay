@@ -45,7 +45,6 @@ def home():
     search_data = None 
     if request.method == 'GET':
         if request.args.get('user_check'):
-            print "YYYYYYY"
             search_data = request.args.get('user_search_field')
             session['parameter'] = search_data
             if search_data != None:
@@ -54,7 +53,6 @@ def home():
             else:
                 return render_template('home.html')
         else:
-            print "TTTTTT"
             search_data = request.args.get('book_search_field')
             session['parameter'] = search_data
             if search_data != None:
@@ -250,7 +248,7 @@ def search_book():
     search_data = session['parameter']
     query = Book.query.filter(Book.title.like("%"+search_data+"%"))
     books = [b for b in query]
-    return render_template("search_books.html", query = books, results = search_data)    
+    return render_template("search_books.html", query = query, results = search_data)    
 
 
 @app.route('/sell', methods = ['GET', 'POST'])
@@ -378,6 +376,8 @@ def browse_book(book_id):
     return render_template('browse_book.html', book=book, form=form, book_id=book_id)
 
 
+#@app.route('view_profile/<user_id>', methods = ['GET', 'POST'])
+#def view_profile():
 
 
 @app.route('/view_profile', methods=['GET'])

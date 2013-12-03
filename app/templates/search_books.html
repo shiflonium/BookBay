@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+.images
+{
+	max-height: 20%;
+}
+.outer
+{
+	position: relative;
+	float: left;
+	width: 20%;
+	display: inline-block;
+	clear: both;
+	margin-left: 30px;
+	margin-bottom: 30px;
+	
+	
+}
+
+.inner
+{
+	display: inline-block;
+	position: relative;
+	float: left;
+	width: 20%;
+}
+	
+
+.inner2
+{
+	display: inline-block;
+	position: relative;
+	float: left;
+	width: 20%;
+}
+</style>
+
+
+	{% for i in query %}
+	
+	<div class="outer">
+		<a href = "{{ url_for('browse') }}/{{i.get_id()}}"> <img class = "images" src= "{{ url_for('static',filename='userImages/'+i.get_image_name()) }}" alt="TEST"></a>	
+	</div>
+
+	<div class="inner">
+		<label> Title: {{ i.get_title() }} </label><br>
+		<label> Author: {{ i.get_author() }} </label><br>
+		<label> Language: {{ i.get_language() }}</label><br>
+		<label> Publisher: {{ i.get_publisher() }} </label><br>
+		<label> Condition: {{ i.get_condition() }}</label><br>
+	</div>
+
+	<div class="inner2">
+		<label> ISBN: {{i.get_isbn()}} </label><br>
+		<label> Edition: {{i.get_edition() }}</label><br>
+		{%if g.user.is_authenticated()%}
+		<label> Price: {{ i.get_starting_bid()}} </label><br>
+		{% if i.get_buyable() == True %}
+			<label> Buy Now Price: {{i.get_buyout_price() }}</label> <br>
+		{% endif %}
+		{%else%}
+		<label> Price: <a href="{{ url_for('login') }}">Log in</a> to see price</label><br>
+		{%endif%}
+		<label> Book Type: {{ i.get_booktype() }}</label><br>
+	</div>
+	
+	{% endfor %}
+
+
+
+
+
+
+{% endblock %}
