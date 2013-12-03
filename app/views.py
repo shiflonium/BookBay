@@ -244,13 +244,12 @@ def search():
 
 @app.route('/search_books', methods = ['GET','POST'])
 def search_book():
+    table = Book()
     books = []
     search_data = ""
     search_data = session['parameter']
-    print search_data
-    query = Book.query.filter(Book.title.like("%"+search_data+"%")).all()
+    query = Book.query.filter(Book.title.like("%"+search_data+"%"))
     books = [b for b in query]
-    print books
     return render_template("search_books.html", query = books, results = search_data)    
 
 
