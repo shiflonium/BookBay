@@ -295,7 +295,8 @@ class Book(db.Model):
 
 
     def __repr__(self):
-        return '<Book: %s owner: %s>' %(self.title, self.owner)
+        #return '<Book: %s owner: %s>' %(self.title, self.owner)
+        return self.title
 
 
 class Transaction(db.Model):

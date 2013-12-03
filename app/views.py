@@ -44,13 +44,25 @@ def before_request():
 def home():
     search_data = None 
     if request.method == 'GET':
-        search_data = request.args.get('user_search_field')
-        session['parameter'] = search_data
-        if search_data != None:
-            full_url = url_for('search')
-            return redirect(full_url)
+        if request.args.get('user_check'):
+            print "YYYYYYY"
+            search_data = request.args.get('user_search_field')
+            session['parameter'] = search_data
+            if search_data != None:
+                full_url = url_for('search')
+                return redirect(full_url)
+            else:
+                return render_template('home.html')
         else:
-            return render_template('home.html')
+            print "TTTTTT"
+            search_data = request.args.get('book_search_field')
+            session['parameter'] = search_data
+            if search_data != None:
+                full_url = url_for('search_book')
+                return redirect(full_url)
+            else:
+                return render_template('home.html')
+
     else:
         return render_template('home.html')
 
@@ -229,6 +241,18 @@ def search():
     query = User.query.filter(User.username.like("%"+search_data+"%")).all()
     usernames=[u for u in query]
     return render_template("search.html", query = usernames, results = search_data)
+
+@app.route('/search_books', methods = ['GET','POST'])
+def search_book():
+    books = []
+    search_data = ""
+    search_data = session['parameter']
+    print search_data
+    query = Book.query.filter(Book.title.like("%"+search_data+"%")).all()
+    books = [b for b in query]
+    print books
+    return render_template("search_books.html", query = books, results = search_data)    
+
 
 @app.route('/sell', methods = ['GET', 'POST'])
 @login_required

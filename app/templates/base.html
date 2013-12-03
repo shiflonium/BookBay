@@ -58,7 +58,8 @@
 
 	      <form class="navbar-form navbar-left" role="search" name="bookSearchForm">
 	      	<div class="form-group">
-		        <input type="text" class="form-control" placeholder="Search Books">
+		        <input type="text" class="form-control" placeholder="Search Books" name="book_search_field">
+		        <input type="text" hidden = "True" value = "books" name = "book_check">
 	        </div>
 	        <button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-search"></span></button>
 	     </form>
@@ -66,6 +67,7 @@
 	     <form class="navbar-form navbar-left" role="search" name="userSearchForm">
 	      	<div class="form-group">
 		        <input type="text" class="form-control" placeholder="Search Users" method=GET name="user_search_field">
+		        <input type="text" hidden = "True" value = "users" name = "user_check">
 	        </div>
 	        <button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-search"></span></button>
 	     </form>
