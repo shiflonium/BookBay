@@ -396,17 +396,12 @@ def browse_book(book_id):
     return render_template('browse_book.html', book=book, form=form, book_id=book_id)
 
 
-#@app.route('view_profile/<user_id>', methods = ['GET', 'POST'])
-#def view_profile():
+@app.route('/view_profile/<user_id>', methods = ['GET', 'POST'])
+def view_profile(user_id):
+    #username_from_get = request.args.get()
+    query = User.query.filter_by(id = user_id)
+    return render_template('view_profile.html', user_id = user_id, query = query)
 
-
-@app.route('/view_profile', methods=['GET'])
-def viewProfile():
-    if (request.method == 'GET'):
-        username = request.args.get('username')
-        first_name = request.args.get('lastName')
-        last_name = request.args.get('firstName')
-    return render_template('view_profile.html', username = username, first_name = first_name, last_name = last_name)
 
 
 @app.route('/no_credit')

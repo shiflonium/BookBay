@@ -2,20 +2,12 @@
 {% block content %}
 <p>Serach Results for "{{results}}"</p>
 {%if g.user.is_authenticated%}
-<table>
-<!-- <tr><td>Username</td></tr> -->
-{%set i = 0%}
+<br><br>
+<table border = "1">
+<tr><td><b>User</b></td></tr>
 {%for user in query%}
 
-<tr><td>{{user}}</td><td><div name = {{user}}>
-							  <input name = "star{{i}}" type = "radio" class="star"/>
-							  <input name = "star{{i}}" type = "radio" class="star"/>
-							  <input name = "star{{i}}" type = "radio" class="star"/>
-						      <input name = "star{{i}}" type = "radio" class="star"/>
-						      <input name = "star{{i}}" type = "radio" class="star"/></div>
-						      	</td>
-						      </tr>
-						      {%set i=i+1%}
+<tr><td><a href="{{ url_for('view_profile', user_id = user.id ) }}" name = "{{user}}"> {{user}} </a> </td></tr>
 
 
 {% endfor %}
