@@ -255,7 +255,9 @@ def search_book():
 @login_required
 def sell():
     form = sellForm()
-    print form.validate_on_submit()
+    #print form.validate_on_submit()
+    #print str(request.files['bookImage'])
+    #print form.data.get('bookImage')
     if (request.method == 'POST') and form.validate_on_submit(): 
         file = form.data.get('bookImage')
         
@@ -270,7 +272,8 @@ def sell():
             print "NO IMAGE"
             b.image_name = "noImage.jpg"
         else:
-            file = form.data.get('bookImage')
+            #file = form.data.get('bookImage')
+            file = request.files['bookImage']
             file.filename = filename+".jpg"
             if file and allowed_file(file.filename):
                 #UPLOAD FILE

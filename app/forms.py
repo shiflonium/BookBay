@@ -2,6 +2,9 @@ from flask_wtf import Form
 from wtforms import TextField, BooleanField, TextAreaField, SubmitField, PasswordField,SelectField, validators, ValidationError, FloatField
 from app.models import User
 from flask import flash
+from wtforms.validators import NumberRange, Required
+from wtforms.fields import IntegerField
+
 
 class SignUpForm(Form):
     username = TextField('Username', validators=[validators.Required()])
@@ -94,27 +97,6 @@ class sellForm(Form):
                 return False
         return True
         
-
-    
-    title = TextField('Title:', validators=[validators.Required(message = 'Required field')])
-    author = TextField('Author', validators=[validators.Required(message = 'Required field')])
-    isbn = TextField('ISBN', validators=[validators.Required(message = 'Required field')])
-    price = TextField('Price:', validators=[validators.Required(message = 'Required field')])
-    saleDuration = TextField('Sale duration (days):', validators=[validators.Required(message = 'Required field')])
-    publisher = TextField('Publisher:', validators=[validators.Required(message = 'Required field')])
-    numOfPages = TextField('No. of Pages:', validators=[validators.Required( message = 'Required field')])
-    lang = TextField('Language:', validators=[validators.Required(message = 'Required field')])
-    genre = TextField('Genre:', validators=[validators.Required(message = 'Required field')])
-    edition = TextField('Edition:', validators=[validators.Required(message = 'Required field')])
-    condition = SelectField('Condition', choices=[('new','New'),('used','Used')])
-    bookType = SelectField('Type:', choices=[('paperBack','Paper back'),('hardCover','Hard Cover')])
-    information = TextAreaField('Book Information', validators = [validators.Length(min=0, max=100, message="Please enter at most 100 characters")])
-    submit = SubmitField("Post For Sale!")
-    buyable = BooleanField("Enable Buy Now")
-    buynowPrice = TextField("Buy Now Price:", [buy_now_validator])
-
-
-
     def __init__(self, *args, **kwargs):
         Form.__init__(self, *args, **kwargs)
 
@@ -127,6 +109,29 @@ class sellForm(Form):
         
         else:
             return True
+    
+    title = TextField('Title:', validators=[validators.Required(message = 'Required field')])
+    author = TextField('Author', validators=[validators.Required(message = 'Required field')])
+    isbn = TextField('ISBN', validators=[validators.Required(message = 'Required field'), validators.Length(min=10, max=13, message = "ISBN is not the right length")])
+    price = IntegerField('Price:',[NumberRange(min = 0, max=None ,message = "Illegal price. Please enter a number"), Required(message = 'Required field')])
+    saleDuration = IntegerField('Sale duration (days):', validators=[validators.Required(message = 'Required field'), validators.NumberRange(min=1, max=3, message= "The sale duration must be 1-3 days")])
+    publisher = TextField('Publisher:', validators=[validators.Required(message = 'Required field')])
+    numOfPages = IntegerField('No. of Pages:', validators=[validators.Required( message = 'Required field'), validators.NumberRange(min=0, max=None, message = "Illegal number of pages")])
+    lang = TextField('Language:', validators=[validators.Required(message = 'Required field')])
+    genre = TextField('Genre:', validators=[validators.Required(message = 'Required field')])
+    edition = IntegerField('Edition:', validators=[validators.Required(message = 'Required field'), validators.NumberRange(min=0, max=None, message = 'Illegal edition number')])
+    condition = SelectField('Condition', choices=[('new','New'),('used','Used')])
+    bookType = SelectField('Type:', choices=[('paperBack','Paper back'),('hardCover','Hard Cover')])
+    information = TextAreaField('Book Information', validators = [validators.Length(min=0, max=100, message="Please enter at most 100 characters")])
+    submit = SubmitField("Post For Sale!")
+    buyable = BooleanField("Enable Buy Now")
+    buynowPrice = IntegerField("Buy Now Price:", validators = [buy_now_validator, validators.NumberRange(min=0, max=None, message = 'Illegal price')])
+
+
+
+    
+
+    
 
 class BidForm(Form):
 

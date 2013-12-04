@@ -186,7 +186,7 @@ input {
 
 		{{form.buynowPrice.label}}
 		{{form.buynowPrice}}
-		{% if form.title.errors %}
+		{% if form.buynowPrice.errors %}
 			{% for error in form.buynowPrice.errors %}
 				<label class="error">{{error}}</label><br><br>
 			{% endfor %}
