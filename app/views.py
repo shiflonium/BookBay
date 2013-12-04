@@ -406,12 +406,17 @@ def view_profile(user_id):
 @app.route('/no_credit')
 def show_page():
     return render_template('no_credit.html')
-    
+
 @app.route('/rate_book')
 def rate_book():
+    result=[]
+    b=Book()
     isbn = request.args.get('isbn')
-    query = Book.query filter_by(isbn = isbn)
-    return render_template('rate_book.html', query = query)
+    query = b.query.filter_by(isbn = isbn).all()
+    for u in query:
+        book_dict=u.__dict__
+    user_query = User.query.filter_by(id = int(book_dict['owner_id']))
+    return render_template('rate_book.html', query = query, user_query = user_query, isbn =isbn)
 
 @app.route('/complain')
 def complain():

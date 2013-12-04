@@ -52,6 +52,9 @@ class User(db.Model):
         """this method should be called after every sucessfull purchase. it should
         increment num_purchases and then commit changes to database"""
         pass
+    def get_username(self):
+        """method for getting username"""
+        return self.username
 
     def is_suspended(self):
         """method for checking whether user is suspended."""

@@ -1,6 +1,11 @@
 
 {% extends "base.html" %}
 {% block content %}
-this is the rate page
+{%for book in query %}
+{%for user in user_query%}
+<h2>Rate {{book.get_title()}} by User: {{user.get_username()}}</h2><br>
+
+{% endfor%}
+{% endfor%}
 {% endblock %}
 
