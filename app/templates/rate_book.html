@@ -1,9 +1,67 @@
 
 {% extends "base.html" %}
 {% block content %}
+<style>
+.images
+{
+	max-height: 20%;
+}
+.outer
+{
+	position: relative;
+	float: left;
+	width: 20%;
+	display: inline-block;
+	clear: both;
+	margin-left: 30px;
+	margin-bottom: 30px;
+	
+	
+}
+
+.inner
+{
+	display: inline-block;
+	position: relative;
+	float: left;
+	width: 20%;
+}
+	
+
+.inner2
+{
+	display: inline-block;
+	position: relative;
+	float: left;
+	width: 20%;
+}
+.inner3
+{
+	display: inline-block;
+	position: relative;
+	float: left;
+	width: 20%;
+}
+</style>
+
 {%for book in query %}
 {%for user in user_query%}
-<h2>Rate {{book.get_title()}} by User: {{user.get_username()}}</h2><br>
+	<h2>Rate {{book.get_title()}} by User: {{user.get_username()}}</h2>
+
+
+<br><br>
+
+	<div class = "outer">
+		<img class = "images" src= "{{ url_for('static',filename='userImages/'+book.get_image_name()) }}" alt="TEST">
+	</div>
+
+	<div name = "rate">
+		<input name = "star{{i}}" type = "radio" class="star"/>
+		<input name = "star{{i}}" type = "radio" class="star"/>
+		<input name = "star{{i}}" type = "radio" class="star"/>
+		<input name = "star{{i}}" type = "radio" class="star"/>
+		<input name = "star{{i}}" type = "radio" class="star"/>
+	</div>
 
 {% endfor%}
 {% endfor%}
