@@ -56,7 +56,12 @@
 	<div class="inner2">
 		<label> ISBN: {{i.get_isbn()}} </label><br>
 		<label> Edition: {{i.get_edition() }}</label><br>
-		<label> Price: {{ i.get_starting_bid()}} </label><br>
+		{% if g.user.is_authenticated() %}
+			<label> Price: {{ i.get_starting_bid()}} </label><br>
+		{% else %}
+			<label> Price: <a href="{{ url_for('login') }}">Log in</a> to see price</label><br>
+		{% endif %}
+
 		{% if i.get_buyable() == True %}
 			<label> Buy Now Price: {{i.get_buyout_price() }}</label> <br>
 		{% endif %}
