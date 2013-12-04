@@ -255,10 +255,30 @@ def search_book():
 @login_required
 def sell():
     form = sellForm()
-    #print form.validate_on_submit()
-    #print str(request.files['bookImage'])
-    #print form.data.get('bookImage')
+    
+
+
+
     if (request.method == 'POST') and form.validate_on_submit(): 
+
+        #DETERMINE IF USER HAVE ENOUGH CREDIT TO SELL THE BOOK
+
+        #GET USER ID
+        username = request.form['username']
+        user = User.query.filter_by(username = str(username)).first()
+        userid = user.id
+
+        #GET USER CREDITS
+        user_credits = user.get_credit()
+
+        #UPDATE USER CREDITS
+        if ((user.credits  - (int(request.form['saleDuration'])) * 5) < 0):
+            return "NOT ENOUGH CREDIT"
+
+        user.credits = user.credits  - (int(request.form['saleDuration'])) * 5
+
+
+
         file = form.data.get('bookImage')
         
         
@@ -281,10 +301,7 @@ def sell():
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
                 b.image_name = filename
             
-        #GET USER ID
-        username = request.form['username']
-        user = User.query.filter_by(username = str(username)).first()
-        userid = user.id
+        
     
         #PUSH DATA TO DB
         
@@ -392,4 +409,6 @@ def viewProfile():
     return render_template('view_profile.html', username = username, first_name = first_name, last_name = last_name)
 
 
-
+@app.route('/no_credit')
+def show_page():
+    return render_template('no_credit.html')

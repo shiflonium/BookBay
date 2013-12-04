@@ -79,6 +79,9 @@ class User(db.Model):
     def get_id(self):
         return unicode(self.id)
 
+    def get_credit(self):
+        return self.credits
+
     def __repr__(self):
         #return '<User %r>' % (self.username)
         return self.username

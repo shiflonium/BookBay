@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+div{	
+	top:50%;	
+	height: 100%;
+	vertical-align: middle;
+	text-align: center;
+	position: relative;
+}
+</style>
+
+
+<div >
+	<h1 style="color: #3366FF;"> You don't have enough credits to sell this book. <br>
+		 Please use one of the other options in the website</h1>
+	<img src = "{{ url_for('static', filename='no_credit.gif') }}" />
+</div>
+
+{% endblock %}
