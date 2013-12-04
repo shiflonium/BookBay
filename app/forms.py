@@ -92,7 +92,7 @@ class sellForm(Form):
 
     def buy_now_validator(self,field):
         if (self.data.get('buyable') == True):
-            if self.data.get('buynowPrice') == '':
+            if (self.data.get('buynowPrice') == '') or (self.data.get('buynowPrice') < 1):
                 raise ValidationError('You must specify a price for the Buy Now option')
                 return False
         return True
