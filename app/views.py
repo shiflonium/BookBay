@@ -406,3 +406,13 @@ def view_profile(user_id):
 @app.route('/no_credit')
 def show_page():
     return render_template('no_credit.html')
+    
+@app.route('/rate_book')
+def rate_book():
+    isbn = request.args.get('isbn')
+    query = Book.query filter_by(isbn = isbn)
+    return render_template('rate_book.html', query = query)
+
+@app.route('/complain')
+def complain():
+    return render_template('complain.html')
