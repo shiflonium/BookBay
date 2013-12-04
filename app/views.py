@@ -39,9 +39,9 @@ def before_request():
         db.session.commit()
 
 
-@app.route('/', methods = ['GET', 'POST'])
-@app.route('/home', methods = ['GET', 'POST'])
-def home():
+@app.route('/', methods = ['GET', 'POST'], defaults = {'path':''})
+@app.route('/<path:path>', methods = ['GET', 'POST'])
+def request_for_search(path):
     search_data = None 
     if request.method == 'GET':
         if request.args.get('user_check'):
@@ -50,19 +50,17 @@ def home():
             if search_data != None:
                 full_url = url_for('search')
                 return redirect(full_url)
-            else:
-                return render_template('home.html')
         else:
             search_data = request.args.get('book_search_field')
             session['parameter'] = search_data
             if search_data != None:
                 full_url = url_for('search_book')
                 return redirect(full_url)
-            else:
-                return render_template('home.html')
+            
 
-    else:
-        return render_template('home.html')
+@app.route('/', methods = ['GET', 'POST'])
+def home():
+    return render_template('home.html')
 
 
 @app.route('/signup', methods = ['GET', 'POST'])
@@ -239,6 +237,7 @@ def search():
     query = User.query.filter(User.username.like("%"+search_data+"%")).all()
     usernames=[u for u in query]
     return render_template("search.html", query = usernames, results = search_data)
+
 
 @app.route('/search_books', methods = ['GET','POST'])
 def search_book():

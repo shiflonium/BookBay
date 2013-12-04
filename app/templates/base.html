@@ -56,7 +56,7 @@
 	      <li id="browseBooks"> <a href="{{ url_for('browse')}}">Browse Books </a> </li>
 
 
-	      <form class="navbar-form navbar-left" role="search" name="bookSearchForm">
+	      <form class="navbar-form navbar-left" role="search" name="bookSearchForm" action = "/search_books.html">
 	      	<div class="form-group">
 		        <input type="text" class="form-control" placeholder="Search Books" name="book_search_field">
 		        <input type="text" hidden = "True" value = "books" name = "book_check">
@@ -64,7 +64,7 @@
 	        <button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-search"></span></button>
 	     </form>
 	     
-	     <form class="navbar-form navbar-left" role="search" name="userSearchForm">
+	     <form class="navbar-form navbar-left" role="search" name="userSearchForm" action = "/search.html">
 	      	<div class="form-group">
 		        <input type="text" class="form-control" placeholder="Search Users" method=GET name="user_search_field">
 		        <input type="text" hidden = "True" value = "users" name = "user_check">
