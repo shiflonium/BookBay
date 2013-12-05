@@ -5,7 +5,7 @@ from models import User, Book, Transaction, Bid
 from forms import SignUpForm, LoginForm, ChangePassword, ChangePersonalDetails, SearchForm, sellForm, BidForm
 from werkzeug import generate_password_hash, check_password_hash, secure_filename
 from datetime import datetime
-from sqlalchemy import desc
+from sqlalchemy import desc, update
 import os
 import random
 import string
@@ -417,6 +417,19 @@ def rate_book():
         book_dict=u.__dict__
     user_query = User.query.filter_by(id = int(book_dict['owner_id']))
     return render_template('rate_book.html', query = query, user_query = user_query, isbn =isbn)
+ 
+@app.route('/rate', methods = ['POST'])
+def submit_rating():
+    b = Book()
+    isbn = request.form['isbn_num']
+    ratings = request.form['rated']
+    query = b.query.filter_by(isbn = isbn).first()
+    #stmt = update(Book).where(Book.isbn == isbn).values(rating = ratings)
+    query.rating = ratings
+    db.session.commit()
+    return render_template('rate_success.html')
+
+
 
 @app.route('/complain')
 def complain():
