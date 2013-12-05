@@ -16,8 +16,11 @@
 	<p align="center"> <strong>Credits: </strong> {{ data.credits }}
 	<strong> num_bids: </strong> {{ data.num_bids }} 
 	<strong> num_purchases: </strong> {{ data.num_purchases }}
-	<strong> Rating: </strong> {{ data.rating }}	</p>
-	<br>
+	<strong> Rating: </strong> {{ data.rating }} <br>
+	<a href="{{url_for('remove_user', user_id = data.get_id() ) }}"> Delete {{ data.username }} </a> <br>
+	<a href="{{url_for('suspend_user', user_id = data.get_id() ) }}"> Suspend {{ data.username }} </a>
+	</p>
+	<br><br>
 	
 {% endfor %}
 {% endblock %}

@@ -201,10 +201,32 @@ def transaction_history():
     else:
         return redirect(url_for('home'))
 
+
+@app.route('/admin/remove_user/<user_id>')
+@login_required
+def remove_user(user_id):
+    user = User.query.filter_by(id = session['user_id']).first()
+    if user.superuser == False:
+        return redirect(url_for('home'))
+    # write this
+    return redirect(url_for('home'))
+
+@app.route('/admin/suspend_user/<user_id>')
+@login_required
+def suspend_user(user_id):
+    user = User.query.filter_by(id = session['user_id']).first()
+    if user.superuser == False:
+        return redirect(url_for('home'))
+    # write this
+    return redirect(url_for('home'))
+
+
+        
+
+
 @app.route('/admin/remove_book/<book_id>')
 @login_required
 def remove_book(book_id):
-    
     user = User.query.filter_by(id = session['user_id']).first()
     if user.superuser == False:
         return redirect(url_for('home'))
