@@ -1,11 +1,11 @@
 from flask import render_template, flash, redirect, session, url_for, request, g
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from app import app, db, login_manager
-from models import User, Book, Transaction, Bid, User_Complaints
-from forms import SignUpForm, LoginForm, ChangePassword, ChangePersonalDetails, SearchForm, sellForm, BidForm
+from models import User, Book, Transaction, Bid, User_Comments, Book_Comments, User_Complaints
+from forms import SignUpForm, LoginForm, ChangePassword, ChangePersonalDetails, SearchForm, sellForm, BidForm, PostForm
 from werkzeug import generate_password_hash, check_password_hash, secure_filename
 from datetime import datetime
-from sqlalchemy import desc
+from sqlalchemy import desc, update
 import os
 import random
 import string
@@ -131,7 +131,6 @@ def profile():
 @app.route('/profile/<username>', methods=['POST', 'GET'])
 @login_required
 def show_user(username):
-    
     # add comment form
     # add rating form
     user = User.query.filter_by(username=username).first()
@@ -385,29 +384,53 @@ def browse_book(book_id):
     """test template to show one book so you can bid or buy
     pass in book.id as parameter to load book. """
     form = BidForm()
+    form2 = PostForm()
     # add comment form for book
 
     book = Book.query.filter_by(id = book_id).first()
+    user = book.owner
     if book is None:
         # temporary
         return 'book does not exist'
     else:
-        if request.method == 'POST' and form.validate_on_submit():
+        if request.method == 'POST' and form.validate_on_submit() and form.bid_amount.data:
             bid_amount = request.form['bid_amount']
             book.create_bid(session['user_id'], bid_amount)
             #if bid_amount < book.current_bid:
             #    print 'current_bid %s' % book.current_bid
             #    print 'bid amount: %s' % bid_amount
             #    return 'bid amount too low, current bid: %s ' % book.current_bid
+        if request.method == 'POST' and form2.validate_on_submit() and form2.post.data:
+            # have no idea why the other one doesnt work
+            text = form2.post.data
+            book.create_comment(session['user_id'], text)
 
-    return render_template('browse_book.html', book=book, form=form, book_id=book_id)
+        comments = Book_Comments.query.filter_by(book=book).order_by(desc(Book_Comments.timestamp)).all()
+
+    return render_template('browse_book.html', book=book, form=form, book_id=book_id, form2=form2, comments=comments)
 
 
 @app.route('/view_profile/<user_id>', methods = ['GET', 'POST'])
 def view_profile(user_id):
     #username_from_get = request.args.get()
-    query = User.query.filter_by(id = user_id)
-    return render_template('view_profile.html', user_id = user_id, query = query)
+    form = PostForm()
+    user = User.query.filter_by(id = user_id).first()
+
+    if user is None:
+        return 'user does not exist'
+
+    if request.method == 'POST' and form.validate_on_submit():
+        text = request.form['post']
+        user.create_comment(session['user_id'], text)
+    
+    #comments = User_Comments.query.order_by(desc(User_Comments.timestamp))
+    comments = User_Comments.query.filter_by(commented = user).order_by(desc(User_Comments.timestamp)).all()
+    return render_template('view_profile.html',
+            user_id = user_id,
+            user = user,
+            form = form,
+            comments = comments
+            )
 
 
 
@@ -425,6 +448,19 @@ def rate_book():
         book_dict=u.__dict__
     user_query = User.query.filter_by(id = int(book_dict['owner_id']))
     return render_template('rate_book.html', query = query, user_query = user_query, isbn =isbn)
+ 
+@app.route('/rate', methods = ['POST'])
+def submit_rating():
+    b = Book()
+    isbn = request.form['isbn_num']
+    ratings = request.form['rated']
+    query = b.query.filter_by(isbn = isbn).first()
+    #stmt = update(Book).where(Book.isbn == isbn).values(rating = ratings)
+    query.rating = ratings
+    db.session.commit()
+    return render_template('rate_success.html')
+
+
 
 @app.route('/complain')
 def complain():

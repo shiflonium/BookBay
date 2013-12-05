@@ -2,7 +2,6 @@
 {% block content %}
 <label>View User Profile</label>
 <br>
-{%for user in query%}
 <label>Username:</label> {{user.username}}<br>
 <label>First Name:</label> {{user.first_name}}<br>
 <label>Last Name:</label> {{user.last_name}}<br>
@@ -13,8 +12,26 @@
 
 <a href="">Report this User</a>
 {%endif%}
-{%endfor%}
 
+<hr>
+{% for data in comments %}
+<p>
+{{ data.timestamp }} <strong> {{ data.commenter }}</strong> says: <strong>{{ data.comment }}</strong>
+	</p>
+	{% endfor %}
+
+<h2> Post User Comment</h2>
+<form class="navbar-form navbar-left" role="search" action= "{{ url_for('view_profile', user_id = user_id) }}" method="POST"  enctype="multipart/form-data">
+	<div class="form-group">
+
+	{{ form.csrf_token }}
+	
+	{{ form.post.label }}
+	{{ form.post }}<br>
+</div>
+
+	{{ form.submit }}
+</form>
 
 
 {% endblock %}

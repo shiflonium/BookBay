@@ -17,8 +17,20 @@
 	margin-left: 30px;
 	margin-bottom: 30px;
 	
+}
+.outer2
+{
+	position: relative;
+	float: left;
+	width: 100%;
+	display: inline-block;
+	clear: both;
+	margin-left: 30px;
+	margin-bottom: 30px;
 	
 }
+
+
 
 .inner
 {
@@ -74,8 +86,24 @@
 		</div>
 
     {{ form.submit_bid }}
+	</form>
 
+	<div class="outer2">
+		<hr>
+		{% for data in comments %}
+		<p>{{ data.timestamp }} <strong> {{ data.commenter }}</strong> says: <strong>{{ data.comment }}</strong></p>
+		{% endfor %}
 
+		<h2> Post Book Comment</h2>
+		<form class="navbar-form navbar-left" role="search" action= "{{ url_for('browse_book', book_id=book_id) }}" method="POST"  enctype="multipart/form-data">
+		<div class="form-group">
+		
+			{{ form2.csrf_token }}
 
-</form>
+			{{ form2.post }}<br>
+			</div>
+			{{ form2.submit }}
+			</form>
+	</div>
+
 {% endblock %}

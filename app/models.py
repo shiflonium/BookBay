@@ -28,7 +28,11 @@ class User(db.Model):
     # duration = last_login - last_logout
     last_login = db.Column(db.DateTime)
     last_logout = db.Column(db.DateTime)
-    
+
+    # add this
+    #num_logins = db.Column(db.Integer)
+    #
+
     books = db.relationship('Book', backref='owner', lazy='dynamic')
     bids = db.relationship('Bid', backref='bidder', lazy='dynamic')
     book_comment = db.relationship('Book_Comments', backref='commenter', lazy='dynamic')
@@ -84,6 +88,20 @@ class User(db.Model):
 
     def get_credit(self):
         return self.credits
+
+    def create_comment(self, user_id, text):
+        # user_id = session['user_id']
+        commenter = User.query.filter_by(id = user_id).first()
+        
+        comment = User_Comments(
+                commenter = commenter,
+                commented = self,
+                comment = text,
+                timestamp = datetime.utcnow()
+                )
+        db.session.add(comment)
+        db.session.commit()
+        pass
 
     def __repr__(self):
         #return '<User %r>' % (self.username)
@@ -250,7 +268,6 @@ class Book(db.Model):
     def get_image_name(self):
         return self.image_name
 
-
     def get_seller(self):
         """returns user that sold book"""
         pass
@@ -262,6 +279,19 @@ class Book(db.Model):
     def is_sold(self):
         """method that determines whether book is sold or not"""
         return self.sold
+
+    def create_comment(self, user_id, text):
+        commenter = User.query.filter_by(id = user_id).first()
+
+        comment = Book_Comments(
+                commenter = commenter,
+                book = self,
+                comment= text,
+                timestamp = datetime.utcnow())
+        db.session.add(comment)
+        db.session.commit()
+
+        pass
 
     
     def create_bid(self, session_id, bid_amount=None):
