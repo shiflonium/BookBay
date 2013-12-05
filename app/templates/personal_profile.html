@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<label>Personal Profile Page</label>
+<br>
+<label>Username:</label> {{user.username}}<br>
+<label>First Name:</label> {{user.first_name}}<br>
+<label>Last Name:</label> {{user.last_name}}<br>
+{%if g.user.is_authenticated()%}
+<label>Last login:</label> {{user.last_login}}<br>
+<label>Number of bids:</label> {{user.num_bids}}<br>
+<label>Rating:</label> {{user.rating}} <!-- <img src="{{ url_for('static', filename='img/star.gif')}}"><br> --><br>
+
+{% endif %}
+
+<hr>
+<label>Comments Posted on your Profile</label>
+{% for data in comments_recieved %}
+<p>
+	{{ data.timestamp }} <strong> {{ data.commenter }}</strong> said: <strong>{{ data.comment }}</strong>
+</p>
+{% endfor %}
+
+<hr>
+<label>Comments You Posted</label>
+{% for data in comments_made %}
+<p>
+{{ data.timestamp }} <strong> You </strong> said: <strong>{{ data.comment }}</strong> to: <strong>{{data.commented}}</strong>
+</p>
+{% endfor %}
+
+
+{% endblock %}
