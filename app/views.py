@@ -195,9 +195,7 @@ def changeDetails():
 @login_required
 def transaction_history():
     user = User.query.filter_by(id = session['user_id']).first()
-
-    #RIGHT NOW SET TO FALSE FOR EASIER DEBUGGING
-    if user.superuser == False:
+    if user.superuser == True:
         trans = Transaction.query.all()
         return render_template('transaction_history.html', trans=trans)
     else:
@@ -206,6 +204,11 @@ def transaction_history():
 @app.route('/admin/remove_book/<book_id>')
 @login_required
 def remove_book(book_id):
+    
+    user = User.query.filter_by(id = session['user_id']).first()
+    if user.superuser == False:
+        return redirect(url_for('home'))
+    
     #idk how to cascade so doing this manually
     book = Book.query.filter_by(id = book_id).first()
     bids = Bid.query.filter_by(book_id = book.id).all()
@@ -229,9 +232,7 @@ def remove_book(book_id):
 @login_required
 def bid_history():
     user = User.query.filter_by(id = session['user_id']).first()
-    
-    # debug
-    if user.superuser == False:
+    if user.superuser == True:
         bids = Bid.query.order_by(desc(Bid.timestamp)).all()
         return render_template('bid_history.html', bids=bids)
     else:
@@ -254,11 +255,13 @@ def get_all_users():
     user = User.query.filter_by(id = session['user_id']).first()
 
     # setting to false for now
-    if user.superuser == False:
+    if user.superuser == True:
         user_data = User.query.all()
         return render_template('user_list.html',
                 user_data = user_data
                 )
+    else:
+        return redirect(url_for('home'))
 
 @app.route('/search_users', methods = ['GET', 'POST'])
 def search():
