@@ -38,9 +38,11 @@ def before_request():
         db.session.add(g.user)
         db.session.commit()
         if g.user.is_suspended():
-            return "YOUR ACCOUNT HAS BEEN SUSPENDED, PLEASE WAIT FOR ADMIN ACTION"
+            pass
+            #return "YOUR ACCOUNT HAS BEEN SUSPENDED, PLEASE WAIT FOR ADMIN ACTION"
         if g.user.is_approved() == False:
-            return "YOUR ACCOUNT HAS NOT BEEN APPROVED YET, PLEASE WAIT FOR ADMIN ACTION"
+            pass
+            #return "YOUR ACCOUNT HAS NOT BEEN APPROVED YET, PLEASE WAIT FOR ADMIN ACTION"
 
 
 @app.route('/', methods = ['GET', 'POST'], defaults = {'path':''})
