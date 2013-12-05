@@ -1,7 +1,7 @@
 from flask import render_template, flash, redirect, session, url_for, request, g
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from app import app, db, login_manager
-from models import User, Book, Transaction, Bid, User_Comments
+from models import User, Book, Transaction, Bid, User_Comments, Book_Comments
 from forms import SignUpForm, LoginForm, ChangePassword, ChangePersonalDetails, SearchForm, sellForm, BidForm, PostForm
 from werkzeug import generate_password_hash, check_password_hash, secure_filename
 from datetime import datetime
@@ -376,22 +376,30 @@ def browse_book(book_id):
     """test template to show one book so you can bid or buy
     pass in book.id as parameter to load book. """
     form = BidForm()
+    form2 = PostForm()
     # add comment form for book
 
     book = Book.query.filter_by(id = book_id).first()
+    user = book.owner
     if book is None:
         # temporary
         return 'book does not exist'
     else:
-        if request.method == 'POST' and form.validate_on_submit():
+        if request.method == 'POST' and form.validate_on_submit() and form.bid_amount.data:
             bid_amount = request.form['bid_amount']
             book.create_bid(session['user_id'], bid_amount)
             #if bid_amount < book.current_bid:
             #    print 'current_bid %s' % book.current_bid
             #    print 'bid amount: %s' % bid_amount
             #    return 'bid amount too low, current bid: %s ' % book.current_bid
+        if request.method == 'POST' and form2.validate_on_submit() and form2.post.data:
+            # have no idea why the other one doesnt work
+            text = form2.post.data
+            book.create_comment(session['user_id'], text)
 
-    return render_template('browse_book.html', book=book, form=form, book_id=book_id)
+        comments = Book_Comments.query.filter_by(book=book).order_by(desc(Book_Comments.timestamp)).all()
+
+    return render_template('browse_book.html', book=book, form=form, book_id=book_id, form2=form2, comments=comments)
 
 
 @app.route('/view_profile/<user_id>', methods = ['GET', 'POST'])

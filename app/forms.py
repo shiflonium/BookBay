@@ -71,6 +71,13 @@ class ChangePassword(Form):
 class PostForm(Form):
     post = TextAreaField('post', validators = [validators.Required()])
     submit = SubmitField('post!')
+    
+    def __init__(self, *args, **kwargs):
+        Form.__init__(self, *args, **kwargs)
+        
+    def validate(self):
+        return True
+
 
 
 class ChangePersonalDetails(Form):
