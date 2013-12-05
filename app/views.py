@@ -576,11 +576,30 @@ def complain():
 
 @app.route('/admin/make_superuser')
 @login_required
+# make registered user in to super user
 def make_self_superuser():
     """simple function to make self super user"""
     user = User.query.filter_by(id = session['user_id']).first()
     user.superuser = True
     db.session.commit()
     return redirect(url_for('home'))
+
+@app.route('/get_admin_account')
+def create_admin_account():
+    u = User(
+            username = 'admin',
+            first_name = 'admin',
+            last_name = 'admin',
+            email = 'admin',
+            password = 'admin'
+            )
+    u.superuser = True
+    u.apr_by_admin = True
+    db.session.add(u)
+    db.session.commit()
+    return render_template('home.html')
+
+
+
 
 
