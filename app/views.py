@@ -38,11 +38,15 @@ def before_request():
         db.session.add(g.user)
         db.session.commit()
         if g.user.is_suspended():
-            pass
-            #return "YOUR ACCOUNT HAS BEEN SUSPENDED, PLEASE WAIT FOR ADMIN ACTION"
+            flash("Your Account has been SUSPENDED. Please wait for an admin to take action.\
+                    You can still browse books as a public user.")
+            logout()
+            return render_template('home.html')
         if g.user.is_approved() == False:
-            pass
-            #return "YOUR ACCOUNT HAS NOT BEEN APPROVED YET, PLEASE WAIT FOR ADMIN ACTION"
+            flash("Your Account has not been approved by Admin, Please wait for Admin action.\
+                    You may browse books as public user.")
+            logout()
+            return render_template('home.html')
 
 
 @app.route('/', methods = ['GET', 'POST'], defaults = {'path':''})
@@ -105,11 +109,11 @@ def login():
         db.session.add(user)
         db.session.commit()
         
-        flash("logged in sucessfully :)")
+        #flash("logged in sucessfully :)")
         return redirect(request.args.get('next') or url_for('profile'))
         #return redirect(url_for('profile'))
     else:
-        flash("incorrect password")
+        #flash("incorrect password")
         return render_template('login.html',form=form)
     return render_template("login.html",form=form)
 
