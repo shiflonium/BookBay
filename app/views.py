@@ -201,7 +201,6 @@ def transaction_history():
     else:
         return redirect(url_for('home'))
 
-
 @app.route('/admin/remove_user/<user_id>')
 @login_required
 def remove_user(user_id):
@@ -234,8 +233,6 @@ def unsuspend_user(user_id):
     return redirect(url_for('get_all_users'))
 
 
-
-
 @app.route('/admin/approve_user/<user_id>')
 @login_required
 def approve_user(user_id):
@@ -246,7 +243,6 @@ def approve_user(user_id):
     u.apr_by_admin = True
     db.session.commit()
     return redirect(url_for('get_all_users'))
-
 
 @app.route('/admin/remove_book/<book_id>')
 @login_required
@@ -279,7 +275,6 @@ def bid_history():
     else:
         return redirect(url_for('home'))
 
-
 @app.route('/admin/make_superuser')
 @login_required
 def make_self_superuser():
@@ -288,7 +283,6 @@ def make_self_superuser():
     user.superuser = True
     db.session.commit()
     return redirect(url_for('home'))
-
 
 @app.route('/admin/user_list', methods=['GET', 'POST'])
 @login_required
@@ -303,6 +297,51 @@ def get_all_users():
                 )
     else:
         return redirect(url_for('home'))
+
+@app.route('/view_profile/<user_id>', methods = ['GET', 'POST'])
+@login_required
+def view_profile(user_id):
+    """PUBLIC PROFILE"""
+    #username_from_get = request.args.get()
+    form = PostForm()
+    user = User.query.filter_by(id = user_id).first()
+    if user is None:
+        return 'user does not exist'
+    if request.method == 'POST' and form.validate_on_submit():
+        text = request.form['post']
+        user.create_comment(session['user_id'], text)
+    
+    #comments = User_Comments.query.order_by(desc(User_Comments.timestamp))
+    comments = User_Comments.query.filter_by(commented = user).order_by(desc(User_Comments.timestamp)).all()
+    return render_template('view_profile.html',
+            user_id = user_id,
+            user = user,
+            form = form,
+            comments = comments
+            )
+
+@app.route('/personal_profile/<user_id>', methods=['GET', 'POST'])
+@login_required
+def personal_profile(user_id):
+    """PRIVATE PROFILE"""
+    user = User.query.filter_by(id = session['user_id']).first()
+    if user.is_superuser() == False:
+        # check if someone else is trying to access profile
+        if int(user_id) != int(session['user_id']):
+            print "user_id: %s  session['user_id']:%s" % (user_id, session['user_id'])
+            return redirect(url_for('home'))
+    view_user = User.query.filter_by(id = user_id).first()
+    
+    comments_recieved = User_Comments.query.filter_by(commented = view_user).order_by(desc(User_Comments.timestamp)).all()
+    comments_made = User_Comments.query.filter_by(commenter = view_user ).order_by(desc(User_Comments.timestamp)).all()
+    
+    return render_template('personal_profile.html',
+            comments_recieved = comments_recieved,
+            comments_made = comments_made,
+            user=view_user)
+
+
+
 
 @app.route('/search_users', methods = ['GET', 'POST'])
 def search():
@@ -499,29 +538,6 @@ def browse_book(book_id):
         del session['user_id']
     return render_template('browse_book.html', book=book, form=form, book_id=book_id, form2=form2, comments=comments)
 
-
-@app.route('/view_profile/<user_id>', methods = ['GET', 'POST'])
-@login_required
-def view_profile(user_id):
-    #username_from_get = request.args.get()
-    form = PostForm()
-    user = User.query.filter_by(id = user_id).first()
-
-    if user is None:
-        return 'user does not exist'
-
-    if request.method == 'POST' and form.validate_on_submit():
-        text = request.form['post']
-        user.create_comment(session['user_id'], text)
-    
-    #comments = User_Comments.query.order_by(desc(User_Comments.timestamp))
-    comments = User_Comments.query.filter_by(commented = user).order_by(desc(User_Comments.timestamp)).all()
-    return render_template('view_profile.html',
-            user_id = user_id,
-            user = user,
-            form = form,
-            comments = comments
-            )
 
 
 

@@ -9,8 +9,10 @@
 	{% if data.username != 'GUEST' %}
   <header>
   <h4 align="center"> Username: {{ data.username }}</h4>
-  </header>
-	<p align="center"> <strong>First Name:</strong> {{ data.first_name }} 
+	</header>
+	<p align="center"> 
+	<a href="{{url_for('personal_profile',user_id=data.get_id() )}}"> Private Profile </a><a href="{{url_for('view_profile',user_id = data.get_id() )}}"> Public Profile </a><br>
+	<strong>First Name:</strong> {{ data.first_name }} 
 	<strong>Last Name: </strong> {{ data.last_name }}  
 	<strong>Email: </strong> {{ data.email }}  
 	</p>
