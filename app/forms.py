@@ -92,9 +92,13 @@ class sellForm(Form):
 
     def buy_now_validator(self,field):
         if (self.data.get('buyable') == True):
-            if (self.data.get('buynowPrice') == '') or (self.data.get('buynowPrice') < 1):
+            if (self.data.get('buynowPrice') == ''):
                 raise ValidationError('You must specify a price for the Buy Now option')
                 return False
+            if (self.data.get('buynowPrice') < 0):
+                raise ValidationError('Illegal price')
+                return False
+
         return True
         
     def __init__(self, *args, **kwargs):
@@ -125,7 +129,7 @@ class sellForm(Form):
     information = TextAreaField('Book Information', validators = [validators.Length(min=0, max=100, message="Please enter at most 100 characters")])
     submit = SubmitField("Post For Sale!")
     buyable = BooleanField("Enable Buy Now")
-    buynowPrice = IntegerField("Buy Now Price:", validators = [buy_now_validator, validators.NumberRange(min=0, max=None, message = 'Illegal price')])
+    buynowPrice = IntegerField("Buy Now Price:", validators = [buy_now_validator, ])
 
 
 

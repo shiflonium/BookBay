@@ -1,7 +1,7 @@
 from flask import render_template, flash, redirect, session, url_for, request, g
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from app import app, db, login_manager
-from models import User, Book, Transaction, Bid
+from models import User, Book, Transaction, Bid, User_Complaints
 from forms import SignUpForm, LoginForm, ChangePassword, ChangePersonalDetails, SearchForm, sellForm, BidForm
 from werkzeug import generate_password_hash, check_password_hash, secure_filename
 from datetime import datetime
@@ -270,11 +270,19 @@ def sell():
         #GET USER CREDITS
         user_credits = user.get_credit()
 
-        #UPDATE USER CREDITS
-        if ((user.credits  - (int(request.form['saleDuration'])) * 5) < 0):
-            return "NOT ENOUGH CREDIT"
+        #GET USER COMPLAINTS
+        num_of_complaints = db.session.query(User_Complaints).filter_by(complained_id = userid).count()
 
-        user.credits = user.credits  - (int(request.form['saleDuration'])) * 5
+        #CALCULATE CREDIT AFTER SALE
+        temp_credit = user.credits  - ((int(request.form['saleDuration'])) * 5) - ((int(request.form['saleDuration'])) * num_of_complaints)
+
+        #UPDATE USER CREDITS
+        if (temp_credit < 0):
+            return render_template('no_credit.html')
+
+
+
+        user.credits = temp_credit
 
 
 
