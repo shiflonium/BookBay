@@ -93,6 +93,7 @@ def login():
 
         # add timestamp for last_login
         user.last_login = datetime.utcnow()
+        user.increment_login()
         # put user_id in session for later use
         session['user_id'] = user.id
         db.session.add(user)
@@ -368,32 +369,50 @@ def browse():
     query = b.query.order_by(b.owner_id).all()
     numOfRows = len(query)
 
-    print query[0]
+    #print query[0]
 
 
 
-    print query
+    #print query
 
 
 
     return render_template('browse.html', obj=query)
 
 @app.route('/browse/<book_id>', methods=['POST', 'GET'])
-@login_required
 def browse_book(book_id):
     """test template to show one book so you can bid or buy
     pass in book.id as parameter to load book. """
     form = BidForm()
     form2 = PostForm()
     # add comment form for book
+    
+    try:
+        user = User.query.filter_by(id = session['user_id']).first()
+        is_guest = False
+    except KeyError:
+        # it errors here so user is guest. create a guest user to post with.
+        is_guest = True
+        guest = User.query.filter_by(username='guest', email = 'GUEST@GUEST.COM').first()
+        if not guest:
+            guest = User(
+                    username = 'guest',
+                    first_name = 'GUEST',
+                    last_name = 'GUEST',
+                    email = 'GUEST@GUEST.COM',
+                    password = 'GUEST'
+                    )
+            db.session.add(guest)
+            db.session.commit()
+        else:
+            session['user_id'] = guest.id
 
     book = Book.query.filter_by(id = book_id).first()
-    user = book.owner
     if book is None:
         # temporary
         return 'book does not exist'
     else:
-        if request.method == 'POST' and form.validate_on_submit() and form.bid_amount.data:
+        if request.method == 'POST' and form.validate_on_submit() and form.bid_amount.data and is_guest == False:
             bid_amount = request.form['bid_amount']
             book.create_bid(session['user_id'], bid_amount)
             #if bid_amount < book.current_bid:
@@ -406,7 +425,10 @@ def browse_book(book_id):
             book.create_comment(session['user_id'], text)
 
         comments = Book_Comments.query.filter_by(book=book).order_by(desc(Book_Comments.timestamp)).all()
-
+    
+    if is_guest is True:
+        # delete session created by guest user
+        del session['user_id']
     return render_template('browse_book.html', book=book, form=form, book_id=book_id, form2=form2, comments=comments)
 
 

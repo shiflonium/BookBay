@@ -16,6 +16,7 @@ class User(db.Model):
     email = db.Column(db.String(64), unique=True, nullable=False)
     pwdhash = db.Column(db.String(100))
     rating = db.Column(db.Float, default=0.0)
+    num_of_rating = db.Column(db.Integer, default =0)
     superuser = db.Column(db.Boolean, default=False)
     suspended = db.Column(db.Boolean, default=False)
     # approved by admin? 
@@ -28,11 +29,9 @@ class User(db.Model):
     # duration = last_login - last_logout
     last_login = db.Column(db.DateTime)
     last_logout = db.Column(db.DateTime)
-
-    # add this
-    #num_logins = db.Column(db.Integer)
-    #
-
+    num_logins = db.Column(db.Integer, default = 0)
+    
+    su_message = db.relationship('SU_Messages', backref='msg_sender', lazy='dynamic')
     books = db.relationship('Book', backref='owner', lazy='dynamic')
     bids = db.relationship('Bid', backref='bidder', lazy='dynamic')
     book_comment = db.relationship('Book_Comments', backref='commenter', lazy='dynamic')
@@ -89,6 +88,12 @@ class User(db.Model):
     def get_credit(self):
         return self.credits
 
+    def get_avg_rating(self):
+        return (self.rating / self.num_of_rating)
+
+    def increment_login(self):
+        self.num_logins += 1
+
     def create_comment(self, user_id, text):
         # user_id = session['user_id']
         commenter = User.query.filter_by(id = user_id).first()
@@ -126,6 +131,8 @@ class Book(db.Model):
     bookType = db.Column(db.String(25))
     information = db.Column(db.Text)
     rating = db.Column(db.Float, default=0.0)
+    num_of_rating = db.Column(db.Integer, default=0)
+
     # simple way to implement books that are for auction with no buyout. 
     # no one should have 9,999 coins. can change value later.
     # user set starting bid price.
@@ -137,7 +144,6 @@ class Book(db.Model):
     current_bid = db.Column(db.Float)
     starting_bid = db.Column(db.Float)
     date_added = db.Column(db.DateTime)
-
     image_name = db.Column(db.String(25))
     
     #could possibly use this to view all sold, avail books.
@@ -280,6 +286,9 @@ class Book(db.Model):
         """method that determines whether book is sold or not"""
         return self.sold
 
+    def get_avg_rating(self):
+        pass
+
     def create_comment(self, user_id, text):
         commenter = User.query.filter_by(id = user_id).first()
 
@@ -417,6 +426,16 @@ class User_Comments(db.Model):
     
     timestamp = db.Column(db.DateTime)
     comment = db.Column(db.Text)
+
+
+class SU_Messages(db.Model):
+    __tablename__ = 'su_messages'
+    id = db.Column(db.Integer, primary_key=True)
+    sender_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    status = db.Column(db.Integer, nullable=False)
+    message = db.Column(db.Text)
+    timestamp = db.Column(db.DateTime)
+
 
 
 class User_Complaints(db.Model):
