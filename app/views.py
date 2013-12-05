@@ -218,6 +218,9 @@ def suspend_user(user_id):
     if user.superuser == False:
         return redirect(url_for('home'))
     # write this
+    u = User.query.filter_by(id = user_id).first()
+    u.suspended = True
+    db.session.commit()
     return redirect(url_for('home'))
 
 
