@@ -1,8 +1,8 @@
 from flask import render_template, flash, redirect, session, url_for, request, g
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from app import app, db, login_manager
-from models import User, Book, Transaction, Bid
-from forms import SignUpForm, LoginForm, ChangePassword, ChangePersonalDetails, SearchForm, sellForm, BidForm
+from models import User, Book, Transaction, Bid, User_Comments
+from forms import SignUpForm, LoginForm, ChangePassword, ChangePersonalDetails, SearchForm, sellForm, BidForm, PostForm
 from werkzeug import generate_password_hash, check_password_hash, secure_filename
 from datetime import datetime
 from sqlalchemy import desc
@@ -131,7 +131,6 @@ def profile():
 @app.route('/profile/<username>', methods=['POST', 'GET'])
 @login_required
 def show_user(username):
-    
     # add comment form
     # add rating form
     user = User.query.filter_by(username=username).first()
@@ -398,8 +397,24 @@ def browse_book(book_id):
 @app.route('/view_profile/<user_id>', methods = ['GET', 'POST'])
 def view_profile(user_id):
     #username_from_get = request.args.get()
-    query = User.query.filter_by(id = user_id)
-    return render_template('view_profile.html', user_id = user_id, query = query)
+    form = PostForm()
+    user = User.query.filter_by(id = user_id).first()
+
+    if user is None:
+        return 'user does not exist'
+
+    if request.method == 'POST' and form.validate_on_submit():
+        text = request.form['post']
+        user.create_comment(session['user_id'], text)
+    
+    #comments = User_Comments.query.order_by(desc(User_Comments.timestamp))
+    comments = User_Comments.query.filter_by(commented = user).order_by(desc(User_Comments.timestamp)).all()
+    return render_template('view_profile.html',
+            user_id = user_id,
+            user = user,
+            form = form,
+            comments = comments
+            )
 
 
 

@@ -68,6 +68,9 @@ class ChangePassword(Form):
                 return True
         return False
 
+class PostForm(Form):
+    post = TextAreaField('post', validators = [validators.Required()])
+    submit = SubmitField('post!')
 
 
 class ChangePersonalDetails(Form):
