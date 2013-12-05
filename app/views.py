@@ -37,6 +37,8 @@ def before_request():
     if g.user.is_authenticated():
         db.session.add(g.user)
         db.session.commit()
+        if g.user.is_suspended():
+            return "YOUR ACCOUNT HAS BEEN SUSPENDED, PLEASE WAIT FOR ADMIN ACTION"
 
 
 @app.route('/', methods = ['GET', 'POST'], defaults = {'path':''})
