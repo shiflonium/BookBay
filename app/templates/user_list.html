@@ -6,6 +6,7 @@
 <br>
 
 {% for data in user_data %}
+	{% if data.username != 'GUEST' %}
   <header>
   <h4 align="center"> Username: {{ data.username }}</h4>
   </header>
@@ -17,10 +18,21 @@
 	<strong> num_bids: </strong> {{ data.num_bids }} 
 	<strong> num_purchases: </strong> {{ data.num_purchases }}
 	<strong> Rating: </strong> {{ data.rating }} <br>
+	<strong> Times Logged In: </strong> {{ data.times_logged_in() }}<br>
+	{% if data.is_approved() == False %}
+	<p align="center" style="color:blue;font-size:20px;">User is <strong>NOT </strong> approved. Click <a href="{{url_for('approve_user', user_id = data.get_id() ) }}">here</a> to approve</p>
+	{% endif %}
+	{% if data.is_suspended() == True %}
+	<p align="center" style="color:red;font-size:20px;">User is <strong> SUSPENDED </strong>. Click <a href="{{url_for('unsuspend_user', user_id = data.get_id() ) }}">here</a> remove suspension</p>
+
+	{% endif %}
+
+	<p align="center">
 	<a href="{{url_for('remove_user', user_id = data.get_id() ) }}"> Delete {{ data.username }} </a> <br>
-	<a href="{{url_for('suspend_user', user_id = data.get_id() ) }}"> Suspend {{ data.username }} </a>
+	<a href="{{url_for('suspend_user', user_id = data.get_id() ) }}"> Suspend {{ data.username }} </a> <br>
 	</p>
-	<br><br>
+	<br>
+	{% endif %}
 	
 {% endfor %}
 {% endblock %}

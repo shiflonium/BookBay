@@ -4,18 +4,22 @@
 
 
 {% if g.user.is_authenticated() %}
-<p> username is {{ g.user.username }}<br> </p>
-<p> last logged in {{ g.user.last_login }} </p>
+<p align='right'> last logged in {{ g.user.last_login }} </p>
 	{% if g.user.is_superuser() == True %}
-	<p> You are a <strong>Super User</strong> </p>
-	
-	<a href="{{url_for('transaction_history') }}"> Show Transactions History </a><br>
-	<a href="{{url_for('bid_history') }}"> Show Bid History </a><br>
-	<a href="{{url_for('get_all_users') }}"> Show All Users </a><br>
-	<a href="{{url_for('home') }}"> Show All Messages(not working yet)</a><br>
-
+		<p> You are a <strong>Super User</strong> </p>
+		<a href="{{url_for('transaction_history') }}"> Show Transactions History </a><br>
+		<a href="{{url_for('bid_history') }}"> Show Bid History </a><br>
+		<a href="{{url_for('get_all_users') }}"> Show All Users </a><br>
+		<a href="{{url_for('home') }}"> Show All Messages(not working yet)</a><br>
 	{% else %}
-	<p> You are a <strong>Registered User</strong> </p>
+		<p> You are a <strong>Registered User</strong>.
+		{% if g.user.is_approved() == False %}
+		Your account has <strong>NOT</strong> been approved by an admin.
+		{% else %}
+		Your account has been approved by an admin.
+		</p>
+		{% endif %}
+		
 	{% endif %}
 
 

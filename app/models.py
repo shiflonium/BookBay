@@ -94,6 +94,12 @@ class User(db.Model):
     def increment_login(self):
         self.num_logins += 1
 
+    def times_logged_in(self):
+        return self.num_logins
+
+    def is_approved(self):
+        return self.apr_by_admin
+
     def create_comment(self, user_id, text):
         # user_id = session['user_id']
         commenter = User.query.filter_by(id = user_id).first()

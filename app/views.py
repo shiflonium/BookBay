@@ -217,14 +217,35 @@ def suspend_user(user_id):
     user = User.query.filter_by(id = session['user_id']).first()
     if user.superuser == False:
         return redirect(url_for('home'))
-    # write this
     u = User.query.filter_by(id = user_id).first()
     u.suspended = True
     db.session.commit()
-    return redirect(url_for('home'))
+    return redirect(url_for('get_all_users'))
+
+@app.route('/admin/unsuspend_user/<user_id>')
+@login_required
+def unsuspend_user(user_id):
+    user = User.query.filter_by(id = session['user_id']).first()
+    if user.superuser == False:
+        return redirect(url_for('home'))
+    u = User.query.filter_by(id = user_id).first()
+    u.suspended = False
+    db.session.commit()
+    return redirect(url_for('get_all_users'))
 
 
-        
+
+
+@app.route('/admin/approve_user/<user_id>')
+@login_required
+def approve_user(user_id):
+    user = User.query.filter_by(id = session['user_id']).first()
+    if user.is_superuser() == False:
+        return redirect(url_for('home'))
+    u = User.query.filter_by(id = user_id).first()
+    u.apr_by_admin = True
+    db.session.commit()
+    return redirect(url_for('get_all_users'))
 
 
 @app.route('/admin/remove_book/<book_id>')
@@ -233,25 +254,20 @@ def remove_book(book_id):
     user = User.query.filter_by(id = session['user_id']).first()
     if user.superuser == False:
         return redirect(url_for('home'))
-    
     #idk how to cascade so doing this manually
     book = Book.query.filter_by(id = book_id).first()
     bids = Bid.query.filter_by(book_id = book.id).all()
     comments = Book_Comments.query.filter_by(book_id = book.id).all()
-    
     # delete all comments
     for comment in comments:
         db.session.delete(comment)
-    
     # delete all bids
     for bid in bids:
         db.session.delete(bid)
-    
     # delete book
     db.session.delete(book)
     db.session.commit()
     return redirect(url_for('browse'))
-
 
 @app.route('/admin/bid_history', methods=['GET', 'POST'])
 @login_required
