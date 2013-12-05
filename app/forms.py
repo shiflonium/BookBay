@@ -139,7 +139,7 @@ class sellForm(Form):
     information = TextAreaField('Book Information', validators = [validators.Length(min=0, max=100, message="Please enter at most 100 characters")])
     submit = SubmitField("Post For Sale!")
     buyable = BooleanField("Enable Buy Now")
-    buynowPrice = IntegerField("Buy Now Price:", validators = [buy_now_validator, ])
+    buynowPrice = IntegerField("Buy Now Price:", validators = [buy_now_validator])
 
 
 
