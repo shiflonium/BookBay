@@ -203,6 +203,27 @@ def transaction_history():
     else:
         return redirect(url_for('home'))
 
+@app.route('/admin/remove_book/<book_id>')
+@login_required
+def remove_book(book_id):
+    #idk how to cascade so doing this manually
+    book = Book.query.filter_by(id = book_id).first()
+    bids = Bid.query.filter_by(book_id = book.id).all()
+    comments = Book_Comments.query.filter_by(book_id = book.id).all()
+    
+    # delete all comments
+    for comment in comments:
+        db.session.delete(comment)
+    
+    # delete all bids
+    for bid in bids:
+        db.session.delete(bid)
+    
+    # delete book
+    db.session.delete(book)
+    db.session.commit()
+    return redirect(url_for('browse'))
+
 
 @app.route('/admin/bid_history', methods=['GET', 'POST'])
 @login_required
@@ -215,6 +236,16 @@ def bid_history():
         return render_template('bid_history.html', bids=bids)
     else:
         return redirect(url_for('home'))
+
+
+@app.route('/admin/make_superuser')
+@login_required
+def make_self_superuser():
+    """simple function to make self super user"""
+    user = User.query.filter_by(id = session['user_id']).first()
+    user.superuser = True
+    db.session.commit()
+    return redirect(url_for('home'))
 
 
 @app.route('/admin/user_list', methods=['GET', 'POST'])
@@ -368,15 +399,8 @@ def browse():
     b = Book()
     query = b.query.order_by(b.owner_id).all()
     numOfRows = len(query)
-
     #print query[0]
-
-
-
     #print query
-
-
-
     return render_template('browse.html', obj=query)
 
 @app.route('/browse/<book_id>', methods=['POST', 'GET'])
@@ -433,6 +457,7 @@ def browse_book(book_id):
 
 
 @app.route('/view_profile/<user_id>', methods = ['GET', 'POST'])
+@login_required
 def view_profile(user_id):
     #username_from_get = request.args.get()
     form = PostForm()
