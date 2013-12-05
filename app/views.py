@@ -39,6 +39,8 @@ def before_request():
         db.session.commit()
         if g.user.is_suspended():
             return "YOUR ACCOUNT HAS BEEN SUSPENDED, PLEASE WAIT FOR ADMIN ACTION"
+        if g.user.is_approved() == False:
+            return "YOUR ACCOUNT HAS NOT BEEN APPROVED YET, PLEASE WAIT FOR ADMIN ACTION"
 
 
 @app.route('/', methods = ['GET', 'POST'], defaults = {'path':''})
@@ -276,15 +278,6 @@ def bid_history():
         return render_template('bid_history.html', bids=bids)
     else:
         return redirect(url_for('home'))
-
-@app.route('/admin/make_superuser')
-@login_required
-def make_self_superuser():
-    """simple function to make self super user"""
-    user = User.query.filter_by(id = session['user_id']).first()
-    user.superuser = True
-    db.session.commit()
-    return redirect(url_for('home'))
 
 @app.route('/admin/user_list', methods=['GET', 'POST'])
 @login_required
@@ -574,3 +567,14 @@ def submit_rating():
 @app.route('/complain')
 def complain():
     return render_template('complain.html')
+
+@app.route('/admin/make_superuser')
+@login_required
+def make_self_superuser():
+    """simple function to make self super user"""
+    user = User.query.filter_by(id = session['user_id']).first()
+    user.superuser = True
+    db.session.commit()
+    return redirect(url_for('home'))
+
+
