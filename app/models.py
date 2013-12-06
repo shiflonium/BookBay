@@ -355,6 +355,19 @@ class Book(db.Model):
         db.session.commit()
 
 
+    def create_complaint(self, user_id, text):
+        user = User.query.filter_by(id = user_id).first()
+        
+        book_complaint = Book_Complaints(
+                complainer = user,
+                book = self,
+                comment = text,
+                timestamp = datetime.utcnow()
+                )
+        db.session.add(book_complaint)
+        db.session.commit()
+
+
     def create_rating(self, user_id, rating):
         user = User.query.filter_by(id = user_id).first()
 
@@ -370,9 +383,6 @@ class Book(db.Model):
             db.session.add(rating)
             db.session.commit()
 
-
-
-    
     def create_bid(self, session_id, bid_amount=None):
         """creates a bid transaction for the book
         user_session variable passed in from views. returns user_id."""
@@ -498,7 +508,7 @@ class Book_Ratings(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     book_id = db.Column(db.Integer, db.ForeignKey('book.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), unique=True, nullable=False)
-    rating = db.Column(db.Intger, nullable=False)
+    rating = db.Column(db.Integer, nullable=False)
     timestamp = db.Column(db.DateTime)
 
 
