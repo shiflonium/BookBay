@@ -2,7 +2,7 @@ from flask import render_template, flash, redirect, session, url_for, request, g
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from app import app, db, login_manager
 from models import User, Book, Transaction, Bid, User_Comments, Book_Comments, User_Complaints
-from forms import SignUpForm, LoginForm, ChangePassword, ChangePersonalDetails, SearchForm, sellForm, BidForm, PostForm
+from forms import SignUpForm, LoginForm, ChangePassword, ChangePersonalDetails, SearchForm, sellForm, BidForm, PostForm, SUForm
 from werkzeug import generate_password_hash, check_password_hash, secure_filename
 from datetime import datetime
 from sqlalchemy import desc, update
@@ -311,8 +311,6 @@ def view_profile(user_id):
     if request.method == 'POST' and form.validate_on_submit():
         text = request.form['post']
         user.create_comment(session['user_id'], text)
-    
-    #comments = User_Comments.query.order_by(desc(User_Comments.timestamp))
     comments = User_Comments.query.filter_by(commented = user).order_by(desc(User_Comments.timestamp)).all()
     return render_template('view_profile.html',
             user_id = user_id,
@@ -340,6 +338,23 @@ def personal_profile(user_id):
             comments_recieved = comments_recieved,
             comments_made = comments_made,
             user=view_user)
+
+@app.route('/send_msg', methods=['GET', 'POST'])
+@login_required
+def send_msg():
+    form = SUForm()
+    user = User.query.filter_by(id = session['user_id']).first()
+    if request.method == 'POST' and form.validate_on_submit():
+        msg = form.message.data
+        status = form.status.data
+        #msg = request.form['msg']
+        #status = request.form['status']
+
+        user.send_msg(status=status, text=msg)
+        flash ('message sent to su')
+        return redirect(url_for('home'))
+    return render_template('send_msg.html', form=form)
+
 
 
 
@@ -523,10 +538,8 @@ def browse_book(book_id):
         if request.method == 'POST' and form.validate_on_submit() and form.bid_amount.data and is_guest == False:
             bid_amount = request.form['bid_amount']
             book.create_bid(session['user_id'], bid_amount)
-            #if bid_amount < book.current_bid:
-            #    print 'current_bid %s' % book.current_bid
-            #    print 'bid amount: %s' % bid_amount
-            #    return 'bid amount too low, current bid: %s ' % book.current_bid
+            #msg = 'Sucessfully placed a bid for %s' % bid_amount
+            #flash(msg)
         if request.method == 'POST' and form2.validate_on_submit() and form2.post.data:
             # have no idea why the other one doesnt work
             text = form2.post.data

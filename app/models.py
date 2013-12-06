@@ -100,10 +100,20 @@ class User(db.Model):
     def is_approved(self):
         return self.apr_by_admin
 
+    def send_msg(self, status, text):
+        msg = SU_Messages(
+                msg_sender = self,
+                status = status,
+                message = text,
+                timestamp = datetime.utcnow()
+                )
+        db.session.add(msg)
+        db.session.commit()
+        pass
+    
     def create_comment(self, user_id, text):
         # user_id = session['user_id']
         commenter = User.query.filter_by(id = user_id).first()
-        
         comment = User_Comments(
                 commenter = commenter,
                 commented = self,

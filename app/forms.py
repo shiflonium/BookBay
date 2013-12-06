@@ -78,6 +78,17 @@ class PostForm(Form):
     def validate(self):
         return True
 
+class SUForm(Form):
+    message = TextAreaField('message', validators = [validators.Required()])
+    status = IntegerField('status', validators=[validators.Required()])
+    submit = SubmitField('submit')
+
+    def __init__(self, *args, **kwargs):
+        Form.__init__(self, *args, **kwargs)
+
+    def validate(self):
+        return True
+
 
 
 class ChangePersonalDetails(Form):

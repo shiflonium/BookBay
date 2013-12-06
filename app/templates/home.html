@@ -31,6 +31,8 @@
 		click <a href="{{url_for('personal_profile', user_id = g.user.get_id() ) }}">Profile</a> to view personal statistics.<br>
 		<a href="{{url_for('get_all_users') }}"> Show All Users </a><br>
 
+		<a href="{{url_for('send_msg') }}"> Send message to Super Users </a><br>
+
 		{% endif %}
 	{% endif %}
 {% else %}
