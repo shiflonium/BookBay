@@ -37,6 +37,7 @@ class User(db.Model):
     bids = db.relationship('Bid', backref='bidder', lazy='dynamic')
     book_comment = db.relationship('Book_Comments', backref='commenter', lazy='dynamic')
     book_complaint = db.relationship('Book_Complaints', backref='complainer', lazy='dynamic')
+    book_ratings = db.relationship('Book_Ratings', backref='rater', lazy='dynamic')
     
    
     def __init__(self, username, first_name, last_name, email, password):
@@ -171,6 +172,8 @@ class Book(db.Model):
     bids = db.relationship('Bid', backref='book', lazy='dynamic')
     commented_by = db.relationship('Book_Comments', backref='book', lazy='dynamic')
     complaints = db.relationship('Book_Complaints', backref='book', lazy='dynamic')
+    book_ratings = db.relationship('Book_Ratings', backref='book', lazy='dynamic')
+
     
 
     def columns(self):
@@ -472,6 +475,13 @@ class Book_Complaints(db.Model):
     def __repr__(self):
         return "user_id: %s book_id: %s" % (self.user_id, self.book_id)
 
+class Book_Ratings(db.Model):
+    __tablename__ = "book_ratings"
+    id = db.Column(db.Integer, primary_key=True)
+    book_id = db.Column(db.Integer, db.ForeignKey('book.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), unique=True, nullable=False)
+    rating = db.Column(db.Intger, nullable=False)
+    timestamp = db.Column(db.DateTime)
 
 
 class User_Comments(db.Model):
@@ -499,7 +509,6 @@ class SU_Messages(db.Model):
     status = db.Column(db.Integer, nullable=False)
     message = db.Column(db.Text)
     timestamp = db.Column(db.DateTime)
-
 
 
 class User_Complaints(db.Model):
