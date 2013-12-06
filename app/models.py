@@ -36,6 +36,7 @@ class User(db.Model):
     books = db.relationship('Book', backref='owner', lazy='dynamic')
     bids = db.relationship('Bid', backref='bidder', lazy='dynamic')
     book_comment = db.relationship('Book_Comments', backref='commenter', lazy='dynamic')
+    book_complaint = db.relationship('Book_Complaints', backref='complainer', lazy='dynamic')
     
    
     def __init__(self, username, first_name, last_name, email, password):
@@ -169,6 +170,7 @@ class Book(db.Model):
     # one book has many bids
     bids = db.relationship('Bid', backref='book', lazy='dynamic')
     commented_by = db.relationship('Book_Comments', backref='book', lazy='dynamic')
+    complaints = db.relationship('Book_Complaints', backref='book', lazy='dynamic')
     
 
     def columns(self):
@@ -458,6 +460,17 @@ class Book_Comments(db.Model):
 
     def __repr__(self):
         return "comment_id: %s book_id: %s" % (self.id, self.book_id)
+
+class Book_Complaints(db.Model):
+    __tablename__ = "book_complaints"
+    id = db.Column(db.Integer, primary_key=True)
+    book_id = db.Column(db.Integer, db.ForeignKey('book.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    timestamp = db.Column(db.DateTime)
+    comment = db.Column(db.Text)
+
+    def __repr__(self):
+        return "user_id: %s book_id: %s" % (self.user_id, self.book_id)
 
 
 
