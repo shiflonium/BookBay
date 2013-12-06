@@ -36,7 +36,7 @@ def before_request():
     passed in to templates. i.e. {{% if g.user.is_anonymous %}} '''
     # do something before each request
     g.user = current_user
-    if g.user.is_authenticated():
+    if g.user.is_authenticated() and g.user.is_anonymous == False:
         db.session.add(g.user)
         db.session.commit()
         if g.user.is_suspended():
@@ -50,30 +50,49 @@ def before_request():
             logout()
             return render_template('home.html')
 
-@app.before_request
-def check_books():
+# executed by do_book_removal_and_purchase_checking
+def check_book_expr_and_has_bids():
+    """this function executes when a book is expired and has bidders. should sell
+    book to highest bidder."""
+    print 'test test test'
+    pass
+# executed by do_book_removal_and_purchase_checking
+def check_book_expr_and_no_bids():
     """easiest way to keep db updated.... this will run anytime ANY user clicks on anything
     only doing this because it's for a class project lol.
     - Books with no bidder are automatically removed from the system after the stated deadline.
     adding print statements for debugging
     """
+    check_book_expr_and_has_bids()
     all_books = Book.query.all()
+    print "checking %s books." % (len(all_books))
     for book in all_books:
         # if book is expired and does not have any bids
+        print "%s expired? %s" % (book.title, book.is_book_expr())
+        print "%s have_bids? %s" % (book.title, book.is_book_expr())
         if book.is_book_expr() and book.not_have_bids():
             # remove foreign key constraints, in this case it should only be comments
             comments = Book_Comments.query.filter_by(book_id = book.id).all()
+            print len(comments)
+            print comments
             for comment in comments:
                 print "deleting comment: %s" % comment
                 db.session.delete(comment)
+                db.session.commit()
             print "deleting book: %s" % book
             db.session.delete(book)
             db.session.commit()
         else:
             print "Book:%s ISBN: %s  expires in %s minutes." % (book.title, book.isbn, book.until_expire_in_mins())
-            print "Book:%s ISBN: %s  expires in %s hours." % (book.title, book.isbn, book.until_expire_in_hrs() )
+            print "Book:%s ISBN: %s  expires in %s hours." % (book.title, book.isbn, book.until_expire_in_hrs())
 
-            
+@app.before_request
+def do_book_removal_and_purchase_checking():
+    """this executes the functions that figure out what to do when books are
+    1. expired and have no bids => remove them
+    2. expired and HAS bids => create a transaction and make book sold."""
+    check_book_expr_and_no_bids()
+    check_book_expr_and_has_bids()
 
 
 @app.route('/', methods = ['GET', 'POST'], defaults = {'path':''})

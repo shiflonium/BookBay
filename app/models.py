@@ -330,7 +330,6 @@ class Book(db.Model):
 
     def until_expire_in_hrs(self):
         return (self.until_expire_in_mins() / 60)
-
     
     def not_have_bids(self):
         book_bids = Bid.query.filter_by(book_id = self.id).all() 
