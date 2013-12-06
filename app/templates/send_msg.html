@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2> Send Message to SuperUser</h2>
+<form class="navbar-form navbar-left"  action= "{{ url_for('send_msg') }}" method="POST"  enctype="multipart/form-data">
+	<div class="form-group">
+
+		{{ form.csrf_token }}
+
+		{{ form.status.label }}
+		{{ form.status }}
+	</div>
+	
+	{{ form.message.label }}
+	{{ form.message }}<br>
+
+	{{ form.submit }}
+</form>
+
+
+{% endblock %}

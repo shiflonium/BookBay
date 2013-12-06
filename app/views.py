@@ -1,14 +1,15 @@
 from flask import render_template, flash, redirect, session, url_for, request, g
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from app import app, db, login_manager
-from models import User, Book, Transaction, Bid, User_Comments, Book_Comments, User_Complaints
-from forms import SignUpForm, LoginForm, ChangePassword, ChangePersonalDetails, SearchForm, sellForm, BidForm, PostForm
+from models import User, Book, Transaction, Bid, User_Comments, Book_Comments, User_Complaints, SU_Messages
+from forms import SignUpForm, LoginForm, ChangePassword, ChangePersonalDetails, SearchForm, sellForm, BidForm, PostForm, SUForm, ComplainForm
 from werkzeug import generate_password_hash, check_password_hash, secure_filename
 from datetime import datetime
 from sqlalchemy import desc, update
 import os
 import random
 import string
+import datetime as dt
 
 
 '''
@@ -27,6 +28,7 @@ def load_user(id):
     key for login user. query.get is for primary keys'''
     return User.query.get(int(id))
 
+
 @app.before_request
 def before_request():
     '''this is executed before every routing request.
@@ -38,11 +40,40 @@ def before_request():
         db.session.add(g.user)
         db.session.commit()
         if g.user.is_suspended():
-            pass
-            #return "YOUR ACCOUNT HAS BEEN SUSPENDED, PLEASE WAIT FOR ADMIN ACTION"
+            flash("Your Account has been SUSPENDED. Please wait for an admin to take action.\
+                    You can still browse books as a public user.")
+            logout()
+            return render_template('home.html')
         if g.user.is_approved() == False:
-            pass
-            #return "YOUR ACCOUNT HAS NOT BEEN APPROVED YET, PLEASE WAIT FOR ADMIN ACTION"
+            flash("Your Account has not been approved by Admin, Please wait for Admin action.\
+                    You may browse books as public user.")
+            logout()
+            return render_template('home.html')
+
+@app.before_request
+def check_books():
+    """easiest way to keep db updated.... this will run anytime ANY user clicks on anything
+    only doing this because it's for a class project lol.
+    - Books with no bidder are automatically removed from the system after the stated deadline.
+    adding print statements for debugging
+    """
+    all_books = Book.query.all()
+    for book in all_books:
+        # if book is expired and does not have any bids
+        if book.is_book_expr() and book.not_have_bids():
+            # remove foreign key constraints, in this case it should only be comments
+            comments = Book_Comments.query.filter_by(book_id = book.id).all()
+            for comment in comments:
+                print "deleting comment: %s" % comment
+                db.session.delete(comment)
+            print "deleting book: %s" % book
+            db.session.delete(book)
+            db.session.commit()
+        else:
+            print "Book:%s ISBN: %s  expires in %s minutes." % (book.title, book.isbn, book.until_expire_in_mins())
+            print "Book:%s ISBN: %s  expires in %s hours." % (book.title, book.isbn, book.until_expire_in_hrs() )
+
+            
 
 
 @app.route('/', methods = ['GET', 'POST'], defaults = {'path':''})
@@ -115,11 +146,11 @@ def login():
         db.session.add(user)
         db.session.commit()
         
-        flash("logged in sucessfully :)")
+        #flash("logged in sucessfully :)")
         return redirect(request.args.get('next') or url_for('profile'))
         #return redirect(url_for('profile'))
     else:
-        flash("incorrect password")
+        #flash("incorrect password")
         return render_template('login.html',form=form)
     return render_template("login.html",form=form)
 
@@ -291,6 +322,14 @@ def bid_history():
     else:
         return redirect(url_for('home'))
 
+@app.route('/admin/su_msg_list', methods=['GET','POST'])
+@login_required
+def su_msg_list():
+    msgs = SU_Messages.query.order_by(desc(SU_Messages.timestamp)).all()
+
+    return render_template("view_msgs.html", msgs=msgs)
+
+
 @app.route('/admin/user_list', methods=['GET', 'POST'])
 @login_required
 def get_all_users():
@@ -317,8 +356,6 @@ def view_profile(user_id):
     if request.method == 'POST' and form.validate_on_submit():
         text = request.form['post']
         user.create_comment(session['user_id'], text)
-    
-    #comments = User_Comments.query.order_by(desc(User_Comments.timestamp))
     comments = User_Comments.query.filter_by(commented = user).order_by(desc(User_Comments.timestamp)).all()
     return render_template('view_profile.html',
             user_id = user_id,
@@ -346,6 +383,23 @@ def personal_profile(user_id):
             comments_recieved = comments_recieved,
             comments_made = comments_made,
             user=view_user)
+
+@app.route('/send_msg', methods=['GET', 'POST'])
+@login_required
+def send_msg():
+    form = SUForm()
+    user = User.query.filter_by(id = session['user_id']).first()
+    if request.method == 'POST' and form.validate_on_submit():
+        msg = form.message.data
+        status = form.status.data
+        #msg = request.form['msg']
+        #status = request.form['status']
+
+        user.send_msg(status=status, text=msg)
+        flash ('message sent to su')
+        return redirect(url_for('home'))
+    return render_template('send_msg.html', form=form)
+
 
 
 
@@ -529,10 +583,8 @@ def browse_book(book_id):
         if request.method == 'POST' and form.validate_on_submit() and form.bid_amount.data and is_guest == False:
             bid_amount = request.form['bid_amount']
             book.create_bid(session['user_id'], bid_amount)
-            #if bid_amount < book.current_bid:
-            #    print 'current_bid %s' % book.current_bid
-            #    print 'bid amount: %s' % bid_amount
-            #    return 'bid amount too low, current bid: %s ' % book.current_bid
+            #msg = 'Sucessfully placed a bid for %s' % bid_amount
+            #flash(msg)
         if request.method == 'POST' and form2.validate_on_submit() and form2.post.data:
             # have no idea why the other one doesnt work
             text = form2.post.data
@@ -569,8 +621,13 @@ def submit_rating():
     isbn = request.form['isbn_num']
     ratings = request.form['rated']
     query = b.query.filter_by(isbn = isbn).first()
-    #stmt = update(Book).where(Book.isbn == isbn).values(rating = ratings)
+    book_query = b.query.filter_by(isbn = isbn).all()
+    for r in book_query:
+        book_dict=r.__dict__
+
+    num_of_ratings = int(book_dict['num_of_rating'])
     query.rating = ratings
+    query.num_of_rating = num_of_ratings + 1
     db.session.commit()
     return render_template('rate_success.html')
 
@@ -578,15 +635,42 @@ def submit_rating():
 
 @app.route('/complain')
 def complain():
-    return render_template('complain.html')
+    b=Book()
+    form = ComplainForm()
+    isbn = request.args.get('isbn')
+    query = b.query.filter_by(isbn = isbn).all()
+    for u in query:
+        book_dict = u.__dict__
+    user_query = User.query.filter_by(id = int(book_dict['owner_id']))
+    return render_template('complain.html', query = query, user_query = user_query, isbn =isbn, form = form)
+    #return render_template('complain.html', query = query)
 
 @app.route('/admin/make_superuser')
 @login_required
+# make registered user in to super user
 def make_self_superuser():
     """simple function to make self super user"""
     user = User.query.filter_by(id = session['user_id']).first()
     user.superuser = True
     db.session.commit()
     return redirect(url_for('home'))
+
+@app.route('/get_admin_account')
+def create_admin_account():
+    u = User(
+            username = 'admin',
+            first_name = 'admin',
+            last_name = 'admin',
+            email = 'admin',
+            password = 'admin'
+            )
+    u.superuser = True
+    u.apr_by_admin = True
+    db.session.add(u)
+    db.session.commit()
+    return render_template('home.html')
+
+
+
 
 

@@ -73,11 +73,12 @@
 			<label> Buy Now Price: {{i.get_buyout_price() }}</label> <br>
 		{% endif %}
 		<label> Book Type: {{ i.get_booktype() }}</label><br>
+		<p> Expires in <strong>{{ i.until_expire_in_hrs() }}</strong> hours or <strong>{{i.until_expire_in_mins() }}</strong> minutes </p>
 	</div>
 	<div class="inner3">
 		<input name = "isbn" type = "hidden" value = "{{isbn_var}}"> 
 		<label>Do you like this book? </label> <a href="{{url_for('rate_book') }}?isbn={{isbn_var}}"> Rate this Book</a>
-		<label>Is this book ofensive? </label><a href="{{url_for('complain') }}"> Report this Book</a>
+		<label>Is this book ofensive? </label><a href="{{url_for('complain') }}?isbn={{isbn_var}}"> Report this Book</a>
 		{% if g.user.is_anonymous() == False %}
 			{% if g.user.is_superuser() == True %}
 				<label>Delete this book </label><a href="{{url_for('remove_book', book_id =i.get_id() ) }}"> Delete this book </a>

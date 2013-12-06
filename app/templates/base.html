@@ -43,7 +43,7 @@
 	      {% if g.user.is_authenticated() %}
 	      <li id="profile"><a href="{{ url_for('profile') }}">Profile</a></li>
 	      <li id="sellBooks"><a href="{{ url_for('sell') }}">Sell Your Books</a></li>
-	      <li id="logout"><a href="{{ url_for('logout') }}">Logout</a></li>
+				<!--<li id="logout"><a href="{{ url_for('logout') }}">Logout</a></li>--!>
 		  
 	      {% else %}
 	      <li id="signup"><a href="{{ url_for('signup') }}">Sign Up</a></li>

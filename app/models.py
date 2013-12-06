@@ -4,6 +4,7 @@ from app import app
 from werkzeug import generate_password_hash, check_password_hash
 import re
 from datetime import date, datetime
+import datetime as dt
 from sqlalchemy.orm import class_mapper, ColumnProperty
 
 
@@ -100,10 +101,20 @@ class User(db.Model):
     def is_approved(self):
         return self.apr_by_admin
 
+    def send_msg(self, status, text):
+        msg = SU_Messages(
+                msg_sender = self,
+                status = status,
+                message = text,
+                timestamp = datetime.utcnow()
+                )
+        db.session.add(msg)
+        db.session.commit()
+        pass
+    
     def create_comment(self, user_id, text):
         # user_id = session['user_id']
         commenter = User.query.filter_by(id = user_id).first()
-        
         comment = User_Comments(
                 commenter = commenter,
                 commented = self,
@@ -296,6 +307,38 @@ class Book(db.Model):
     def get_avg_rating(self):
         pass
 
+    def get_expr_date(self):
+        """return date when book should run out of time.
+        Assuming that saleDuration is in days. """
+        return self.date_added + dt.timedelta(days = self.saleDuration)
+
+    def is_book_expr(self):
+        expr_date = self.get_expr_date()
+        now = datetime.utcnow()
+        #print "expr_date: %s  now: %s" % (expr_date, now)
+        if expr_date <= now:
+            return True
+        else:
+            return False
+        
+    def until_expire_in_mins(self):
+        """time until book expires in minutes"""
+        expr_date = self.get_expr_date()
+        delta = expr_date - datetime.utcnow()
+        delta_in_mins = int(delta.total_seconds() / 60 )
+        return delta_in_mins
+
+    def until_expire_in_hrs(self):
+        return (self.until_expire_in_mins() / 60)
+
+    
+    def not_have_bids(self):
+        book_bids = Bid.query.filter_by(book_id = self.id).all() 
+        if len(book_bids) == 0:
+            return True
+        else:
+            return False
+
     def create_comment(self, user_id, text):
         commenter = User.query.filter_by(id = user_id).first()
 
@@ -306,8 +349,6 @@ class Book(db.Model):
                 timestamp = datetime.utcnow())
         db.session.add(comment)
         db.session.commit()
-
-        pass
 
     
     def create_bid(self, session_id, bid_amount=None):
@@ -347,7 +388,7 @@ class Book(db.Model):
 
 
     def __repr__(self):
-        return '<Book: %s owner: %s>' %(self.title, self.owner)
+        return '<Title: %s Owner: %s>' %(self.title, self.owner)
 
 
 
@@ -400,6 +441,7 @@ class Bid(db.Model):
     timestamp = db.Column(db.DateTime)
     bid_price = db.Column(db.Integer, nullable=False)
 
+
     def __init__(self, book, bidder, bid_price):
         self.bidder = bidder
         self.book = book
@@ -414,7 +456,10 @@ class Book_Comments(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     timestamp = db.Column(db.DateTime)
     comment = db.Column(db.Text)
-    pass
+
+    def __repr__(self):
+        return "comment_id: %s book_id: %s" % (self.id, self.book_id)
+
 
 
 class User_Comments(db.Model):
