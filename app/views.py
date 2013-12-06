@@ -36,7 +36,7 @@ def before_request():
     passed in to templates. i.e. {{% if g.user.is_anonymous %}} '''
     # do something before each request
     g.user = current_user
-    if g.user.is_authenticated() and g.user.is_anonymous == False:
+    if g.user.is_authenticated():
         db.session.add(g.user)
         db.session.commit()
         if g.user.is_suspended():
