@@ -21,6 +21,13 @@
 		click <a href="{{url_for('personal_profile', user_id = g.user.get_id() ) }}">Profile</a> to view personal statistics.<br>
 		<a href="{{url_for('get_all_users') }}"> Show All Users </a><br>
 
+		<div>
+			<h3> Most Active Users:</h3>
+
+			{% for user in users_list %}
+				{{user}} --- {{user.get_id()}}<br>
+			{% endfor %}
+		</div>
 
 		{% endif %}
 		

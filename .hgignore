@@ -4,4 +4,4 @@ syntax: glob
 *~
 *.env
 db_repository
-userImages/*
+*.jpg
