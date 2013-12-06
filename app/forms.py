@@ -170,7 +170,15 @@ class BidForm(Form):
         return True
 
 
+class ComplainForm(Form):
+    message = TextAreaField('message', validators = [validators.Required()])
+    submit = SubmitField('Submit')
 
+    def __init__(self, *args, **kwargs):
+        Form.__init__(self, *args, **kwargs)
+
+    def validate(self):
+        return True
 
 
 

@@ -2,7 +2,7 @@ from flask import render_template, flash, redirect, session, url_for, request, g
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from app import app, db, login_manager
 from models import User, Book, Transaction, Bid, User_Comments, Book_Comments, User_Complaints, SU_Messages
-from forms import SignUpForm, LoginForm, ChangePassword, ChangePersonalDetails, SearchForm, sellForm, BidForm, PostForm, SUForm
+from forms import SignUpForm, LoginForm, ChangePassword, ChangePersonalDetails, SearchForm, sellForm, BidForm, PostForm, SUForm, ComplainForm
 from werkzeug import generate_password_hash, check_password_hash, secure_filename
 from datetime import datetime
 from sqlalchemy import desc, update
@@ -614,7 +614,7 @@ def submit_rating():
     book_query = b.query.filter_by(isbn = isbn).all()
     for r in book_query:
         book_dict=r.__dict__
-        
+
     num_of_ratings = int(book_dict['num_of_rating'])
     query.rating = ratings
     query.num_of_rating = num_of_ratings + 1
@@ -625,7 +625,15 @@ def submit_rating():
 
 @app.route('/complain')
 def complain():
-    return render_template('complain.html')
+    b=Book()
+    form = ComplainForm()
+    isbn = request.args.get('isbn')
+    query = b.query.filter_by(isbn = isbn).all()
+    for u in query:
+        book_dict = u.__dict__
+    user_query = User.query.filter_by(id = int(book_dict['owner_id']))
+    return render_template('complain.html', query = query, user_query = user_query, isbn =isbn, form = form)
+    #return render_template('complain.html', query = query)
 
 @app.route('/admin/make_superuser')
 @login_required
