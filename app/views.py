@@ -611,8 +611,13 @@ def submit_rating():
     isbn = request.form['isbn_num']
     ratings = request.form['rated']
     query = b.query.filter_by(isbn = isbn).first()
-    #stmt = update(Book).where(Book.isbn == isbn).values(rating = ratings)
+    book_query = b.query.filter_by(isbn = isbn).all()
+    for r in book_query:
+        book_dict=r.__dict__
+        
+    num_of_ratings = int(book_dict['num_of_rating'])
     query.rating = ratings
+    query.num_of_rating = num_of_ratings + 1
     db.session.commit()
     return render_template('rate_success.html')
 

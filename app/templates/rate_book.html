@@ -69,16 +69,20 @@ $(function() {
 	</div>
 
 	<form id = "rate_form" action = "{{ url_for('submit_rating') }}" method="POST">
-		
+	<div class="inner">		
 		<input name = "star" type = "radio" class="star" value="1"/>
 		<input name = "star" type = "radio" class="star" value="2"/>
 		<input name = "star" type = "radio" class="star" value="3"/>
 		<input name = "star" type = "radio" class="star" value="4"/>
 		<input name = "star" type = "radio" class="star" value="5"/>
+	</div>
 		<input type="hidden" name ="rated" id="rate_amount"></input>
 		<input type="hidden" name ="isbn_num" value="{{book.get_isbn()}}"></input>
+		<div class="inner2">
 		<button type = "submit" value ="Rate!" id = "submit_rate">Rate!</button>
+		</div>
 	</form>
+
 
 
 {% endfor%}
