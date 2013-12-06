@@ -53,8 +53,14 @@ def before_request():
 # executed by do_book_removal_and_purchase_checking
 def check_book_expr_and_has_bids():
     """this function executes when a book is expired and has bidders. should sell
-    book to highest bidder."""
-    print 'test test test'
+    book to highest bidder. if a book expires and has bids, take the highest bid
+    amount and sell it to that user.
+    
+    """
+    print 'CHECKING IF THERE ARE ANY EXPIRED BOOKS WITH BIDS'
+    all_books = Book.query.all()
+
+
     pass
 # executed by do_book_removal_and_purchase_checking
 def check_book_expr_and_no_bids():
@@ -526,8 +532,9 @@ def sell():
         
 
         
-
-        b.current_bid=float(0)
+        # changing current_bid to price
+        #b.current_bid=float(0)
+        b.current_bid = b.price
 
         b.biddable= 1
         
