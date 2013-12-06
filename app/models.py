@@ -354,6 +354,24 @@ class Book(db.Model):
         db.session.add(comment)
         db.session.commit()
 
+
+    def create_rating(self, user_id, rating):
+        user = User.query.filter_by(id = user_id).first()
+
+        rating_exists = Book_Ratings.query.filter_by(rater = user).first()
+        # if user has not rated the book
+        if not rating_exists:
+            rating = Book_Ratings(
+                    rater = user,
+                    book = self,
+                    rating = rating,
+                    timestamp = datetime.utcnow()
+                    )
+            db.session.add(rating)
+            db.session.commit()
+
+
+
     
     def create_bid(self, session_id, bid_amount=None):
         """creates a bid transaction for the book
