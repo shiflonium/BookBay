@@ -1,7 +1,7 @@
 from flask import render_template, flash, redirect, session, url_for, request, g
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from app import app, db, login_manager
-from models import User, Book, Transaction, Bid, User_Comments, Book_Comments, User_Complaints
+from models import User, Book, Transaction, Bid, User_Comments, Book_Comments, User_Complaints, SU_Messages
 from forms import SignUpForm, LoginForm, ChangePassword, ChangePersonalDetails, SearchForm, sellForm, BidForm, PostForm, SUForm
 from werkzeug import generate_password_hash, check_password_hash, secure_filename
 from datetime import datetime
@@ -284,6 +284,14 @@ def bid_history():
         return render_template('bid_history.html', bids=bids)
     else:
         return redirect(url_for('home'))
+
+@app.route('/admin/su_msg_list', methods=['GET','POST'])
+@login_required
+def su_msg_list():
+    msgs = SU_Messages.query.order_by(desc(SU_Messages.timestamp)).all()
+
+    return render_template("view_msgs.html", msgs=msgs)
+
 
 @app.route('/admin/user_list', methods=['GET', 'POST'])
 @login_required
