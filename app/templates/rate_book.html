@@ -46,7 +46,7 @@
 
 {%for book in query %}
 {%for user in user_query%}
-	<h2>Rate {{book.get_title()}} by User: {{user.get_username()}}</h2>
+	<h2>Rate {{book.get_title()}} by User: <a href="{{url_for('view_profile', user_id = user.id ) }}">{{user.get_username()}}</a></h2>
 
 
 <br><br>
