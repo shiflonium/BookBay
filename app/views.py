@@ -9,6 +9,7 @@ from sqlalchemy import desc, update
 import os
 import random
 import string
+import datetime as dt
 
 
 '''
@@ -26,6 +27,7 @@ def load_user(id):
     '''method used by Flask-Login to get 
     key for login user. query.get is for primary keys'''
     return User.query.get(int(id))
+
 
 @app.before_request
 def before_request():
@@ -47,6 +49,31 @@ def before_request():
                     You may browse books as public user.")
             logout()
             return render_template('home.html')
+
+@app.before_request
+def check_books():
+    """easiest way to keep db updated.... this will run anytime ANY user clicks on anything
+    only doing this because it's for a class project lol.
+    - Books with no bidder are automatically removed from the system after the stated deadline.
+    adding print statements for debugging
+    """
+    all_books = Book.query.all()
+    for book in all_books:
+        # if book is expired and does not have any bids
+        if book.is_book_expr() and book.not_have_bids():
+            # remove foreign key constraints, in this case it should only be comments
+            comments = Book_Comments.query.filter_by(book_id = book.id).all()
+            for comment in comments:
+                print "deleting comment: %s" % comment
+                db.session.delete(comment)
+            print "deleting book: %s" % book
+            db.session.delete(book)
+            db.session.commit()
+        else:
+            print "Book:%s ISBN: %s  expires in %s minutes." % (book.title, book.isbn, book.until_expire_in_mins())
+            print "Book:%s ISBN: %s  expires in %s hours." % (book.title, book.isbn, book.until_expire_in_hrs() )
+
+            
 
 
 @app.route('/', methods = ['GET', 'POST'], defaults = {'path':''})

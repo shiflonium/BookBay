@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<header>
+<h2 align="center"> SU Messages </h2>
+</header>
+
+{% for data in msgs %}
+  <header>
+  <h4 align="left"> Message Timestamp: {{ data.timestamp }}</h4>
+	</header>
+	<p>status_int: {{ data.status }} <strong> {{ data.msg_sender.username }}</strong> says: <strong>{{ data.message }}</strong></p>
+	</p>
+	<hr>
+
+	
+{% endfor %}
+{% endblock %}
