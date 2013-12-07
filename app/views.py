@@ -580,6 +580,7 @@ def browse_book(book_id):
         user = User.query.filter_by(id = session['user_id']).first()
         is_guest = False
     except KeyError:
+        print "is user anonymous? %s" % g.user.is_anonymous()
         # it errors here so user is guest. create a guest user to post with.
         is_guest = True
         guest = User.query.filter_by(username='guest', email = 'GUEST@GUEST.COM').first()
@@ -601,19 +602,16 @@ def browse_book(book_id):
         # temporary
         return 'book does not exist'
     else:
-        comments = Book_Comments.query.filter_by(book=book).order_by(desc(Book_Comments.timestamp)).all()
         
+        comments = Book_Comments.query.filter_by(book=book).order_by(desc(Book_Comments.timestamp)).all()
         if request.method == 'POST' and form.validate_on_submit() and form.bid_amount.data and is_guest == False and form.submit_bid:
             bid_amount = request.form['bid_amount']
             book.create_bid(session['user_id'], bid_amount)
 
-        if request.method == 'POST' and form.submit_buy_now.data:
+        if request.method == 'POST' and form.submit_buy_now.data and is_guest == False:
             book.create_buy_now_transcation(user)
             flash ('you bought it')
             return redirect(url_for('home'))
-
-
-            return render_template('browse_book.html', book=book, form=form, book_id=book_id, form2=form2, comments=comments)
 
         if request.method == 'POST' and form2.validate_on_submit() and form2.post.data:
             # have no idea why the other one doesnt work
@@ -624,6 +622,7 @@ def browse_book(book_id):
     if is_guest is True:
         # delete session created by guest user
         del session['user_id']
+        comments = Book_Comments.query.filter_by(book=book).order_by(desc(Book_Comments.timestamp)).all()
     return render_template('browse_book.html', book=book, form=form, book_id=book_id, form2=form2, comments=comments)
 
 
