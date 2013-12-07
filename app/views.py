@@ -709,13 +709,20 @@ def complain():
 @app.route('/complain_user', methods = ['POST', 'GET'])
 @login_required
 def complain_user():
+    insert = User_Complaints()
+    c = User.query.filter_by(id = request.args.get('complainee_id')).first()
     form = ComplainForm()
     user_query = User.query.filter_by(id = int(request.args.get('complainee_id')))
     username_query = User.query.filter_by(username = g.user).first()
     if request.method == "POST":
         msg = request.form['message']
         complainer_id = int(username_query.id)
-        flash ('Your complaint has been sent to the SU')
+        complainee_id = c.id
+        insert = User_Complaints(complainer_id = complainer_id, complained_id = int(complainee_id),
+         timestamp = datetime.utcnow(), comment = msg)
+        db.session.add(insert)
+        db.session.commit()
+        flash('Your complaint has been sent to the SU')
         return render_template('complain_success.html')
     return render_template('complain_user.html',user_query = user_query, form = form)
 
