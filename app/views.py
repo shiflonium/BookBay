@@ -101,12 +101,13 @@ def home():
     #GET USERNAMES
     all_users = User.query.order_by(desc(User.num_logins)).all()
     most_active_users = list()
-    for i in range (0,3):
-        most_active_users.append(all_users[i])
-    #GET USER ID
-    all_id = User.query.order_by(desc(User.num_logins)).all()
+    if len(all_users) > 2:
+        for i in range (0,3):
+            most_active_users.append(all_users[i])
+            #GET USER ID
+            all_id = User.query.order_by(desc(User.num_logins)).all()
 
-    print all_id
+    
     return render_template('home.html', users_list = most_active_users)
 
 
