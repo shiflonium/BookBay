@@ -55,13 +55,11 @@ def check_book_expr_and_has_bids():
     """this function executes when a book is expired and has bidders. should sell
     book to highest bidder. if a book expires and has bids, take the highest bid
     amount and sell it to that user.
-    
     1. find out if book is expired and has bids.
     2. if yes, then find highest bidder
     3. create a transaction for book
-    4. modify book so that it is sold.
-    
-    """
+    4. modify book so that it is sold."""
+
     print 'CHECKING IF THERE ARE ANY EXPIRED BOOKS WITH BIDS', '\n'
     all_books = Book.query.all()
     for book in all_books:
@@ -86,8 +84,6 @@ def check_book_expr_and_no_bids():
         if book.is_book_expr() and book.not_have_bids():
             # remove foreign key constraints, in this case it should only be comments
             comments = Book_Comments.query.filter_by(book_id = book.id).all()
-            print len(comments)
-            print comments
             for comment in comments:
                 print "deleting comment: %s" % comment
                 db.session.delete(comment)
@@ -398,8 +394,8 @@ def personal_profile(user_id):
             return redirect(url_for('home'))
     view_user = User.query.filter_by(id = user_id).first()
     
-    comments_recieved = User_Comments.query.filter_by(commented = view_user).order_by(desc(User_Comments.timestamp)).all()
-    comments_made = User_Comments.query.filter_by(commenter = view_user ).order_by(desc(User_Comments.timestamp)).all()
+    comments_recieved = User_Comments.query.filter_by(commented=view_user).order_by(desc(User_Comments.timestamp)).all()
+    comments_made = User_Comments.query.filter_by(commenter=view_user).order_by(desc(User_Comments.timestamp)).all()
     
     return render_template('personal_profile.html',
             comments_recieved = comments_recieved,
@@ -579,7 +575,6 @@ def browse_book(book_id):
     pass in book.id as parameter to load book. """
     form = BidForm()
     form2 = PostForm()
-    # add comment form for book
     
     try:
         user = User.query.filter_by(id = session['user_id']).first()
@@ -606,17 +601,25 @@ def browse_book(book_id):
         # temporary
         return 'book does not exist'
     else:
-        if request.method == 'POST' and form.validate_on_submit() and form.bid_amount.data and is_guest == False:
+        comments = Book_Comments.query.filter_by(book=book).order_by(desc(Book_Comments.timestamp)).all()
+        
+        if request.method == 'POST' and form.validate_on_submit() and form.bid_amount.data and is_guest == False and form.submit_bid:
             bid_amount = request.form['bid_amount']
             book.create_bid(session['user_id'], bid_amount)
-            #msg = 'Sucessfully placed a bid for %s' % bid_amount
-            #flash(msg)
+
+        if request.method == 'POST' and form.submit_buy_now.data:
+            book.create_buy_now_transcation(user)
+            flash ('you bought it')
+            return redirect(url_for('home'))
+
+
+            return render_template('browse_book.html', book=book, form=form, book_id=book_id, form2=form2, comments=comments)
+
         if request.method == 'POST' and form2.validate_on_submit() and form2.post.data:
             # have no idea why the other one doesnt work
             text = form2.post.data
             book.create_comment(session['user_id'], text)
 
-        comments = Book_Comments.query.filter_by(book=book).order_by(desc(Book_Comments.timestamp)).all()
     
     if is_guest is True:
         # delete session created by guest user

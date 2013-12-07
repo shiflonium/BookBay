@@ -444,31 +444,41 @@ class Book(db.Model):
         bid = Bid.query.filter_by(book=self).order_by(desc(Bid.bid_price)).first()
         return bid
         
-    def create_buy_now_transcation(self, buyer, seller, book):
-        pass
+    def create_buy_now_transcation(self, buyer):
+        """buyer is passed in user object"""
+
+        seller = self.owner
+        book_cost = self.buyout_price
+        transac_time = datetime.utcnow()
+
+        trans = Transaction(seller=seller, buyer=buyer,book=self,
+            amt_sold_for=book_cost, bought_out=True,time_sold=transac_time)
+        db.session.add(trans)
+
+        buyer.num_purchases += 1
+        buyer.subtract_credits(book_cost)
+        seller.add_credits(book_cost)
+        self.sold = True
+        db.session.commit()
+        s = "*" * 10
+        print "%s %s Transaction Created %s" % (s, transac_time, s)
+        print "%s sold book: %s to %s @ buy_now price: %s" % (seller.username, self.title, buyer.username, self.buyout_price)
+
 
     def create_bid_win_transaction(self):
-        """
-        1. create transaction object
-        2. modify book.sold = True
-        """
+        """1. create transaction object
+        2. modify book.sold = True """
         highest_bid = self.get_highest_bid()
         seller = self.owner
         buyer = highest_bid.bidder
         book_cost = self.current_bid
         transac_time = datetime.utcnow()
 
-        trans = Transaction(
-                seller = seller,
-                buyer = buyer,
-                book = self,
-                bid_id = highest_bid.id,
-                amt_sold_for = book_cost,
-                bought_out = False,
-                time_sold = transac_time
-                )
-
+        trans = Transaction(seller=seller, buyer=buyer, book=self,
+                bid_id=highest_bid.id, amt_sold_for=book_cost,
+                bought_out=False, time_sold=transac_time )
         db.session.add(trans)
+        
         buyer.num_purchases += 1
         buyer.subtract_credits(book_cost)
         seller.add_credits(book_cost)
@@ -477,10 +487,6 @@ class Book(db.Model):
         s = "*" * 10
         print "%s %s Transaction Created %s" % (s, transac_time, s)
         print "%s sold book: %s to %s @ price: %s" % (seller.username, self.title, buyer.username, self.current_bid)
-        
-
-        pass
-
 
     def __repr__(self):
         return '<Title: %s Owner: %s>' %(self.title, self.owner)

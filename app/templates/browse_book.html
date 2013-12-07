@@ -85,7 +85,11 @@
     {{ form.bid_amount }}<br>
 		</div>
 
-    {{ form.submit_bid }}
+		{{ form.submit_bid }}
+		<br>
+		{% if book.buyable == True %}
+		{{ form.submit_buy_now }}
+		{% endif %}
 	</form>
 
 	<div class="outer2">
