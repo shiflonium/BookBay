@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+.images
+{
+	max-height: 20%;
+}
+.outer
+{
+	position: relative;
+	float: left;
+	width: 20%;
+	display: inline-block;
+	clear: both;
+	margin-left: 30px;
+	margin-bottom: 30px;
+	
+	
+}
+
+.inner
+{
+	display: inline-block;
+	position: relative;
+	float: left;
+	width: 20%;
+}
+	
+
+.inner2
+{
+	display: inline-block;
+	position: relative;
+	float: left;
+	width: 20%;
+}
+.inner3
+{
+	display: inline-block;
+	position: relative;
+	float: left;
+	width: 20%;
+}
+</style>
+
+
+{%for user in user_query%}
+	<h2>Complain on: {{user.get_username()}}</h2><br>
+	<p>Your complain will be reported to site administrator.</p>
+
+
+
+<hr>
+		<label>Enter Complaint</label><br>
+<hr>
+<form method="POST">
+{{form.message(rows = 7, cols = 50)}}
+<br>
+<br>	
+{{form.submit}}
+</form>
+
+
+
+{% endfor%}
+{% endblock %}
+
