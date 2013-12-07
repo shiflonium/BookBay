@@ -94,7 +94,7 @@ class User(db.Model):
         return self.credits
 
     def get_avg_rating(self):
-        return (self.rating / self.num_of_rating)
+        return round(self.rating / self.num_of_rating,1)
 
     def increment_login(self):
         self.num_logins += 1
@@ -331,7 +331,7 @@ class Book(db.Model):
             return False
 
     def get_avg_rating(self):
-        pass
+        return round(self.rating / self.num_of_rating,1)
 
     def get_expr_date(self):
         """return date when book should run out of time.
