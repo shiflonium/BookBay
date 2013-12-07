@@ -111,6 +111,8 @@ def do_book_removal_and_purchase_checking():
 @app.route('/', methods = ['GET', 'POST'], defaults = {'path':''})
 @app.route('/<path:path>', methods = ['GET', 'POST'])
 def request_for_search(path):
+    """This function gets search parametes from the navigation bar and redirects
+    to the correct url"""
     search_data = None 
     if request.method == 'GET':
         if request.args.get('user_check'):
@@ -428,6 +430,8 @@ def send_msg():
 
 @app.route('/search_users', methods = ['GET', 'POST'])
 def search():
+    """This function gets the search parameters from the nav bar and 
+    present the results of user search"""
     usernames = []
     search_data =""
     search_data = session['parameter']
@@ -438,6 +442,8 @@ def search():
 
 @app.route('/search_books', methods = ['GET','POST'])
 def search_book():
+    """This function gets search parameters for book and 
+    display results """
     table = Book()
     books = []
     search_data = ""
@@ -631,6 +637,7 @@ def show_page():
     return render_template('no_credit.html')
 
 @app.route('/rate_book')
+@login_required
 def rate_book():
     result=[]
     b=Book()
@@ -642,6 +649,7 @@ def rate_book():
     return render_template('rate_book.html', query = query, user_query = user_query, isbn =isbn)
  
 @app.route('/rate', methods = ['POST'])
+@login_required
 def submit_rating():
     b = Book()
     isbn = request.form['isbn_num']
@@ -659,15 +667,25 @@ def submit_rating():
 
 
 
-@app.route('/complain')
+@app.route('/complain', methods = ['POST', 'GET'])
+@login_required
 def complain():
     b=Book()
     form = ComplainForm()
     isbn = request.args.get('isbn')
     query = b.query.filter_by(isbn = isbn).all()
+    b_insert = b.query.filter_by(isbn = isbn).first()
     for u in query:
         book_dict = u.__dict__
     user_query = User.query.filter_by(id = int(book_dict['owner_id']))
+    username_query = User.query.filter_by(username = g.user).first()
+    if request.method == "POST":
+        book_id = int(book_dict['id'])
+        msg = request.form['message']
+        complainer_id = int(username_query.id)
+        b_insert.create_complaint(user_id = complainer_id, text = msg)
+        flash ('Your complaint has been sent to the SU')
+        return redirect(url_for('home'))
     return render_template('complain.html', query = query, user_query = user_query, isbn =isbn, form = form)
     #return render_template('complain.html', query = query)
 
