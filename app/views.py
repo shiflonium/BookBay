@@ -523,18 +523,21 @@ def sell():
         b.edition = int(request.form['edition'])
         b.information = request.form['information']
 
-        tempBool=0
-        
+        #tempBool=0
+        tempBool = False
         
 
-        if (form.data.get('buyable') == 'True'):
-            tempBool = 1;
+        if (form.data.get('buyable') == True):
+            #tempBool = 1;
+            tempBool = True
         else:
-            tempBool = 0;
+            #tempBool = 0;
+            tempBool = False
 
         b.buyable = tempBool
         
-        if (tempBool == 1):
+        if (tempBool == True):
+        #if (tempBool == 1):
             b.buyout_price = float(request.form['buynowPrice'])
         
 
