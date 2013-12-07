@@ -646,8 +646,9 @@ def rate_book():
     for u in query:
         book_dict=u.__dict__
     user_query_html = User.query.filter_by(id = int(book_dict['owner_id']))
-    user_query = User.query.filter_by(id = int(book_dict['owner_id'])).first()
+    user_query = User.query.filter_by(username = g.user).first()
     user_id = user_query.id
+    print user_id
     check_if_rated = Book_Ratings.query.filter_by(user_id = user_id, book_id = int(book_dict['id'])).first()
     print type(check_if_rated)
     if check_if_rated == None:
