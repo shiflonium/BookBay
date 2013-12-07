@@ -5,7 +5,7 @@
 <style>
 .images
 {
-	max-height: 20%;
+	max-height: 35%;
 }
 .outer
 {
@@ -38,6 +38,7 @@
 	position: relative;
 	float: left;
 	width: 20%;
+	margin-left: 8%;
 }
 	
 
@@ -54,24 +55,45 @@
 	<div class="outer">
 	
 		<img class = "images" src= "{{ url_for('static',filename='userImages/'+book.get_image_name()) }}" alt="TEST">
-		
+		<br><label> <b>Book Information</b>: {{ book.get_information() }} </label><br>
 	</div>
 	<div class="inner">
-		<label> Title: {{ book.get_title() }} </label><br>
+		<!-- <label> Title: {{ book.get_title() }} </label><br>
 		<label> Author: {{ book.get_author() }} </label><br>
 		<label> Language: {{ book.get_language() }}</label><br>
 		<label> Publisher: {{ book.get_publisher() }} </label><br>
+		<label> Condition: {{ book.get_condition() }}</label><br> -->
+		<label> Title: {{ book.get_title() }} </label><br>
+		<label> Author: {{ book.get_author() }} </label><br>
+		<label> Publisher: {{ book.get_publisher() }} </label><br>
+		<label> Language: {{ book.get_language() }}</label><br>
+		<label> Publisher: {{ book.get_publisher() }} </label><br>
 		<label> Condition: {{ book.get_condition() }}</label><br>
+		<label> Genre: {{ book.get_genre() }} </label><br>
 	</div>
 
 	<div class="inner2">
-		<label> ISBN: {{book.get_isbn()}} </label><br>
+		<!-- <label> ISBN: {{book.get_isbn()}} </label><br>
 		<label> Edition: {{book.get_edition() }}</label><br>
 		{% if book.get_buyable() == True %}
 			<label> Buy Now Price: {{book.get_buyout_price() }}</label> <br>
 		{% endif %}
 		<label> Book Type: {{ book.get_booktype() }}</label><br>
-		<label> <Strong>Current Bid:</Strong> {{ book.get_current_bid() }} </label><br>
+		<label> <Strong>Current Bid:</Strong> {{ book.get_current_bid() }} </label><br> -->
+		<label> ISBN: {{book.get_isbn()}} </label><br>
+		<label> Edition: {{book.get_edition() }}</label><br>
+		<label> Number of Pages: {{ book.get_numOfPages() }} </label><br>
+		{% if g.user.is_authenticated() %}
+			<label> StartingBid: {{ book.get_starting_bid()}} </label><br>
+		{% else %}
+			<label> Price: <a href="{{ url_for('login') }}">Log in</a> to see price</label><br>
+		{% endif %}
+
+		{% if book.get_buyable() == True %}
+			<label> Buy Now Price: {{book.get_buyout_price() }}</label> <br>
+		{% endif %}
+		<label> Book Type: {{ book.get_booktype() }}</label><br>
+		<p> Expires in <strong>{{ book.until_expire_in_hrs() }}</strong> hours or <strong>{{book.until_expire_in_mins() }}</strong> minutes </p>
 	</div>
 
 
@@ -82,12 +104,13 @@
 		{{ form.csrf_token }}
 
     {{ form.bid_amount.label }}
-    {{ form.bid_amount }}<br>
-		</div>
+    {{ form.bid_amount }}
+		</div >
 
 		{{ form.submit_bid }}
-		<br>
+			
 		{% if book.buyable == True %}
+
 		{{ form.submit_buy_now }}
 		{% endif %}
 	</form>
@@ -112,11 +135,4 @@
 
 {% endblock %}
 
-<script>
-$(document).ready(function(){
-	$("#submit").clicked(function(){
-		this.reset();
-	});
-});
 
-</script>

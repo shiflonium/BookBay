@@ -158,7 +158,7 @@ class Book(db.Model):
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     title = db.Column(db.String(256))
     author = db.Column(db.String(256))
-    isbn = db.Column(db.String(25))
+    isbn = db.Column(db.String(25))#
     saleDuration = db.Column(db.Integer)
     publisher = db.Column(db.String(256))
     numOfPages = db.Column(db.Integer)
@@ -332,7 +332,10 @@ class Book(db.Model):
             return False
 
     def get_avg_rating(self):
-        return round(self.rating / self.num_of_rating,1)
+        if self.num_of_rating == 0:
+            return 0
+        else:
+            return round(self.rating / self.num_of_rating,1)
 
     def get_expr_date(self):
         """return date when book should run out of time.

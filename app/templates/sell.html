@@ -206,11 +206,14 @@ input {
 
 <script type="text/javascript">
 	$(document).ready(function(){
+		// $("#buynowPrice").disabled=true;
+		// document.getElementById("buyable").checked=false;
 		// document.getElementById("buynowPrice").disabled=true;
-		if ($('#buyable').checked)
-			document.getElementById("buynowPrice").disabled=true;
-		else
-			document.getElementById("buynowPrice").disabled=false;
+		// if ($('#buyable').checked)
+		$("#buynowPrice").attr("disabled","disabled")
+			// document.getElementById("buynowPrice").disabled=true;
+		// else
+			// document.getElementById("buynowPrice").disabled=false;
 
 		//ENABLE AND DISABLE PRICE OF BUY NOW
 		$('#buyable').change(function(){
