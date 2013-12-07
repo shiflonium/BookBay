@@ -1,7 +1,7 @@
 from flask import render_template, flash, redirect, session, url_for, request, g
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from app import app, db, login_manager
-from models import User, Book, Transaction, Bid, User_Comments, Book_Comments, User_Complaints, SU_Messages
+from models import User, Book, Transaction, Bid, User_Comments, Book_Comments, User_Complaints, SU_Messages, Book_Ratings
 from forms import SignUpForm, LoginForm, ChangePassword, ChangePersonalDetails, SearchForm, sellForm, BidForm, PostForm, SUForm, ComplainForm
 from werkzeug import generate_password_hash, check_password_hash, secure_filename
 from datetime import datetime
@@ -645,25 +645,40 @@ def rate_book():
     query = b.query.filter_by(isbn = isbn).all()
     for u in query:
         book_dict=u.__dict__
-    user_query = User.query.filter_by(id = int(book_dict['owner_id']))
-    return render_template('rate_book.html', query = query, user_query = user_query, isbn =isbn)
+    user_query_html = User.query.filter_by(id = int(book_dict['owner_id']))
+    user_query = User.query.filter_by(id = int(book_dict['owner_id'])).first()
+    user_id = user_query.id
+    check_if_rated = Book_Ratings.query.filter_by(user_id = user_id, book_id = int(book_dict['id'])).first()
+    print type(check_if_rated)
+    if check_if_rated == None:
+        return render_template('rate_book.html', query = query, user_query = user_query_html, isbn =isbn)
+    else:
+        flash('You already submitted rating for this book')
+        return redirect(url_for('home'))
  
 @app.route('/rate', methods = ['POST'])
 @login_required
 def submit_rating():
     b = Book()
+    r = Book_Ratings()
     isbn = request.form['isbn_num']
     ratings = request.form['rated']
     query = b.query.filter_by(isbn = isbn).first()
     book_query = b.query.filter_by(isbn = isbn).all()
     for r in book_query:
-        book_dict=r.__dict__
-
+        book_dict=r.__dict__    
     num_of_ratings = int(book_dict['num_of_rating'])
+    query_user = User.query.filter_by(username = g.user).first()
+    # check_if_rated = Book_Ratings.query(user_id = int(query_user.id), book_id = int(book_dict['id']))
+    # if check_if_rated != None: 
     query.rating = ratings
     query.num_of_rating = num_of_ratings + 1
+    r = Book_Ratings(book_id = int(book_dict['id']), user_id = int(query_user.id), rating = ratings, timestamp = datetime.utcnow())
+    db.session.add(r)
     db.session.commit()
+
     return render_template('rate_success.html')
+    
 
 
 
