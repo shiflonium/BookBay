@@ -46,7 +46,8 @@
 </style>
 
 
-	{% for i in obj %}
+{% for i in obj %}
+{% if i.is_sold() == False %}
 	{%set isbn_var = i.get_isbn() %}	
 	<div class="outer">
 		<a href = "{{ url_for('browse') }}/{{i.get_id()}}"> <img class = "images" src= "{{ url_for('static',filename='userImages/'+i.get_image_name()) }}" alt="TEST"></a>	
@@ -83,7 +84,8 @@
 			{% if g.user.is_superuser() == True %}
 				<label>Delete this book </label><a href="{{url_for('remove_book', book_id =i.get_id() ) }}"> Delete this book </a>
 			{% endif %}
-		{% endif %}
+			{% endif %}
+			{% endif %}
 	</div>
 
 

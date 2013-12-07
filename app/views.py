@@ -56,12 +56,19 @@ def check_book_expr_and_has_bids():
     book to highest bidder. if a book expires and has bids, take the highest bid
     amount and sell it to that user.
     
+    1. find out if book is expired and has bids.
+    2. if yes, then find highest bidder
+    3. create a transaction for book
+    4. modify book so that it is sold.
+    
     """
-    print 'CHECKING IF THERE ARE ANY EXPIRED BOOKS WITH BIDS'
+    print 'CHECKING IF THERE ARE ANY EXPIRED BOOKS WITH BIDS', '\n'
     all_books = Book.query.all()
+    for book in all_books:
+        if book.is_book_expr() and book.have_bids():
+            book.create_bid_win_transaction() # this is beautiful
 
 
-    pass
 # executed by do_book_removal_and_purchase_checking
 def check_book_expr_and_no_bids():
     """easiest way to keep db updated.... this will run anytime ANY user clicks on anything
@@ -69,13 +76,13 @@ def check_book_expr_and_no_bids():
     - Books with no bidder are automatically removed from the system after the stated deadline.
     adding print statements for debugging
     """
-    check_book_expr_and_has_bids()
     all_books = Book.query.all()
-    print "checking %s books." % (len(all_books))
+    print "--" * 10
+    print "Checking %s books." % (len(all_books))
+    print "--" * 10
     for book in all_books:
         # if book is expired and does not have any bids
-        print "%s expired? %s" % (book.title, book.is_book_expr())
-        print "%s have_bids? %s" % (book.title, book.is_book_expr())
+        print "is %s expired? %s. does have bids? %s" % (book.title, book.is_book_expr(), book.have_bids())
         if book.is_book_expr() and book.not_have_bids():
             # remove foreign key constraints, in this case it should only be comments
             comments = Book_Comments.query.filter_by(book_id = book.id).all()
@@ -89,8 +96,8 @@ def check_book_expr_and_no_bids():
             db.session.delete(book)
             db.session.commit()
         else:
-            print "Book:%s ISBN: %s  expires in %s minutes." % (book.title, book.isbn, book.until_expire_in_mins())
-            print "Book:%s ISBN: %s  expires in %s hours." % (book.title, book.isbn, book.until_expire_in_hrs())
+            print "Book: %s ISBN: %sexpires in %s hours. or %s minutes." % (book.title, book.isbn, book.until_expire_in_hrs(), book.until_expire_in_mins())
+        print "\n"
 
 @app.before_request
 def do_book_removal_and_purchase_checking():

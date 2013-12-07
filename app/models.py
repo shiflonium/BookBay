@@ -6,6 +6,8 @@ import re
 from datetime import date, datetime
 import datetime as dt
 from sqlalchemy.orm import class_mapper, ColumnProperty
+from sqlalchemy import desc, update
+
 
 
 class User(db.Model):
@@ -96,12 +98,28 @@ class User(db.Model):
 
     def increment_login(self):
         self.num_logins += 1
+        #db.session.commit()
+
+    def increment_purchases(self):
+        self.num_purchases += 1
+        #db.session.commit()
 
     def times_logged_in(self):
         return self.num_logins
 
     def is_approved(self):
         return self.apr_by_admin
+
+    def return_credits(self):
+        return self.credits
+
+    def add_credits(self, amount):
+        self.credits = self.credits + float(amount)
+        db.session.commit()
+        
+    def subtract_credits(self, amount):
+        self.credits = self.credits - float(amount)
+        db.session.commit()
 
     def send_msg(self, status, text):
         msg = SU_Messages(
@@ -307,7 +325,10 @@ class Book(db.Model):
     
     def is_sold(self):
         """method that determines whether book is sold or not"""
-        return self.sold
+        if self.sold == True:
+            return True
+        else:
+            return False
 
     def get_avg_rating(self):
         pass
@@ -335,6 +356,9 @@ class Book(db.Model):
 
     def until_expire_in_hrs(self):
         return (self.until_expire_in_mins() / 60)
+
+    def have_bids(self):
+        return not(self.not_have_bids())
     
     def not_have_bids(self):
         book_bids = Bid.query.filter_by(book_id = self.id).all() 
@@ -354,7 +378,6 @@ class Book(db.Model):
         db.session.add(comment)
         db.session.commit()
 
-
     def create_complaint(self, user_id, text):
         user = User.query.filter_by(id = user_id).first()
         
@@ -366,7 +389,6 @@ class Book(db.Model):
                 )
         db.session.add(book_complaint)
         db.session.commit()
-
 
     def create_rating(self, user_id, rating):
         user = User.query.filter_by(id = user_id).first()
@@ -383,6 +405,7 @@ class Book(db.Model):
             db.session.add(rating)
             db.session.commit()
 
+    
     def create_bid(self, session_id, bid_amount=None):
         """creates a bid transaction for the book
         user_session variable passed in from views. returns user_id."""
@@ -417,12 +440,50 @@ class Book(db.Model):
                 user.num_bids += 1
                 db.session.commit()
 
+    def get_highest_bid(self):
+        bid = Bid.query.filter_by(book=self).order_by(desc(Bid.bid_price)).first()
+        return bid
+        
+    def create_buy_now_transcation(self, buyer, seller, book):
+        pass
+
+    def create_bid_win_transaction(self):
+        """
+        1. create transaction object
+        2. modify book.sold = True
+        """
+        highest_bid = self.get_highest_bid()
+        seller = self.owner
+        buyer = highest_bid.bidder
+        book_cost = self.current_bid
+        transac_time = datetime.utcnow()
+
+        trans = Transaction(
+                seller = seller,
+                buyer = buyer,
+                book = self,
+                bid_id = highest_bid.id,
+                amt_sold_for = book_cost,
+                bought_out = False,
+                time_sold = transac_time
+                )
+
+        db.session.add(trans)
+        buyer.num_purchases += 1
+        buyer.subtract_credits(book_cost)
+        seller.add_credits(book_cost)
+        self.sold = True
+        db.session.commit()
+        s = "*" * 10
+        print "%s %s Transaction Created %s" % (s, transac_time, s)
+        print "%s sold book: %s to %s @ price: %s" % (seller.username, self.title, buyer.username, self.current_bid)
+        
+
+        pass
 
 
     def __repr__(self):
         return '<Title: %s Owner: %s>' %(self.title, self.owner)
-
-
 
 class Transaction(db.Model):
     """there will be two kinds of transactions, 'buy_out' and 'auctioned'. will
@@ -471,7 +532,7 @@ class Bid(db.Model):
     # change to buyer id.
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     timestamp = db.Column(db.DateTime)
-    bid_price = db.Column(db.Integer, nullable=False)
+    bid_price = db.Column(db.Float, nullable=False)
 
 
     def __init__(self, book, bidder, bid_price):
