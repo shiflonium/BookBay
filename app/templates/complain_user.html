@@ -43,13 +43,13 @@
 }
 </style>
 
-{%for book in query %}
+
 {%for user in user_query%}
-	<h2>Complain on: {{book.get_title()}} by User: <a href="{{url_for('view_profile', user_id = user.id ) }}">{{user.get_username()}}</a></h2><br>
+	<h2>Complain on: {{user.get_username()}}</h2><br>
 	<p>Your complain will be reported to site administrator.</p>
 
 
-<br><br>
+
 <hr>
 		<label>Enter Complaint</label><br>
 <hr>
@@ -62,7 +62,6 @@
 
 
 
-{% endfor%}
 {% endfor%}
 {% endblock %}
 

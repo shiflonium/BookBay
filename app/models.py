@@ -40,7 +40,7 @@ class User(db.Model):
     book_comment = db.relationship('Book_Comments', backref='commenter', lazy='dynamic')
     book_complaint = db.relationship('Book_Complaints', backref='complainer', lazy='dynamic')
     book_ratings = db.relationship('Book_Ratings', backref='rater', lazy='dynamic')
-    
+       
    
     def __init__(self, username, first_name, last_name, email, password):
         self.username = username
@@ -94,7 +94,7 @@ class User(db.Model):
         return self.credits
 
     def get_avg_rating(self):
-        return (self.rating / self.num_of_rating)
+        return round(self.rating / self.num_of_rating,1)
 
     def increment_login(self):
         self.num_logins += 1
@@ -144,6 +144,7 @@ class User(db.Model):
         db.session.add(comment)
         db.session.commit()
         pass
+        
 
     def __repr__(self):
         #return '<User %r>' % (self.username)
@@ -331,7 +332,7 @@ class Book(db.Model):
             return False
 
     def get_avg_rating(self):
-        pass
+        return round(self.rating / self.num_of_rating,1)
 
     def get_expr_date(self):
         """return date when book should run out of time.

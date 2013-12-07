@@ -1,7 +1,7 @@
 from flask import render_template, flash, redirect, session, url_for, request, g
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from app import app, db, login_manager
-from models import User, Book, Transaction, Bid, User_Comments, Book_Comments, User_Complaints, SU_Messages
+from models import User, Book, Transaction, Bid, User_Comments, Book_Comments, User_Complaints, SU_Messages, Book_Ratings
 from forms import SignUpForm, LoginForm, ChangePassword, ChangePersonalDetails, SearchForm, sellForm, BidForm, PostForm, SUForm, ComplainForm
 from werkzeug import generate_password_hash, check_password_hash, secure_filename
 from datetime import datetime
@@ -107,6 +107,8 @@ def do_book_removal_and_purchase_checking():
 @app.route('/', methods = ['GET', 'POST'], defaults = {'path':''})
 @app.route('/<path:path>', methods = ['GET', 'POST'])
 def request_for_search(path):
+    """This function gets search parametes from the navigation bar and redirects
+    to the correct url"""
     search_data = None 
     if request.method == 'GET':
         if request.args.get('user_check'):
@@ -424,6 +426,8 @@ def send_msg():
 
 @app.route('/search_users', methods = ['GET', 'POST'])
 def search():
+    """This function gets the search parameters from the nav bar and 
+    present the results of user search"""
     usernames = []
     search_data =""
     search_data = session['parameter']
@@ -434,6 +438,8 @@ def search():
 
 @app.route('/search_books', methods = ['GET','POST'])
 def search_book():
+    """This function gets search parameters for book and 
+    display results """
     table = Book()
     books = []
     search_data = ""
@@ -564,6 +570,7 @@ def success():
 def browse():
     b = Book()
     query = b.query.order_by(b.owner_id).all()
+
     numOfRows = len(query)
     #print query[0]
     #print query
@@ -633,6 +640,7 @@ def show_page():
     return render_template('no_credit.html')
 
 @app.route('/rate_book')
+@login_required
 def rate_book():
     result=[]
     b=Book()
@@ -640,38 +648,85 @@ def rate_book():
     query = b.query.filter_by(isbn = isbn).all()
     for u in query:
         book_dict=u.__dict__
-    user_query = User.query.filter_by(id = int(book_dict['owner_id']))
-    return render_template('rate_book.html', query = query, user_query = user_query, isbn =isbn)
+    user_query_html = User.query.filter_by(id = int(book_dict['owner_id']))
+    user_query = User.query.filter_by(username = g.user).first()
+    user_id = user_query.id
+    print user_id
+    check_if_rated = Book_Ratings.query.filter_by(user_id = user_id, book_id = int(book_dict['id'])).first()
+    print type(check_if_rated)
+    if check_if_rated == None:
+        return render_template('rate_book.html', query = query, user_query = user_query_html, isbn =isbn)
+    else:
+        flash('You already submitted rating for this book')
+        return redirect(url_for('home'))
  
 @app.route('/rate', methods = ['POST'])
+@login_required
 def submit_rating():
     b = Book()
+    r = Book_Ratings()
     isbn = request.form['isbn_num']
     ratings = request.form['rated']
     query = b.query.filter_by(isbn = isbn).first()
     book_query = b.query.filter_by(isbn = isbn).all()
     for r in book_query:
-        book_dict=r.__dict__
-
+        book_dict=r.__dict__    
     num_of_ratings = int(book_dict['num_of_rating'])
+    query_user = User.query.filter_by(username = g.user).first()
+    # check_if_rated = Book_Ratings.query(user_id = int(query_user.id), book_id = int(book_dict['id']))
+    # if check_if_rated != None: 
     query.rating = ratings
     query.num_of_rating = num_of_ratings + 1
+    r = Book_Ratings(book_id = int(book_dict['id']), user_id = int(query_user.id), rating = ratings, timestamp = datetime.utcnow())
+    db.session.add(r)
     db.session.commit()
+
     return render_template('rate_success.html')
+    
 
 
 
-@app.route('/complain')
+@app.route('/complain', methods = ['POST', 'GET'])
+@login_required
 def complain():
     b=Book()
     form = ComplainForm()
     isbn = request.args.get('isbn')
     query = b.query.filter_by(isbn = isbn).all()
+    b_insert = b.query.filter_by(isbn = isbn).first()
     for u in query:
         book_dict = u.__dict__
     user_query = User.query.filter_by(id = int(book_dict['owner_id']))
+    username_query = User.query.filter_by(username = g.user).first()
+    if request.method == "POST":
+        book_id = int(book_dict['id'])
+        msg = request.form['message']
+        complainer_id = int(username_query.id)
+        b_insert.create_complaint(user_id = complainer_id, text = msg)
+        flash ('Your complaint has been sent to the SU')
+        return render_template('complain_success.html')
     return render_template('complain.html', query = query, user_query = user_query, isbn =isbn, form = form)
     #return render_template('complain.html', query = query)
+
+@app.route('/complain_user', methods = ['POST', 'GET'])
+@login_required
+def complain_user():
+    insert = User_Complaints()
+    c = User.query.filter_by(id = request.args.get('complainee_id')).first()
+    form = ComplainForm()
+    user_query = User.query.filter_by(id = int(request.args.get('complainee_id')))
+    username_query = User.query.filter_by(username = g.user).first()
+    if request.method == "POST":
+        msg = request.form['message']
+        complainer_id = int(username_query.id)
+        complainee_id = c.id
+        insert = User_Complaints(complainer_id = complainer_id, complained_id = int(complainee_id),
+         timestamp = datetime.utcnow(), comment = msg)
+        db.session.add(insert)
+        db.session.commit()
+        flash('Your complaint has been sent to the SU')
+        return render_template('complain_success.html')
+    return render_template('complain_user.html',user_query = user_query, form = form)
 
 @app.route('/admin/make_superuser')
 @login_required
