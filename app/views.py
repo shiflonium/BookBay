@@ -1,7 +1,7 @@
 from flask import render_template, flash, redirect, session, url_for, request, g
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from app import app, db, login_manager
-from models import User, Book, Transaction, Bid, User_Comments, Book_Comments, User_Complaints, SU_Messages
+from models import User, Book, Transaction, Bid, User_Comments, Book_Comments, User_Complaints, SU_Messages, Book_Ratings
 from forms import SignUpForm, LoginForm, ChangePassword, ChangePersonalDetails, SearchForm, sellForm, BidForm, PostForm, SUForm, ComplainForm
 from werkzeug import generate_password_hash, check_password_hash, secure_filename
 from datetime import datetime
@@ -50,35 +50,65 @@ def before_request():
             logout()
             return render_template('home.html')
 
-@app.before_request
-def check_books():
+# executed by do_book_removal_and_purchase_checking
+def check_book_expr_and_has_bids():
+    """this function executes when a book is expired and has bidders. should sell
+    book to highest bidder. if a book expires and has bids, take the highest bid
+    amount and sell it to that user.
+    1. find out if book is expired and has bids.
+    2. if yes, then find highest bidder
+    3. create a transaction for book
+    4. modify book so that it is sold."""
+
+    print 'CHECKING IF THERE ARE ANY EXPIRED BOOKS WITH BIDS', '\n'
+    all_books = Book.query.all()
+    for book in all_books:
+        if book.is_book_expr() and book.have_bids():
+            book.create_bid_win_transaction() # this is beautiful
+
+
+# executed by do_book_removal_and_purchase_checking
+def check_book_expr_and_no_bids():
     """easiest way to keep db updated.... this will run anytime ANY user clicks on anything
     only doing this because it's for a class project lol.
     - Books with no bidder are automatically removed from the system after the stated deadline.
     adding print statements for debugging
     """
     all_books = Book.query.all()
+    print "--" * 10
+    print "Checking %s books." % (len(all_books))
+    print "--" * 10
     for book in all_books:
         # if book is expired and does not have any bids
+        print "is %s expired? %s. does have bids? %s" % (book.title, book.is_book_expr(), book.have_bids())
         if book.is_book_expr() and book.not_have_bids():
             # remove foreign key constraints, in this case it should only be comments
             comments = Book_Comments.query.filter_by(book_id = book.id).all()
             for comment in comments:
                 print "deleting comment: %s" % comment
                 db.session.delete(comment)
+                db.session.commit()
             print "deleting book: %s" % book
             db.session.delete(book)
             db.session.commit()
         else:
-            print "Book:%s ISBN: %s  expires in %s minutes." % (book.title, book.isbn, book.until_expire_in_mins())
-            print "Book:%s ISBN: %s  expires in %s hours." % (book.title, book.isbn, book.until_expire_in_hrs() )
+            print "Book: %s ISBN: %sexpires in %s hours. or %s minutes." % (book.title, book.isbn, book.until_expire_in_hrs(), book.until_expire_in_mins())
+        print "\n"
 
-            
+@app.before_request
+def do_book_removal_and_purchase_checking():
+    """this executes the functions that figure out what to do when books are
+    1. expired and have no bids => remove them
+    2. expired and HAS bids => create a transaction and make book sold."""
+    check_book_expr_and_no_bids()
+    check_book_expr_and_has_bids()
 
 
 @app.route('/', methods = ['GET', 'POST'], defaults = {'path':''})
 @app.route('/<path:path>', methods = ['GET', 'POST'])
 def request_for_search(path):
+    """This function gets search parametes from the navigation bar and redirects
+    to the correct url"""
     search_data = None 
     if request.method == 'GET':
         if request.args.get('user_check'):
@@ -377,8 +407,8 @@ def personal_profile(user_id):
             return redirect(url_for('home'))
     view_user = User.query.filter_by(id = user_id).first()
     
-    comments_recieved = User_Comments.query.filter_by(commented = view_user).order_by(desc(User_Comments.timestamp)).all()
-    comments_made = User_Comments.query.filter_by(commenter = view_user ).order_by(desc(User_Comments.timestamp)).all()
+    comments_recieved = User_Comments.query.filter_by(commented=view_user).order_by(desc(User_Comments.timestamp)).all()
+    comments_made = User_Comments.query.filter_by(commenter=view_user).order_by(desc(User_Comments.timestamp)).all()
     
     return render_template('personal_profile.html',
             comments_recieved = comments_recieved,
@@ -407,6 +437,8 @@ def send_msg():
 
 @app.route('/search_users', methods = ['GET', 'POST'])
 def search():
+    """This function gets the search parameters from the nav bar and 
+    present the results of user search"""
     usernames = []
     search_data =""
     search_data = session['parameter']
@@ -417,6 +449,8 @@ def search():
 
 @app.route('/search_books', methods = ['GET','POST'])
 def search_book():
+    """This function gets search parameters for book and 
+    display results """
     table = Book()
     books = []
     search_data = ""
@@ -502,24 +536,28 @@ def sell():
         b.edition = int(request.form['edition'])
         b.information = request.form['information']
 
-        tempBool=0
-        
+        #tempBool=0
+        tempBool = False
         
 
-        if (form.data.get('buyable') == 'True'):
-            tempBool = 1;
+        if (form.data.get('buyable') == True):
+            #tempBool = 1;
+            tempBool = True
         else:
-            tempBool = 0;
+            #tempBool = 0;
+            tempBool = False
 
         b.buyable = tempBool
         
-        if (tempBool == 1):
+        if (tempBool == True):
+        #if (tempBool == 1):
             b.buyout_price = float(request.form['buynowPrice'])
         
 
         
-
-        b.current_bid=float(0)
+        # changing current_bid to price
+        #b.current_bid=float(0)
+        b.current_bid = b.price
 
         b.biddable= 1
         
@@ -543,6 +581,7 @@ def success():
 def browse():
     b = Book()
     query = b.query.order_by(b.owner_id).all()
+
     numOfRows = len(query)
     #print query[0]
     #print query
@@ -554,12 +593,12 @@ def browse_book(book_id):
     pass in book.id as parameter to load book. """
     form = BidForm()
     form2 = PostForm()
-    # add comment form for book
     
     try:
         user = User.query.filter_by(id = session['user_id']).first()
         is_guest = False
     except KeyError:
+        print "is user anonymous? %s" % g.user.is_anonymous()
         # it errors here so user is guest. create a guest user to post with.
         is_guest = True
         guest = User.query.filter_by(username='guest', email = 'GUEST@GUEST.COM').first()
@@ -581,21 +620,27 @@ def browse_book(book_id):
         # temporary
         return 'book does not exist'
     else:
-        if request.method == 'POST' and form.validate_on_submit() and form.bid_amount.data and is_guest == False:
+        
+        comments = Book_Comments.query.filter_by(book=book).order_by(desc(Book_Comments.timestamp)).all()
+        if request.method == 'POST' and form.validate_on_submit() and form.bid_amount.data and is_guest == False and form.submit_bid:
             bid_amount = request.form['bid_amount']
             book.create_bid(session['user_id'], bid_amount)
-            #msg = 'Sucessfully placed a bid for %s' % bid_amount
-            #flash(msg)
+
+        if request.method == 'POST' and form.submit_buy_now.data and is_guest == False:
+            book.create_buy_now_transcation(user)
+            flash ('you bought it')
+            return redirect(url_for('home'))
+
         if request.method == 'POST' and form2.validate_on_submit() and form2.post.data:
             # have no idea why the other one doesnt work
             text = form2.post.data
             book.create_comment(session['user_id'], text)
 
-        comments = Book_Comments.query.filter_by(book=book).order_by(desc(Book_Comments.timestamp)).all()
     
     if is_guest is True:
         # delete session created by guest user
         del session['user_id']
+        comments = Book_Comments.query.filter_by(book=book).order_by(desc(Book_Comments.timestamp)).all()
     return render_template('browse_book.html', book=book, form=form, book_id=book_id, form2=form2, comments=comments)
 
 
@@ -606,6 +651,7 @@ def show_page():
     return render_template('no_credit.html')
 
 @app.route('/rate_book')
+@login_required
 def rate_book():
     result=[]
     b=Book()
@@ -613,38 +659,85 @@ def rate_book():
     query = b.query.filter_by(isbn = isbn).all()
     for u in query:
         book_dict=u.__dict__
-    user_query = User.query.filter_by(id = int(book_dict['owner_id']))
-    return render_template('rate_book.html', query = query, user_query = user_query, isbn =isbn)
+    user_query_html = User.query.filter_by(id = int(book_dict['owner_id']))
+    user_query = User.query.filter_by(username = g.user).first()
+    user_id = user_query.id
+    print user_id
+    check_if_rated = Book_Ratings.query.filter_by(user_id = user_id, book_id = int(book_dict['id'])).first()
+    print type(check_if_rated)
+    if check_if_rated == None:
+        return render_template('rate_book.html', query = query, user_query = user_query_html, isbn =isbn)
+    else:
+        flash('You already submitted rating for this book')
+        return redirect(url_for('home'))
  
 @app.route('/rate', methods = ['POST'])
+@login_required
 def submit_rating():
     b = Book()
+    r = Book_Ratings()
     isbn = request.form['isbn_num']
     ratings = request.form['rated']
     query = b.query.filter_by(isbn = isbn).first()
     book_query = b.query.filter_by(isbn = isbn).all()
     for r in book_query:
-        book_dict=r.__dict__
-
+        book_dict=r.__dict__    
     num_of_ratings = int(book_dict['num_of_rating'])
+    query_user = User.query.filter_by(username = g.user).first()
+    # check_if_rated = Book_Ratings.query(user_id = int(query_user.id), book_id = int(book_dict['id']))
+    # if check_if_rated != None: 
     query.rating = ratings
     query.num_of_rating = num_of_ratings + 1
+    r = Book_Ratings(book_id = int(book_dict['id']), user_id = int(query_user.id), rating = ratings, timestamp = datetime.utcnow())
+    db.session.add(r)
     db.session.commit()
+
     return render_template('rate_success.html')
+    
 
 
 
-@app.route('/complain')
+@app.route('/complain', methods = ['POST', 'GET'])
+@login_required
 def complain():
     b=Book()
     form = ComplainForm()
     isbn = request.args.get('isbn')
     query = b.query.filter_by(isbn = isbn).all()
+    b_insert = b.query.filter_by(isbn = isbn).first()
     for u in query:
         book_dict = u.__dict__
     user_query = User.query.filter_by(id = int(book_dict['owner_id']))
+    username_query = User.query.filter_by(username = g.user).first()
+    if request.method == "POST":
+        book_id = int(book_dict['id'])
+        msg = request.form['message']
+        complainer_id = int(username_query.id)
+        b_insert.create_complaint(user_id = complainer_id, text = msg)
+        flash ('Your complaint has been sent to the SU')
+        return render_template('complain_success.html')
     return render_template('complain.html', query = query, user_query = user_query, isbn =isbn, form = form)
     #return render_template('complain.html', query = query)
+
+@app.route('/complain_user', methods = ['POST', 'GET'])
+@login_required
+def complain_user():
+    insert = User_Complaints()
+    c = User.query.filter_by(id = request.args.get('complainee_id')).first()
+    form = ComplainForm()
+    user_query = User.query.filter_by(id = int(request.args.get('complainee_id')))
+    username_query = User.query.filter_by(username = g.user).first()
+    if request.method == "POST":
+        msg = request.form['message']
+        complainer_id = int(username_query.id)
+        complainee_id = c.id
+        insert = User_Complaints(complainer_id = complainer_id, complained_id = int(complainee_id),
+         timestamp = datetime.utcnow(), comment = msg)
+        db.session.add(insert)
+        db.session.commit()
+        flash('Your complaint has been sent to the SU')
+        return render_template('complain_success.html')
+    return render_template('complain_user.html',user_query = user_query, form = form)
 
 @app.route('/admin/make_superuser')
 @login_required

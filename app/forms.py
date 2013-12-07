@@ -162,6 +162,7 @@ class BidForm(Form):
 
     bid_amount = FloatField('Amount bid:', validators=[validators.Required()])
     submit_bid = SubmitField('Submit Bid')
+    submit_buy_now = SubmitField('BuyNow!!')
 
     def __init__(self, *args, **kwargs):
         Form.__init__(self, *args, **kwargs)
