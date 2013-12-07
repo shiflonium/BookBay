@@ -574,6 +574,7 @@ def success():
 def browse():
     b = Book()
     query = b.query.order_by(b.owner_id).all()
+
     numOfRows = len(query)
     #print query[0]
     #print query
@@ -701,9 +702,22 @@ def complain():
         complainer_id = int(username_query.id)
         b_insert.create_complaint(user_id = complainer_id, text = msg)
         flash ('Your complaint has been sent to the SU')
-        return redirect(url_for('home'))
+        return render_template('complain_success.html')
     return render_template('complain.html', query = query, user_query = user_query, isbn =isbn, form = form)
     #return render_template('complain.html', query = query)
+
+@app.route('/complain_user', methods = ['POST', 'GET'])
+@login_required
+def complain_user():
+    form = ComplainForm()
+    user_query = User.query.filter_by(id = int(request.args.get('complainee_id')))
+    username_query = User.query.filter_by(username = g.user).first()
+    if request.method == "POST":
+        msg = request.form['message']
+        complainer_id = int(username_query.id)
+        flash ('Your complaint has been sent to the SU')
+        return render_template('complain_success.html')
+    return render_template('complain_user.html',user_query = user_query, form = form)
 
 @app.route('/admin/make_superuser')
 @login_required
