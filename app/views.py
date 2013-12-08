@@ -713,9 +713,10 @@ def complain():
         complainer_id = int(username_query.id)
         b_insert.create_complaint(user_id = complainer_id, text = msg)
         flash ('Your complaint has been sent to the SU')
+        username_query.send_msg(1,msg)
         return render_template('complain_success.html')
     return render_template('complain.html', query = query, user_query = user_query, isbn =isbn, form = form)
-    #return render_template('complain.html', query = query)
+    
 
 @app.route('/complain_user', methods = ['POST', 'GET'])
 @login_required
