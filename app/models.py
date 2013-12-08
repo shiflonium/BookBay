@@ -327,7 +327,7 @@ class Book(db.Model):
     def is_suspended(self):
         """method for checking whether user is suspended."""
         return self.suspended
-        
+
     def is_sold(self):
         """method that determines whether book is sold or not"""
         if self.sold == True:
@@ -627,7 +627,7 @@ class User_Complaints(db.Model):
     complained = db.relationship('User',
             primaryjoin = (complained_id==User.id),
             backref=db.backref('complained', order_by=id))
-    
+    active = db.Column(db.Boolean, default=True)    
     timestamp = db.Column(db.DateTime)
     comment = db.Column(db.Text)
 

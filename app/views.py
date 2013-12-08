@@ -114,8 +114,14 @@ def check_num_of_complaints(book_id):
         return False
 @app.route('/admin/suspend_book/<book_id>')
 def suspend_book(book_id):
+    comp = User_Complaints()
     query = Book.query.filter_by(id = book_id).first()
+    su_id = User.query.filter_by(username = 'admin').first()
+    owner_id = query.owner_id
     query.suspended = True
+    comp = User_Complaints(complainer_id = int(su_id.id), complained_id = int(owner_id),
+     timestamp = datetime.utcnow(), comment = "auto complaint")
+    db.session.add(comp)
     db.session.commit()
     if request.args.get('suspend_source'):
         flash ('Book has been suspended')
@@ -388,6 +394,27 @@ def su_msg_list():
     msgs = SU_Messages.query.order_by(desc(SU_Messages.timestamp)).all()
 
     return render_template("view_msgs.html", msgs=msgs)
+
+@app.route('/admin/view_complaints', methods=['GET','POST'])
+@login_required
+def complaints_list():
+    complaints = User_Complaints.query.order_by(desc(User_Complaints.timestamp)).all()
+    return render_template("view_complaints.html", complaints = complaints)
+
+@app.route('/admin/deactivate_user_complaint', methods=['GET','POST'])
+@login_required
+def deactivate_user_complaint():
+    username = request.args.get('username')
+    print username
+    u = User.query.filter_by(username = username).first()
+    #print u.id, "LLLLLLLLLLLLLLLLLLLLL"
+    query = User_Complaints.query.filter_by(complained_id = u.id).first()
+    query.active = False
+    db.session.commit()
+    flash('complaint deactivated')
+    return redirect(url_for('complaints_list'))
+
+
 
 
 @app.route('/admin/user_list', methods=['GET', 'POST'])

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+{% include 'flash.html' %}
+<header>
+<h2 align="center"> Complaints Management </h2>
+</header>
+
+{% for data in complaints %}
+{% if data.active == True %}
+  <header>
+  <h4 align="left"> Message Timestamp: {{ data.timestamp }}</h4>
+	</header>
+	<input type="hidden" name="username">
+	<p>Complaint against: <strong> {{ data.complained}}</strong><div>   <a href="{{url_for('deactivate_user_complaint')}}?username={{data.complained}}">Deactivate Complaint</a></div><br>
+	<hr>
+	<strong>{{data.complainer}}</strong> says: <strong>{{ data.comment }}</strong></p>
+	</p>
+	<hr>
+	{% endif %} 
+	
+{% endfor %}
+{% endblock %}
