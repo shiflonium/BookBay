@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<header>
+<h2 align="center"> Book Administration Page </h2>
+</header>
+<br>
+
+{% for data in book_data %}
+{% if user.username != 'GUEST' %}
+<hr>
+  <header>
+	<h4 align="center"> Book Name:{% if user.is_superuser() %}  <strong style="color:red;"> {{ data.title }} </strong> Book ID: {{data.id}} {% else %} <strong> {{ data.title }}</strong>{% endif %}</h4>
+	</header>
+	
+	
+	{% if data.is_suspended() == True %}
+	<p align="center" style="color:red;font-size:20px;">Book is <strong> SUSPENDED </strong>. Click <a href="{{url_for('unsuspend_book', book_id = data.get_id() ) }}">here</a> remove suspension</p>
+
+	{% endif %}
+
+	
+	{% endif %}
+	
+{% endfor %}
+{% endblock %}

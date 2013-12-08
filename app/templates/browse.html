@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-
+{% include 'flash.html' %}
 <style>
 .images
 {
@@ -49,6 +49,7 @@
 
 {% for i in obj %}
 {% if i.is_sold() == False %}
+{% if i.is_suspended() == False %}
 	{%set isbn_var = i.get_isbn() %}	
 	
 	<div class="outer">
@@ -87,7 +88,11 @@
 		{%endif%}
 		{% if g.user.is_anonymous() == False %}
 			{% if g.user.is_superuser() == True %}
+			<input type="hidden" name="suspend_source">
 				<label>Delete this book </label><a href="{{url_for('remove_book', book_id =i.get_id() ) }}"> Delete this book </a>
+				<label>Suspend this book</label><a href="{{url_for('suspend_book', book_id = i.get_id() ) }}?suspend_source=browse_page"> Suspend</a>
+				
+			{% endif %}
 			{% endif %}
 			{% endif %}
 			{% endif %}

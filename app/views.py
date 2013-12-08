@@ -1,7 +1,7 @@
 from flask import render_template, flash, redirect, session, url_for, request, g
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from app import app, db, login_manager
-from models import User, Book, Transaction, Bid, User_Comments, Book_Comments, User_Complaints, SU_Messages, Book_Ratings
+from models import User, Book, Transaction, Bid, User_Comments, Book_Comments, User_Complaints, SU_Messages, Book_Ratings, Book_Complaints
 from forms import SignUpForm, LoginForm, ChangePassword, ChangePersonalDetails, SearchForm, sellForm, BidForm, PostForm, SUForm, ComplainForm
 from werkzeug import generate_password_hash, check_password_hash, secure_filename
 from datetime import datetime
@@ -102,6 +102,41 @@ def do_book_removal_and_purchase_checking():
     2. expired and HAS bids => create a transaction and make book sold."""
     check_book_expr_and_no_bids()
     check_book_expr_and_has_bids()
+
+def check_num_of_complaints(book_id):
+    i = 0
+    query = Book.query.filter_by(id = book_id).first() 
+    for complain in db.session.query(Book_Complaints.user_id).filter_by(book_id = book_id).distinct(Book_Complaints.user_id):
+        i+=1
+    if i > 3:
+        return True
+    else:
+        return False
+@app.route('/admin/suspend_book/<book_id>')
+def suspend_book(book_id):
+    comp = User_Complaints()
+    query = Book.query.filter_by(id = book_id).first()
+    su_id = User.query.filter_by(username = 'admin').first()
+    owner_id = query.owner_id
+    query.suspended = True
+    comp = User_Complaints(complainer_id = int(su_id.id), complained_id = int(owner_id),
+     timestamp = datetime.utcnow(), comment = "auto complaint")
+    db.session.add(comp)
+    db.session.commit()
+    if request.args.get('suspend_source'):
+        flash ('Book has been suspended')
+        return redirect(url_for('browse'))
+    else:
+        return redirect(url_for('get_all_suspended_books'))
+
+@app.route('/admin/unsuspend_book/<book_id>')
+def unsuspend_book(book_id):
+    query = Book.query.filter_by(id = book_id).first()
+    query.suspended = False
+    db.session.commit()
+    return redirect(url_for('get_all_suspended_books'))
+
+    
 
 
 @app.route('/', methods = ['GET', 'POST'], defaults = {'path':''})
@@ -364,6 +399,27 @@ def su_msg_list():
 
     return render_template("view_msgs.html", msgs=msgs)
 
+@app.route('/admin/view_complaints', methods=['GET','POST'])
+@login_required
+def complaints_list():
+    complaints = User_Complaints.query.order_by(desc(User_Complaints.timestamp)).all()
+    return render_template("view_complaints.html", complaints = complaints)
+
+@app.route('/admin/deactivate_user_complaint', methods=['GET','POST'])
+@login_required
+def deactivate_user_complaint():
+    username = request.args.get('username')
+    print username
+    u = User.query.filter_by(username = username).first()
+    #print u.id, "LLLLLLLLLLLLLLLLLLLLL"
+    query = User_Complaints.query.filter_by(complained_id = u.id).first()
+    query.active = False
+    db.session.commit()
+    flash('complaint deactivated')
+    return redirect(url_for('complaints_list'))
+
+
+
 
 @app.route('/admin/user_list', methods=['GET', 'POST'])
 @login_required
@@ -376,6 +432,17 @@ def get_all_users():
         return render_template('user_list.html',
                 user_data = user_data
                 )
+    else:
+        return redirect(url_for('home'))
+
+@app.route('/admin/book_list', methods=['GET', 'POST'])
+@login_required
+def get_all_suspended_books():
+    user = User.query.filter_by(id = session['user_id']).first()
+    if user.superuser == True:
+        book_data = Book.query.filter_by(suspended = True).all()
+        return render_template('book_list.html',
+                book_data = book_data, user = user)
     else:
         return redirect(url_for('home'))
 
@@ -688,11 +755,9 @@ def submit_rating():
         book_dict=r.__dict__    
     num_of_ratings = int(book_dict['num_of_rating'])
     query_user = User.query.filter_by(username = g.user).first()
-    # check_if_rated = Book_Ratings.query(user_id = int(query_user.id), book_id = int(book_dict['id']))
-    # if check_if_rated != None: 
-    query.rating = ratings
+    query.rating = float(ratings) + float(query.rating)
     query.num_of_rating = num_of_ratings + 1
-    r = Book_Ratings(book_id = int(book_dict['id']), user_id = int(query_user.id), rating = ratings, timestamp = datetime.utcnow())
+    r = Book_Ratings(book_id = int(book_dict['id']), user_id = int(query_user.id), rating = float(ratings)+float(query.rating), timestamp = datetime.utcnow())
     db.session.add(r)
     db.session.commit()
 
@@ -719,9 +784,12 @@ def complain():
         complainer_id = int(username_query.id)
         b_insert.create_complaint(user_id = complainer_id, text = msg)
         flash ('Your complaint has been sent to the SU')
+        username_query.send_msg(1,msg)
+        if check_num_of_complaints(book_id):
+            suspend_book(book_id)
         return render_template('complain_success.html')
     return render_template('complain.html', query = query, user_query = user_query, isbn =isbn, form = form)
-    #return render_template('complain.html', query = query)
+    
 
 @app.route('/complain_user', methods = ['POST', 'GET'])
 @login_required
@@ -740,6 +808,7 @@ def complain_user():
         db.session.add(insert)
         db.session.commit()
         flash('Your complaint has been sent to the SU')
+        username_query.send_msg(1,msg)
         return render_template('complain_success.html')
     return render_template('complain_user.html',user_query = user_query, form = form)
 
