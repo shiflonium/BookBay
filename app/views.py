@@ -105,9 +105,16 @@ def do_book_removal_and_purchase_checking():
 
 def check_num_of_complaints(book_id):
     i = 0
+    query = Book.query.filter_by(id = book_id).first() 
     for complain in db.session.query(Book_Complaints.user_id).filter_by(book_id = book_id).distinct(Book_Complaints.user_id):
         i+=1
-        print i, complain.user_id
+    if i > 3:
+        print "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL"
+        query.suspended = True
+        db.session.commit()
+
+
+    
 
 
 @app.route('/', methods = ['GET', 'POST'], defaults = {'path':''})

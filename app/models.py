@@ -170,6 +170,7 @@ class Book(db.Model):
     information = db.Column(db.Text)
     rating = db.Column(db.Float, default=0.0)
     num_of_rating = db.Column(db.Integer, default=0)
+    suspended = db.Column(db.Boolean, default=False)
 
     # simple way to implement books that are for auction with no buyout. 
     # no one should have 9,999 coins. can change value later.
@@ -323,7 +324,10 @@ class Book(db.Model):
     def get_buyer(self):
         """return user that bought the book, if there is a buyer"""
         pass
-    
+    def is_suspended(self):
+        """method for checking whether user is suspended."""
+        return self.suspended
+        
     def is_sold(self):
         """method that determines whether book is sold or not"""
         if self.sold == True:
