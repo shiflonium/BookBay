@@ -109,10 +109,19 @@ def check_num_of_complaints(book_id):
     for complain in db.session.query(Book_Complaints.user_id).filter_by(book_id = book_id).distinct(Book_Complaints.user_id):
         i+=1
     if i > 3:
-        print "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL"
-        query.suspended = True
-        db.session.commit()
-
+        return True
+    else:
+        return False
+@app.route('/admin/suspend_book/<book_id>')
+def suspend_book(book_id):
+    query = Book.query.filter_by(id = book_id).first()
+    query.suspended = True
+    db.session.commit()
+@app.route('/admin/unsuspend_book/<book_id>')
+def unsuspend_book(book_id):
+    query = Book.query.filter_by(id = book_id).first()
+    query.suspended = False
+    db.session.commit()
 
     
 
@@ -385,6 +394,18 @@ def get_all_users():
         return render_template('user_list.html',
                 user_data = user_data
                 )
+    else:
+        return redirect(url_for('home'))
+
+@app.route('/admin/book_list', methods=['GET', 'POST'])
+
+@login_required
+def get_all_suspended_books():
+    user = User.query.filter_by(id = session['user_id']).first()
+    if user.superuser == True:
+        book_data = Book.query.filter_by(suspended = True).all()
+        return render_template('book_list.html',
+                book_data = book_data, user = user)
     else:
         return redirect(url_for('home'))
 
@@ -727,7 +748,8 @@ def complain():
         b_insert.create_complaint(user_id = complainer_id, text = msg)
         flash ('Your complaint has been sent to the SU')
         username_query.send_msg(1,msg)
-        check_num_of_complaints(book_id)
+        if check_num_of_complaints(book_id):
+            suspend_book(book_id)
         return render_template('complain_success.html')
     return render_template('complain.html', query = query, user_query = user_query, isbn =isbn, form = form)
     

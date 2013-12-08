@@ -49,6 +49,7 @@
 
 {% for i in obj %}
 {% if i.is_sold() == False %}
+{% if i.is_suspended() == False %}
 	{%set isbn_var = i.get_isbn() %}	
 	
 	<div class="outer">
@@ -88,6 +89,8 @@
 		{% if g.user.is_anonymous() == False %}
 			{% if g.user.is_superuser() == True %}
 				<label>Delete this book </label><a href="{{url_for('remove_book', book_id =i.get_id() ) }}"> Delete this book </a>
+				<label>Suspend this book</label><a href="{{url_for('suspend_book', book_id = i.get_id() ) }}"> Suspend</a>
+			{% endif %}
 			{% endif %}
 			{% endif %}
 			{% endif %}
