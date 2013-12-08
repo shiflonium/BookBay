@@ -117,11 +117,18 @@ def suspend_book(book_id):
     query = Book.query.filter_by(id = book_id).first()
     query.suspended = True
     db.session.commit()
+    if request.args.get('suspend_source'):
+        flash ('Book has been suspended')
+        return redirect(url_for('browse'))
+    else:
+        return redirect(url_for('get_all_suspended_books'))
+
 @app.route('/admin/unsuspend_book/<book_id>')
 def unsuspend_book(book_id):
     query = Book.query.filter_by(id = book_id).first()
     query.suspended = False
     db.session.commit()
+    return redirect(url_for('get_all_suspended_books'))
 
     
 
@@ -398,12 +405,12 @@ def get_all_users():
         return redirect(url_for('home'))
 
 @app.route('/admin/book_list', methods=['GET', 'POST'])
-
 @login_required
 def get_all_suspended_books():
     user = User.query.filter_by(id = session['user_id']).first()
     if user.superuser == True:
         book_data = Book.query.filter_by(suspended = True).all()
+        print "KKKKKKKKKKKKKKKKKKKKKKKKKKK"
         return render_template('book_list.html',
                 book_data = book_data, user = user)
     else:

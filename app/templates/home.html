@@ -20,7 +20,9 @@
 		<a href="{{url_for('transaction_history') }}"> Transactions History Page </a><br>
 		<a href="{{url_for('bid_history') }}"> Bid History Page </a><br>
 		<a href="{{url_for('get_all_users') }}"> User Administration Page </a><br>
+		<a href="{{url_for('get_all_suspended_books') }}"> Book Administration Page</a><br>
 		<a href="{{url_for('su_msg_list') }}"> Show All Messages to Super User</a><br>
+
 	{% else %}
 		<p> You are a <strong>Registered User</strong>.
 		{% if g.user.is_approved() == False %}
