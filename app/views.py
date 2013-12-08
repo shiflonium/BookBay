@@ -684,11 +684,9 @@ def submit_rating():
         book_dict=r.__dict__    
     num_of_ratings = int(book_dict['num_of_rating'])
     query_user = User.query.filter_by(username = g.user).first()
-    # check_if_rated = Book_Ratings.query(user_id = int(query_user.id), book_id = int(book_dict['id']))
-    # if check_if_rated != None: 
-    query.rating = ratings
+    query.rating = float(ratings) + float(query.rating)
     query.num_of_rating = num_of_ratings + 1
-    r = Book_Ratings(book_id = int(book_dict['id']), user_id = int(query_user.id), rating = ratings, timestamp = datetime.utcnow())
+    r = Book_Ratings(book_id = int(book_dict['id']), user_id = int(query_user.id), rating = float(ratings)+float(query.rating), timestamp = datetime.utcnow())
     db.session.add(r)
     db.session.commit()
 
