@@ -132,10 +132,14 @@ def home():
     all_users = User.query.order_by(desc(User.num_logins)).all()
     most_active_users = list()
     if len(all_users) > 2:
-        for i in range (0,3):
-            most_active_users.append(all_users[i])
-            #GET USER ID
-            all_id = User.query.order_by(desc(User.num_logins)).all()
+        limit = 3
+    else:
+        limit = len(all_users)
+    
+    for i in range (0,limit):
+        most_active_users.append(all_users[i])
+        #GET USER ID
+        all_id = User.query.order_by(desc(User.num_logins)).all()
 
     
     return render_template('home.html', users_list = most_active_users)

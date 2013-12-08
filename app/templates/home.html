@@ -37,18 +37,7 @@
 
 		<a href="{{url_for('send_msg') }}"> Send message to Super Users </a><br>
 
-		<div>
-			<h3> Most Active Users:</h3>
-			<table border="1">
-								
-			{% for user in users_list %}
-			<tr>
-				<td style="width:20%;">{{user}} </td>
-				<td style="width:20%;">{{user.get_id()}}</td>
-			</tr>
-			{% endfor %}
-		</table>
-		</div>
+	
 
 
 		{% endif %}
@@ -56,7 +45,20 @@
 {% else %}
 <p align="center" style="color:green"> You are not logged in. </p>
 {% endif %}
-
+{% if g.user.is_authenticated() %}
+	<div>
+			<h3> Most Active Users:</h3>
+			<table>
+								
+			{% for user in users_list %}
+			<tr>
+				<td style="width:4%; font-size:30px;"><a href="{{ url_for('view_profile', user_id=user.get_id())}}">{{user}}</a> </td>
+				
+			</tr>
+			{% endfor %}
+		</table>
+		</div>
+{% endif %}
 
 
 {% endblock %}
