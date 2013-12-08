@@ -1,7 +1,7 @@
 from flask import render_template, flash, redirect, session, url_for, request, g
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from app import app, db, login_manager
-from models import User, Book, Transaction, Bid, User_Comments, Book_Comments, User_Complaints, SU_Messages, Book_Ratings
+from models import User, Book, Transaction, Bid, User_Comments, Book_Comments, User_Complaints, SU_Messages, Book_Ratings, Book_Complaints
 from forms import SignUpForm, LoginForm, ChangePassword, ChangePersonalDetails, SearchForm, sellForm, BidForm, PostForm, SUForm, ComplainForm
 from werkzeug import generate_password_hash, check_password_hash, secure_filename
 from datetime import datetime
@@ -102,6 +102,12 @@ def do_book_removal_and_purchase_checking():
     2. expired and HAS bids => create a transaction and make book sold."""
     check_book_expr_and_no_bids()
     check_book_expr_and_has_bids()
+
+def check_num_of_complaints(book_id):
+    i = 0
+    for complain in db.session.query(Book_Complaints.user_id).filter_by(book_id = book_id).distinct(Book_Complaints.user_id):
+        i+=1
+        print i, complain.user_id
 
 
 @app.route('/', methods = ['GET', 'POST'], defaults = {'path':''})
@@ -714,6 +720,7 @@ def complain():
         b_insert.create_complaint(user_id = complainer_id, text = msg)
         flash ('Your complaint has been sent to the SU')
         username_query.send_msg(1,msg)
+        check_num_of_complaints(book_id)
         return render_template('complain_success.html')
     return render_template('complain.html', query = query, user_query = user_query, isbn =isbn, form = form)
     
