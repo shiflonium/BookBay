@@ -437,7 +437,6 @@ def get_all_suspended_books():
     user = User.query.filter_by(id = session['user_id']).first()
     if user.superuser == True:
         book_data = Book.query.filter_by(suspended = True).all()
-        print "KKKKKKKKKKKKKKKKKKKKKKKKKKK"
         return render_template('book_list.html',
                 book_data = book_data, user = user)
     else:
