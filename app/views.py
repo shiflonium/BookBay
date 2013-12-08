@@ -734,6 +734,7 @@ def complain_user():
         db.session.add(insert)
         db.session.commit()
         flash('Your complaint has been sent to the SU')
+        username_query.send_msg(1,msg)
         return render_template('complain_success.html')
     return render_template('complain_user.html',user_query = user_query, form = form)
 
