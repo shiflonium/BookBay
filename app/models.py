@@ -586,6 +586,13 @@ class Book_Ratings(db.Model):
     rating = db.Column(db.Integer, nullable=False)
     timestamp = db.Column(db.DateTime)
 
+# class User_Ratings(db.Model):
+#     __tablename__ = "user_ratings"
+#     id = db.Column(db.Integer, primary_key=True)
+#     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), unique=False, nullable=False)
+#     rating = db.Column(db.Integer, nullable=False)
+#     timestamp = db.Column(db.DateTime)
+
 
 class User_Comments(db.Model):
     __tablename__ = "user_comments"

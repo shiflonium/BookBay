@@ -1,0 +1,88 @@
+
+{% extends "base.html" %}
+{% block content %}
+<style>
+.images
+{
+	max-height: 20%;
+}
+.outer
+{
+	position: relative;
+	float: left;
+	width: 20%;
+	display: inline-block;
+	clear: both;
+	margin-left: 30px;
+	margin-bottom: 30px;
+	
+	
+}
+
+.inner
+{
+	display: inline-block;
+	position: relative;
+	float: left;
+	width: 20%;
+}
+	
+
+.inner2
+{
+	display: inline-block;
+	position: relative;
+	float: left;
+	width: 20%;
+}
+.inner3
+{
+	display: inline-block;
+	position: relative;
+	float: left;
+	width: 20%;
+}
+</style>
+<div>
+<label class="outer">Rate Book</label>
+
+	
+		<input name = "star" type = "radio" class="star" value="1"/>
+		<input name = "star" type = "radio" class="star" value="2"/>
+		<input name = "star" type = "radio" class="star" value="3"/>
+		<input name = "star" type = "radio" class="star" value="4"/>
+		<input name = "star" type = "radio" class="star" value="5"/>
+	</div>
+
+
+	<div>
+<label class="outer">Rate User</label>
+
+	
+		<input name = "star1" type = "radio" class="star" value="1"/>
+		<input name = "star1" type = "radio" class="star" value="2"/>
+		<input name = "star1" type = "radio" class="star" value="3"/>
+		<input name = "star1" type = "radio" class="star" value="4"/>
+		<input name = "star1" type = "radio" class="star" value="5"/>
+	</div>
+
+
+
+<br><br>
+
+
+<script type="text/javascript">
+$(function() {
+	$("#submit_rate").click(function(){
+	var selectedVal = "";
+	var selected = $("input[type='radio'][name='star']:checked");
+	if (selected.length > 0) {
+    	selectedVal = selected.val();
+		}
+	document.getElementById("rate_amount").value = selectedVal;
+ 	});
+});
+</script>
+
+{% endblock %}
+

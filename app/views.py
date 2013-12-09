@@ -713,8 +713,8 @@ def browse_book(book_id):
 
         if request.method == 'POST' and form.submit_buy_now.data and is_guest == False:
             book.create_buy_now_transcation(user)
-            flash ('you bought it')
-            return redirect(url_for('home'))
+            flash ('you bought it, please provide your feedback')
+            return redirect(url_for('rate_transaction'))
 
         if request.method == 'POST' and form2.validate_on_submit() and form2.post.data:
             # have no idea why the other one doesnt work
@@ -734,6 +734,15 @@ def browse_book(book_id):
 @app.route('/no_credit')
 def show_page():
     return render_template('no_credit.html')
+
+@app.route('/rate_transaction')
+@login_required
+def rate_transaction():
+    #book_id = request.form['rate_book_id']
+    #user_id = int(request.form['rate_user_id'])
+    #query_user = User.query.filter_by(id = user_id).first()
+    #query_book = Book.query.filter_by(id = book_id).first()
+    return render_template('rate_transaction.html')
 
 @app.route('/rate_book')
 @login_required

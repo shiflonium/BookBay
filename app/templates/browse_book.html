@@ -95,12 +95,14 @@
 		<label> Book Type: {{ book.get_booktype() }}</label><br>
 		<p> Expires in <strong>{{ book.until_expire_in_hrs() }}</strong> hours or <strong>{{book.until_expire_in_mins() }}</strong> minutes </p>
 	</div>
+	<a href="{{ url_for('rate_transaction') }}">TEST</a>
 
 
 
 <form class="navbar-form navbar-left" action= "{{ url_for('browse_book', book_id=book_id) }}" method="POST" enctype="multipart/form-data">
   <div class="form-group">
-    
+    	<input type="hidden" name="rate_book_id" value="{{book.id}}">
+    	<input type="hidden" name="rate_user_id" value="{{book.owner_id}}">
 		{{ form.csrf_token }}
 
     {{ form.bid_amount.label }}
