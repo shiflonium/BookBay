@@ -457,6 +457,7 @@ class Book(db.Model):
     def get_highest_bid(self):
         bid = Bid.query.filter_by(book=self).order_by(desc(Bid.bid_price)).first()
         return bid
+
         
     def create_buy_now_transcation(self, buyer):
         """buyer is passed in user object"""
@@ -481,7 +482,7 @@ class Book(db.Model):
         print "%s %s Transaction Created %s" % (s, transac_time, s)
         print "%s sold book: %s to %s @ buy_now price: %s" % (seller.username, self.title, buyer.username, self.buyout_price)
 
-
+    
     def create_bid_win_transaction(self):
         """1. create transaction object
         2. modify book.sold = True """

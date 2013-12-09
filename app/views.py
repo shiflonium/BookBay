@@ -494,11 +494,14 @@ def personal_profile(user_id):
     
     comments_recieved = User_Comments.query.filter_by(commented=view_user).order_by(desc(User_Comments.timestamp)).all()
     comments_made = User_Comments.query.filter_by(commenter=view_user).order_by(desc(User_Comments.timestamp)).all()
+    book_user_selling = Book.query.filter_by(owner=view_user, sold=False).all()
+
     
     return render_template('personal_profile.html',
             comments_recieved = comments_recieved,
             comments_made = comments_made,
-            user=view_user)
+            user=view_user,
+            book_user_selling = book_user_selling)
 
 @app.route('/send_msg', methods=['GET', 'POST'])
 @login_required
@@ -709,6 +712,15 @@ def browse_book(book_id):
     return render_template('browse_book.html', book=book, form=form, book_id=book_id, form2=form2, comments=comments)
 
 
+@app.route('/accepted_bid/<book_id>')
+@login_required
+def accept_highest_bid(book_id):
+    book = Book.query.filter_by(id = book_id).first()
+    book.create_bid_win_transaction()
+
+    msg = "You Sucessfully sold book: %s to highest bidder: %s for %s" %(book.title, book.get_highest_bid().bidder.username, book.current_bid )
+    flash(msg)
+    return render_template('home.html')
 
 
 @app.route('/no_credit')

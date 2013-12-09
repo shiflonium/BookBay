@@ -13,6 +13,24 @@
 {% endif %}
 
 <hr>
+<label> Books you are selling</label>
+{% for book in book_user_selling %}
+<p> 
+Title:<strong> {{ book.get_title() }} </strong> <br>
+Author:<strong> {{ book.get_author() }} </strong> <br>
+Publisher: <strong>{{ book.get_publisher() }} </strong><br>
+Language: <strong> {{ book.get_language() }}</strong><br>
+Publisher: <strong>{{ book.get_publisher() }} </strong><br>
+Condition: <strong>{{ book.get_condition() }}</strong><br>
+Genre: <strong>{{ book.get_genre() }} </strong></p>
+{% if book.get_highest_bid() %}
+<p> Current Bid Price: <strong>{{book.get_current_bid()}} </strong> by user: <strong>{{ book.get_highest_bid().bidder.username }}</strong> <a href="{{ url_for('accept_highest_bid', book_id=book.id) }}">click here</a> to accept bid and sell</p>
+{% endif %}
+
+
+{% endfor %}
+
+<hr>
 <label>Comments Posted on your Profile</label>
 {% for data in comments_recieved %}
 <p>
