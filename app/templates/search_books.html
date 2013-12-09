@@ -59,7 +59,7 @@ text-align: left;
 	{% if i.is_sold() == False %}
 	{% if i.is_suspended() == False %}
 		{%set isbn_var = i.get_isbn() %}
-	
+	<div><hr class="hr1"></div>	
 	<div class="outer">
 		<a href = "{{ url_for('browse') }}/{{i.get_id()}}"> <img class = "images" src= "{{ url_for('static',filename='userImages/'+i.get_image_name()) }}" alt="TEST"></a>	
 	</div>
@@ -104,7 +104,7 @@ text-align: left;
 			{% endif %}
 			<br>
 	</div>
-<div><hr class="hr1"></div>
+
 	
 
 

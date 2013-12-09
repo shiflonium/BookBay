@@ -409,11 +409,14 @@ def complaints_list():
 @login_required
 def deactivate_user_complaint():
     username = request.args.get('username')
+    complaint_id = int(request.args.get('complaint_id'))
+    print complaint_id
     print username
     u = User.query.filter_by(username = username).first()
     #print u.id, "LLLLLLLLLLLLLLLLLLLLL"
-    query = User_Complaints.query.filter_by(complained_id = u.id).first()
-    query.active = False
+    query = User_Complaints.query.filter_by(id = complaint_id).delete()
+    #print query.comment
+    #query.active = False
     db.session.commit()
     flash('complaint deactivated')
     return redirect(url_for('complaints_list'))
