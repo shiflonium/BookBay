@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 {% block content %}
+<label align="center" >Browsing ALL Users</label>
+<br>
 
-  <header>
-  <h4 align="center"> Username: {{ user.username }}</h4>
-  </header>
-	<p align="center"> <strong>First Name:</strong> {{ user.first_name }} 
-	<strong>Last Name: </strong> {{ user.last_name }}  
-	<strong>Email: </strong> {{ user.email }}  
-	</p>
-	<p align="center"> <strong> Rating: </strong> {{ user.rating }}	</p>
-	<br>
-	
+{% for user in users %}
+<hr>
+<label>Username:</label> {{user.username }} <a href="{{ url_for('view_profile', user_id=user.id) }}"> click here to view profile</a> <br>
+<label>First Name:</label> {{user.first_name}}<br>
+<label>Last Name:</label> {{user.last_name}}<br>
+
+{% endfor %}
+
 {% endblock %}

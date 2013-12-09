@@ -634,6 +634,11 @@ def sell():
 def success():
     return render_template('success.html');
 
+@app.route('/browse_user')
+def browse_users():
+    users = User.query.filter_by(apr_by_admin=True, superuser=False, suspended=False).all()
+    return render_template('browse_user.html', users=users)
+
 @app.route('/browse')
 def browse():
     b = Book()
