@@ -677,6 +677,13 @@ def browse_book(book_id):
         if request.method == 'POST' and form.validate_on_submit() and form.bid_amount.data and is_guest == False and form.submit_bid:
             bid_amount = request.form['bid_amount']
             book.create_bid(session['user_id'], bid_amount)
+            # check if the user has enough credits
+            u = User.query.filter_by(id = session['user_id']).first()
+            if not(u.has_enough_credits(book.current_bid)):
+                msg = 'You have %s credits. Current bid on book is %s.' % (u.return_credits(), book.current_bid)
+                flash(msg)
+                return render_template('browse_book.html', book=book, form=form, book_id=book_id, form2=form2, comments=comments)
+            return render_template('browse_book.html', book=book, form=form, book_id=book_id, form2=form2, comments=comments)
 
         if request.method == 'POST' and form.submit_buy_now.data and is_guest == False:
             # check if user has enough credits to purchase book.
@@ -692,6 +699,7 @@ def browse_book(book_id):
             # have no idea why the other one doesnt work
             text = form2.post.data
             book.create_comment(session['user_id'], text)
+            return render_template('browse_book.html', book=book, form=form, book_id=book_id, form2=form2, comments=comments)
 
     
     if is_guest is True:
