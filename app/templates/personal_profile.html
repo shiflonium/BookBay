@@ -13,7 +13,7 @@
 {% endif %}
 
 <hr>
-<label> Books you are selling</label>
+<label> Books you are SELLING</label>
 {% for book in book_user_selling %}
 <p> 
 Title:<strong> {{ book.get_title() }} </strong> <br>
@@ -22,13 +22,29 @@ Publisher: <strong>{{ book.get_publisher() }} </strong><br>
 Language: <strong> {{ book.get_language() }}</strong><br>
 Publisher: <strong>{{ book.get_publisher() }} </strong><br>
 Condition: <strong>{{ book.get_condition() }}</strong><br>
-Genre: <strong>{{ book.get_genre() }} </strong></p>
+Genre: <strong>{{ book.get_genre() }} </strong><br>
+Time Remaining: <strong> {{book.until_expire_in_mins() }} minutes</strong></p>
 {% if book.get_highest_bid() %}
 <p> Current Bid Price: <strong>{{book.get_current_bid()}} </strong> by user: <strong>{{ book.get_highest_bid().bidder.username }}</strong> <a href="{{ url_for('accept_highest_bid', book_id=book.id) }}">click here</a> to accept bid and sell</p>
 {% endif %}
-
-
 {% endfor %}
+
+<hr>
+<label> Books you SOLD</label>
+
+{% for data in transacs %}
+  <p> Transaction Number: {{ data.id }} <strong> Transaction time: </strong> {{ data.time_sold }} <br>
+  <strong>Seller:</strong> {{ data.seller.username }} <strong>Buyer:</strong> {{ data.buyer.username }}
+  <strong>Book:</strong> {{ data.book.title }} <br>
+  <strong> ISBN: </strong> {{ data.book.isbn }}
+  <strong> Genre: </strong> {{ data.book.genre }}
+  <strong> Rating: </strong> {{ data.book.rating }}
+
+  </p>
+  <p align="left"> <strong>Price Sold:</strong> {{ data.amt_sold_for }} </p>
+  <br>
+{% endfor %}
+
 
 <hr>
 <label>Comments Posted on your Profile</label>

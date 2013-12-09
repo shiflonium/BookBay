@@ -495,13 +495,15 @@ def personal_profile(user_id):
     comments_recieved = User_Comments.query.filter_by(commented=view_user).order_by(desc(User_Comments.timestamp)).all()
     comments_made = User_Comments.query.filter_by(commenter=view_user).order_by(desc(User_Comments.timestamp)).all()
     book_user_selling = Book.query.filter_by(owner=view_user, sold=False).all()
+    transacs = Transaction.query.filter_by(seller = view_user).all()
 
     
     return render_template('personal_profile.html',
             comments_recieved = comments_recieved,
             comments_made = comments_made,
             user=view_user,
-            book_user_selling = book_user_selling)
+            book_user_selling = book_user_selling,
+            transacs = transacs)
 
 @app.route('/send_msg', methods=['GET', 'POST'])
 @login_required
