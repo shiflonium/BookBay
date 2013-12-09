@@ -346,6 +346,7 @@ def suspend_user(user_id):
     u = User.query.filter_by(id = user_id).first()
     u.suspended = True
     db.session.commit()
+    user.create_comment(session['user_id'], "You have been suspended by site administrator")
     return redirect(url_for('get_all_users'))
 
 @app.route('/admin/unsuspend_user/<user_id>')
