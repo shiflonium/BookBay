@@ -104,10 +104,10 @@
 
 
 
-<form class="navbar-form navbar-left" action= "{{ url_for('browse_book', book_id=book_id) }}" method="POST" enctype="multipart/form-data">
+<form class="navbar-form navbar-left" action= "{{ url_for('rate_transaction') }}" method="POST" enctype="multipart/form-data">
   <div class="form-group">
-    	<input type="hidden" name="rate_book_id" value="{{book.id}}">
-    	<input type="hidden" name="rate_user_id" value="{{book.owner_id}}">
+    	<input type="hidden" name="book_id" value="{{book.get_id()}}">
+		<input type="hidden" name="user_id" value="{{book.get_owner()}}">
 		{{ form.csrf_token }}
 
     {{ form.bid_amount.label }}
