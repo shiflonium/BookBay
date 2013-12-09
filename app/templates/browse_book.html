@@ -95,16 +95,16 @@
 		<label> Book Type: {{ book.get_booktype() }}</label><br>
 		<p> Expires in <strong>{{ book.until_expire_in_hrs() }}</strong> hours or <strong>{{book.until_expire_in_mins() }}</strong> minutes </p>
 	</div>
-	<form action="{{ url_for('rate_transaction') }}" method="POST">
+	<!-- <form action="{{ url_for('rate_transaction') }}" method="POST">
 		<input type="hidden" name="book_id" value="{{book.get_id()}}">
 		<input type="hidden" name="user_id" value="{{book.get_owner()}}">
 		<button type="submit">Submit (Test button)</button>
-	</form>
+	</form> -->
 	<!-- <a href="{{ url_for('rate_transaction') }}">TEST</a> -->
 
 
 
-<form class="navbar-form navbar-left" action= "{{ url_for('rate_transaction') }}" method="POST" enctype="multipart/form-data">
+<form class="navbar-form navbar-left" action= "{{ url_for('browse_book',book_id = book_id) }}" method="POST" enctype="multipart/form-data">
   <div class="form-group">
     	<input type="hidden" name="book_id" value="{{book.get_id()}}">
 		<input type="hidden" name="user_id" value="{{book.get_owner()}}">

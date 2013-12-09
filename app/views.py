@@ -696,12 +696,15 @@ def browse_book(book_id):
             return render_template('browse_book.html', book=book, form=form, book_id=book_id, form2=form2, comments=comments)
 
         if request.method == 'POST' and form.submit_buy_now.data and is_guest == False:
+            u = User.query.filter_by(id = session['user_id']).all()
+            b = Book.query.filter_by(id = book_id).all()
             # check if user has enough credits to purchase book.
             # if True. continue transaction, if false, redirect.
             if user.has_enough_credits(book.get_buyout_price()):
                 book.create_buy_now_transcation(user)
+                print user.id,"UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU"
                 flash ('you bought it, please provide your feedback')
-                return redirect(url_for('rate_transaction'))
+                return render_template('rate_transaction.html',user = u, book = b)
             else:
                 return redirect(url_for('not_enough_credits'))
 
