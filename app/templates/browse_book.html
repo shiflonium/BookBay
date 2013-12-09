@@ -95,7 +95,12 @@
 		<label> Book Type: {{ book.get_booktype() }}</label><br>
 		<p> Expires in <strong>{{ book.until_expire_in_hrs() }}</strong> hours or <strong>{{book.until_expire_in_mins() }}</strong> minutes </p>
 	</div>
-	<a href="{{ url_for('rate_transaction') }}">TEST</a>
+	<form action="{{ url_for('rate_transaction') }}" method="POST">
+		<input type="hidden" name="book_id" value="{{book.get_id()}}">
+		<input type="hidden" name="user_id" value="{{book.get_owner()}}">
+		<button type="submit">Submit (Test button)</button>
+	</form>
+	<!-- <a href="{{ url_for('rate_transaction') }}">TEST</a> -->
 
 
 

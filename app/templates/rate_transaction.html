@@ -1,6 +1,7 @@
 
 {% extends "base.html" %}
 {% block content %}
+{% include 'flash.html' %}
 <style>
 .images
 {
@@ -43,46 +44,61 @@
 	width: 20%;
 }
 </style>
+{% for b in book %}
+{% for u in user %}
+<form action="{{url_for('submit_transaction_rating')}}">
 <div>
-<label class="outer">Rate Book</label>
+<label class="outer">Rate Book: {{b.get_title()}}</label> 
 
 	
-		<input name = "star" type = "radio" class="star" value="1"/>
-		<input name = "star" type = "radio" class="star" value="2"/>
-		<input name = "star" type = "radio" class="star" value="3"/>
-		<input name = "star" type = "radio" class="star" value="4"/>
-		<input name = "star" type = "radio" class="star" value="5"/>
+		<input name = "book" type = "radio" class="star" value="1"/>
+		<input name = "book" type = "radio" class="star" value="2"/>
+		<input name = "book" type = "radio" class="star" value="3"/>
+		<input name = "book" type = "radio" class="star" value="4"/>
+		<input name = "book" type = "radio" class="star" value="5"/>
 	</div>
 
 
 	<div>
-<label class="outer">Rate User</label>
+<label class="outer">Rate User: {{u.get_username()}}</label>
 
 	
-		<input name = "star1" type = "radio" class="star" value="1"/>
-		<input name = "star1" type = "radio" class="star" value="2"/>
-		<input name = "star1" type = "radio" class="star" value="3"/>
-		<input name = "star1" type = "radio" class="star" value="4"/>
-		<input name = "star1" type = "radio" class="star" value="5"/>
+		<input name = "user" type = "radio" class="star" value="1"/>
+		<input name = "user" type = "radio" class="star" value="2"/>
+		<input name = "user" type = "radio" class="star" value="3"/>
+		<input name = "user" type = "radio" class="star" value="4"/>
+		<input name = "user" type = "radio" class="star" value="5"/>
 	</div>
-
-
-
+<div class="outer">
+<button type="submit">Submit Rating</button>
+</div>
+<!-- <input type="hidden" name ="book_rated" id="book_rate_amount"></input> -->
+<input type="hidden" name ="book_id" value="{{b.get_id()}}"></input>
+<input type="hidden" name ="user_id" value="{{u.get_id()}}"></input>
+<!-- <input type="hidden" name ="user_rated" id="user_rate_amount"></input> -->
+</form>
 <br><br>
 
 
 <script type="text/javascript">
 $(function() {
 	$("#submit_rate").click(function(){
-	var selectedVal = "";
-	var selected = $("input[type='radio'][name='star']:checked");
-	if (selected.length > 0) {
-    	selectedVal = selected.val();
+	var bookSelectedVal = "";
+	var userSelectedVal = "";
+	var bookSelected = $("input[type='radio'][name='book']:checked");
+	var userSelected = $("input[type='radio'][name='user']:checked");
+	if (bookSelected.length > 0) {
+    	bookSelectedVal = bookSelected.val();
 		}
-	document.getElementById("rate_amount").value = selectedVal;
+	if (userSelected.length > 0) {
+    	userSelectedVal = userSelected.val();
+		}
+	document.getElementById("book_rate_amount").value = bookSelectedVal;
  	});
 });
 </script>
 
+{% endfor %}
+{% endfor %}
 {% endblock %}
 

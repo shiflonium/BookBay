@@ -108,7 +108,7 @@ def check_num_of_complaints(book_id):
     query = Book.query.filter_by(id = book_id).first() 
     for complain in db.session.query(Book_Complaints.user_id).filter_by(book_id = book_id).distinct(Book_Complaints.user_id):
         i+=1
-    if i >= 3:
+    if i > 3:
         return True
     else:
         return False
@@ -118,7 +118,7 @@ def check_num_of_user_complaints(user_id):
     query = User.query.filter_by(id = user_id).first() 
     for complain in db.session.query(User_Complaints.complainer_id).filter_by(complained_id = user_id).distinct(User_Complaints.complainer_id):
         i+=1
-    if i >= 3:
+    if i > 3:
         return True
     else:
         return False
@@ -734,14 +734,39 @@ def accept_highest_bid(book_id):
 def not_enough_credits():
     return render_template('no_credit.html')
 
-@app.route('/rate_transaction')
+@app.route('/rate_transaction', methods = ['POST'])
 @login_required
 def rate_transaction():
-    #book_id = request.form['rate_book_id']
-    #user_id = int(request.form['rate_user_id'])
-    #query_user = User.query.filter_by(id = user_id).first()
-    #query_book = Book.query.filter_by(id = book_id).first()
-    return render_template('rate_transaction.html')
+    book_id = int(request.form['book_id'])
+    user_id = int(request.form['user_id'])
+    query_user = User.query.filter_by(id = user_id).all()
+    query_book = Book.query.filter_by(id = book_id).all()
+    return render_template('rate_transaction.html',user = query_user, book = query_book)
+
+
+@app.route('/submit_trans_action', methods = ['POST','GET'])
+@login_required
+def submit_transaction_rating():
+    b = Book()
+    book_rating = request.args.get('book')
+    user_rating = request.args.get('user')
+    book_id = request.args.get('book_id')
+    user_id = request.args.get('user_id')
+    book_query = b.query.filter_by(id = int(book_id)).all()
+    user_query = User.query.filter_by(id = int(user_id)).all()
+    if book_rating and user_rating != None:
+        book_query = b.query.filter_by(id = int(book_id)).first()
+        user_query = User.query.filter_by(id = int(user_id)).first()
+        book_query.rating = float(book_query.rating) + int(book_rating)
+        user_query.rating = float(user_query.rating) + int(user_rating)    
+        book_query.num_of_rating = float(book_query.num_of_rating) + 1  
+        user_query.num_of_rating = float(user_query.num_of_rating) + 1
+        db.session.commit()
+        return render_template('rate_success.html')
+    else:
+        flash ('You must provide your feedback for the transaction')
+        return render_template('rate_transaction.html', user = user_query, book = book_query)
+
 
 @app.route('/rate_book')
 @login_required
