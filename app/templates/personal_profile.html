@@ -16,16 +16,20 @@
 <label> Books you are SELLING</label>
 {% for book in book_user_selling %}
 <p> 
-Title:<strong> {{ book.get_title() }} </strong> <br>
-Author:<strong> {{ book.get_author() }} </strong> <br>
-Publisher: <strong>{{ book.get_publisher() }} </strong><br>
+Title:<strong> {{ book.get_title() }} </strong>
+Author:<strong> {{ book.get_author() }} </strong>
+Publisher: <strong>{{ book.get_publisher() }} </strong>
 Language: <strong> {{ book.get_language() }}</strong><br>
-Publisher: <strong>{{ book.get_publisher() }} </strong><br>
-Condition: <strong>{{ book.get_condition() }}</strong><br>
-Genre: <strong>{{ book.get_genre() }} </strong><br>
+Publisher: <strong>{{ book.get_publisher() }} </strong>
+Condition: <strong>{{ book.get_condition() }}</strong>
+Genre: <strong>{{ book.get_genre() }} </strong>
+Current Bid <strong> {{ book.get_current_bid() }} </strong> <br>
+{% if book.get_buyable() %}
+Buyout Price: <strong>{{ book.get_buyout_price() }} </strong><br>
+{% endif %}
 Time Remaining: <strong> {{book.until_expire_in_mins() }} minutes</strong></p>
 {% if book.get_highest_bid() %}
-<p> Current Bid Price: <strong>{{book.get_current_bid()}} </strong> by user: <strong>{{ book.get_highest_bid().bidder.username }}</strong> <a href="{{ url_for('accept_highest_bid', book_id=book.id) }}">click here</a> to accept bid and sell</p>
+<p> Current Bid Price: <strong>{{ book.get_current_bid() }} </strong> by user: <strong>{{ book.get_highest_bid().bidder.username }}</strong> <a href="{{ url_for('accept_highest_bid', book_id=book.id) }}">click here</a> to accept bid and sell</p>
 {% endif %}
 {% endfor %}
 
