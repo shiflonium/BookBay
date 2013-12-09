@@ -108,7 +108,7 @@ def check_num_of_complaints(book_id):
     query = Book.query.filter_by(id = book_id).first() 
     for complain in db.session.query(Book_Complaints.user_id).filter_by(book_id = book_id).distinct(Book_Complaints.user_id):
         i+=1
-    if i > 3:
+    if i >= 3:
         return True
     else:
         return False
@@ -118,7 +118,7 @@ def check_num_of_user_complaints(user_id):
     query = User.query.filter_by(id = user_id).first() 
     for complain in db.session.query(User_Complaints.complainer_id).filter_by(complained_id = user_id).distinct(User_Complaints.complainer_id):
         i+=1
-    if i > 3:
+    if i >= 3:
         return True
     else:
         return False
