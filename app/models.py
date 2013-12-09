@@ -11,6 +11,14 @@ from sqlalchemy import desc, update
 
 
 class User(db.Model):
+    """This table is used to store User model in the database.
+    One User has MANY Book
+    One User has MANY Book_Complaints
+    One User has MANY Book_Comments
+    One User has MANY Book_Ratings
+    One User has MANY Bids
+    
+    """
     __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), unique=True, nullable=False)
@@ -40,6 +48,7 @@ class User(db.Model):
     book_comment = db.relationship('Book_Comments', backref='commenter', lazy='dynamic')
     book_complaint = db.relationship('Book_Complaints', backref='complainer', lazy='dynamic')
     book_ratings = db.relationship('Book_Ratings', backref='rater', lazy='dynamic')
+    book_rec = db.relationship('Book_Rec', backref='recommender', lazy='dynamic')
        
    
     def __init__(self, username, first_name, last_name, email, password):
@@ -73,80 +82,101 @@ class User(db.Model):
         return self.superuser
 
     def set_password(self, password):
+        """This method generates SHA-1 string from given input, password."""
         self.pwdhash = generate_password_hash(password)
 
     def check_password(self, password):
+        """This method compares generated SHA-1 Hash to hash in database."""
         return check_password_hash(self.pwdhash, password)
 
     def is_authenticated(self):
+        """returns False when Users are not logged in."""
         return True
 
     def is_active(self):
         return True
 
     def is_anonymous(self):
+        """returns True if User is not logged in."""
         return False
 
     def get_id(self):
+        """returns User's primary key id."""
         return unicode(self.id)
 
     def get_credit(self):
+        """returns the credits A user has."""
         return self.credits
 
     def get_num_purch(self):
+        """returns the number of book purchases a user has made."""
         return self.num_purchases
 
     def get_avg_rating(self):
+        """returns the average rating of a user"""
         return round(self.rating / self.num_of_rating,1)
 
     def increment_login(self):
+        """increments User login_count"""
         self.num_logins += 1
         #db.session.commit()
 
     def increment_purchases(self):
+        """increments Users num_purchases count"""
         self.num_purchases += 1
         #db.session.commit()
 
     def times_logged_in(self):
+        """returns number of times User has logged in"""
         return self.num_logins
 
     def is_approved(self):
+        """returns True/False if User is approved by SuperUser"""
         return self.apr_by_admin
 
     def has_enough_credits(self, book_price):
+        """returns True/False if User has enough credits to to purchase Book."""
         if self.credits < book_price:
             return False
         else:
             return True
 
     def return_credits(self):
+        """returns User's credits"""
         return self.credits
 
     def num_books_sold(self):
+        """returns number of books User has SOLD."""
         trans = Transaction.query.filter_by(seller = self).all()
         return len(trans)
 
     def num_user_comments_made(self):
+        """returns number of User_Comments User has made."""
         user_comments = User_Comments.query.filter_by(commenter = self).all()
         return len(user_comments)
 
     def num_book_comments_made(self):
+        """returns number of Book_Comments User has made."""
         book_comments = Book_Comments.query.filter_by(user_id = self.id).all()
         return len(book_comments)
 
     def num_user_comments_directed(self):
+        """returns number of User_Comments directed towards User."""
         user_comments = User_Comments.query.filter_by(commented = self).all()
         return len(user_comments)
 
     def add_credits(self, amount):
+        """method to add credits to a User."""
         self.credits = self.credits + float(amount)
         db.session.commit()
         
     def subtract_credits(self, amount):
+        """method to subtract credits from a User"""
         self.credits = self.credits - float(amount)
         db.session.commit()
 
     def send_msg(self, status, text):
+        """method creates message to be seen by SuperUser"""
         msg = SU_Messages(
                 msg_sender = self,
                 status = status,
@@ -158,6 +188,9 @@ class User(db.Model):
         pass
     
     def create_comment(self, user_id, text):
+        """method to create a User_Comment.
+        parameters: target user_id and commment
+        """
         # user_id = session['user_id']
         commenter = User.query.filter_by(id = user_id).first()
         comment = User_Comments(
@@ -361,6 +394,7 @@ class Book(db.Model):
             return False
 
     def get_avg_rating(self):
+        """returns average rating of book."""
         if self.num_of_rating == 0:
             return 0
         else:
@@ -372,6 +406,8 @@ class Book(db.Model):
         return self.date_added + dt.timedelta(days = self.saleDuration)
 
     def is_book_expr(self):
+        """returns True/False whether or not book is passed expiration date.
+        Used to remove/create transaction for books. """
         expr_date = self.get_expr_date()
         now = datetime.utcnow()
         #print "expr_date: %s  now: %s" % (expr_date, now)
@@ -381,19 +417,22 @@ class Book(db.Model):
             return False
         
     def until_expire_in_mins(self):
-        """time until book expires in minutes"""
+        """returns time until book expires in minutes"""
         expr_date = self.get_expr_date()
         delta = expr_date - datetime.utcnow()
         delta_in_mins = int(delta.total_seconds() / 60 )
         return delta_in_mins
 
     def until_expire_in_hrs(self):
+        """returns time until book expires in hours"""
         return (self.until_expire_in_mins() / 60)
 
     def have_bids(self):
+        """returns True if book has bids"""
         return not(self.not_have_bids())
     
     def not_have_bids(self):
+        """returns True if book does NOT have bids"""
         book_bids = Bid.query.filter_by(book_id = self.id).all() 
         if len(book_bids) == 0:
             return True
@@ -401,6 +440,8 @@ class Book(db.Model):
             return False
 
     def create_comment(self, user_id, text):
+        """method to create a book comment.
+        parameters: commenter user_id and message."""
         commenter = User.query.filter_by(id = user_id).first()
 
         comment = Book_Comments(
@@ -412,6 +453,8 @@ class Book(db.Model):
         db.session.commit()
 
     def create_complaint(self, user_id, text):
+        """method to create a book complaint.
+        parameters: complainer user_id and message."""
         user = User.query.filter_by(id = user_id).first()
         
         book_complaint = Book_Complaints(
@@ -424,6 +467,8 @@ class Book(db.Model):
         db.session.commit()
 
     def create_rating(self, user_id, rating):
+        """method to create rating for book.
+        paramters: rater user_id, rating"""
         user = User.query.filter_by(id = user_id).first()
 
         rating_exists = Book_Ratings.query.filter_by(rater = user).first()
@@ -474,12 +519,15 @@ class Book(db.Model):
                 db.session.commit()
 
     def get_highest_bid(self):
+        """returns bid object with highest bid amount for book."""
         bid = Bid.query.filter_by(book=self).order_by(desc(Bid.bid_price)).first()
         return bid
 
         
     def create_buy_now_transcation(self, buyer):
-        """buyer is passed in user object"""
+        """creates a buy now transaction. Used when a User chooses to click
+        'buy now' for a book. automatically purchasing the book and creating
+        transaction for the user/book."""
         seller = self.owner
         book_cost = self.buyout_price
 
@@ -503,8 +551,14 @@ class Book(db.Model):
 
     
     def create_bid_win_transaction(self):
-        """1. create transaction object
-        2. modify book.sold = True """
+        """
+        creates a transaction when a User wins book by bidding.
+        Triggers when either book expires and has bids or when
+        book owner decides to accept highest bid amount.
+        1. create transaction object
+        2. modify book.sold = True 
+        3. give credits to seller and subtract credits from buyer
+        """
         highest_bid = self.get_highest_bid()
         seller = self.owner
         buyer = highest_bid.bidder
@@ -529,7 +583,9 @@ class Book(db.Model):
         return '<Title: %s Owner: %s>' %(self.title, self.owner)
 
 class Transaction(db.Model):
-    """there will be two kinds of transactions, 'buy_out' and 'auctioned'. will
+    """
+    Transaction are created when a Book is sold by buying out or by bidding.
+    there will be two kinds of transactions, 'buy_out' and 'auctioned'. will
     be used to track transaction price, type."""
     
     __tablename__ = "transaction"
@@ -569,6 +625,7 @@ class Transaction(db.Model):
 
 
 class Bid(db.Model):
+    """Table used to track ALL bids created for ALL books."""
     __tablename__ = "bid"
     id = db.Column(db.Integer, primary_key=True)
     book_id = db.Column(db.Integer, db.ForeignKey('book.id'), nullable=False)
@@ -586,6 +643,7 @@ class Bid(db.Model):
 
 
 class Book_Comments(db.Model):
+    """Table used to track ALL book comments for ALL Books created by User"""
     __tablename__ = "book_comments"
     id = db.Column(db.Integer, primary_key=True)
     book_id = db.Column(db.Integer, db.ForeignKey('book.id'), nullable=False)
@@ -597,6 +655,7 @@ class Book_Comments(db.Model):
         return "comment_id: %s book_id: %s" % (self.id, self.book_id)
 
 class Book_Complaints(db.Model):
+    """Table used to track ALL book complaints for ALL Books created by User"""
     __tablename__ = "book_complaints"
     id = db.Column(db.Integer, primary_key=True)
     book_id = db.Column(db.Integer, db.ForeignKey('book.id'), nullable=False)
@@ -608,6 +667,7 @@ class Book_Complaints(db.Model):
         return "user_id: %s book_id: %s" % (self.user_id, self.book_id)
 
 class Book_Ratings(db.Model):
+    """Table used to track ALL book ratings for ALL books created by User"""
     __tablename__ = "book_ratings"
     id = db.Column(db.Integer, primary_key=True)
     book_id = db.Column(db.Integer, db.ForeignKey('book.id'), nullable=False)
@@ -624,6 +684,7 @@ class Book_Ratings(db.Model):
 
 
 class User_Comments(db.Model):
+    """Table used to track ALL User Comments by a User """
     __tablename__ = "user_comments"
     id = db.Column(db.Integer, primary_key=True)
     commenter_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -642,6 +703,7 @@ class User_Comments(db.Model):
 
 
 class SU_Messages(db.Model):
+    """Table used to track ALL messages sent to SuperUser."""
     __tablename__ = 'su_messages'
     id = db.Column(db.Integer, primary_key=True)
     sender_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -651,6 +713,7 @@ class SU_Messages(db.Model):
 
 
 class User_Complaints(db.Model):
+    """Table used to track ALL User Complaints created by a User."""
     __tablename__ = "user_complaints"
     id = db.Column(db.Integer, primary_key=True)
     complainer_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -666,6 +729,15 @@ class User_Complaints(db.Model):
     active = db.Column(db.Boolean, default=True)    
     timestamp = db.Column(db.DateTime)
     comment = db.Column(db.Text)
+
+
+class Rec_Book(db.Model):
+    __tablename__ = "book_rec"
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Intger, db.ForeignKey('user.id'), nullable=False)
+    genre = db.Column(db.Text)
+
+
 
 
 if __name__ == '__main__':

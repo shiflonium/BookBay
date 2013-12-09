@@ -80,7 +80,7 @@ def check_book_expr_and_no_bids():
     print "--" * 10
     for book in all_books:
         # if book is expired and does not have any bids
-        print "is %s expired? %s. does have bids? %s" % (book.title, book.is_book_expr(), book.have_bids())
+        print "is '%s' expired? %s. does have bids? %s" % (book.title, book.is_book_expr(), book.have_bids())
         if book.is_book_expr() and book.not_have_bids():
             # remove foreign key constraints, in this case it should only be comments
             comments = Book_Comments.query.filter_by(book_id = book.id).all()
