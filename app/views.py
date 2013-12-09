@@ -61,7 +61,7 @@ def check_book_expr_and_has_bids():
     4. modify book so that it is sold."""
 
     print 'CHECKING IF THERE ARE ANY EXPIRED BOOKS WITH BIDS', '\n'
-    all_books = Book.query.all()
+    all_books = Book.query.filter_by(sold = False).all()
     for book in all_books:
         if book.is_book_expr() and book.have_bids():
             book.create_bid_win_transaction() # this is beautiful
@@ -74,7 +74,7 @@ def check_book_expr_and_no_bids():
     - Books with no bidder are automatically removed from the system after the stated deadline.
     adding print statements for debugging
     """
-    all_books = Book.query.all()
+    all_books = Book.query.filter_by(sold = False).all()
     print "--" * 10
     print "Checking %s books." % (len(all_books))
     print "--" * 10
