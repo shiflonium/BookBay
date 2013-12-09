@@ -549,45 +549,25 @@ def search_book():
 @login_required
 def sell():
     form = sellForm()
-    
-
-
-
     if (request.method == 'POST') and form.validate_on_submit(): 
-
         #DETERMINE IF USER HAVE ENOUGH CREDIT TO SELL THE BOOK
-
         #GET USER ID
         username = request.form['username']
         user = User.query.filter_by(username = str(username)).first()
         userid = user.id
-
         #GET USER CREDITS
         user_credits = user.get_credit()
-
         #GET USER COMPLAINTS
         num_of_complaints = db.session.query(User_Complaints).filter_by(complained_id = userid).count()
-
         #CALCULATE CREDIT AFTER SALE
         temp_credit = user.credits  - ((int(request.form['saleDuration'])) * 5) - ((int(request.form['saleDuration'])) * num_of_complaints)
-
         #UPDATE USER CREDITS
         if (temp_credit < 0):
             return render_template('no_credit.html')
-
-
-
         user.credits = temp_credit
-
-
-
         file = form.data.get('bookImage')
-        
-        
         tempBool = 0
         b = Book()
-        
-
         filename = ''.join(random.choice(string.ascii_letters+string.digits) for x in range(20))
         
         if (str(request.files['bookImage']) == "<FileStorage: u'' ('application/octet-stream')>"):    
@@ -603,10 +583,7 @@ def sell():
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
                 b.image_name = filename
             
-        
-    
         #PUSH DATA TO DB
-        
         b.title = request.form['title']
         b.author = request.form['author']
         b.isbn = request.form['isbn']
@@ -620,10 +597,8 @@ def sell():
         b.bookType = request.form['bookType']
         b.edition = int(request.form['edition'])
         b.information = request.form['information']
-
         #tempBool=0
         tempBool = False
-        
 
         if (form.data.get('buyable') == True):
             #tempBool = 1;
@@ -631,23 +606,15 @@ def sell():
         else:
             #tempBool = 0;
             tempBool = False
-
         b.buyable = tempBool
-        
         if (tempBool == True):
         #if (tempBool == 1):
             b.buyout_price = float(request.form['buynowPrice'])
-        
-
-        
         # changing current_bid to price
         #b.current_bid=float(0)
         b.current_bid = b.price
-
         b.biddable= 1
-        
         b.starting_bid=float(request.form['price'])
-
         b.owner_id=int(userid)
         db.session.add(b)
         db.session.commit()
@@ -712,9 +679,14 @@ def browse_book(book_id):
             book.create_bid(session['user_id'], bid_amount)
 
         if request.method == 'POST' and form.submit_buy_now.data and is_guest == False:
-            book.create_buy_now_transcation(user)
-            flash ('you bought it, please provide your feedback')
-            return redirect(url_for('rate_transaction'))
+            # check if user has enough credits to purchase book.
+            # if True. continue transaction, if false, redirect.
+            if user.has_enough_credits(book.get_buyout_price()):
+                book.create_buy_now_transcation(user)
+                flash ('you bought it, please provide your feedback')
+                return redirect(url_for('rate_transaction'))
+            else:
+                return redirect(url_for('not_enough_credits'))
 
         if request.method == 'POST' and form2.validate_on_submit() and form2.post.data:
             # have no idea why the other one doesnt work
@@ -732,7 +704,7 @@ def browse_book(book_id):
 
 
 @app.route('/no_credit')
-def show_page():
+def not_enough_credits():
     return render_template('no_credit.html')
 
 @app.route('/rate_transaction')
