@@ -48,7 +48,7 @@ class User(db.Model):
     book_comment = db.relationship('Book_Comments', backref='commenter', lazy='dynamic')
     book_complaint = db.relationship('Book_Complaints', backref='complainer', lazy='dynamic')
     book_ratings = db.relationship('Book_Ratings', backref='rater', lazy='dynamic')
-    book_rec = db.relationship('Book_Rec', backref='recommender', lazy='dynamic')
+    book_rec = db.relationship('Rec_Book', backref='recommender', lazy='dynamic')
        
    
     def __init__(self, username, first_name, last_name, email, password):
@@ -732,9 +732,9 @@ class User_Complaints(db.Model):
 
 
 class Rec_Book(db.Model):
-    __tablename__ = "book_rec"
+    __tablename__ = "rec_book"
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Intger, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     genre = db.Column(db.Text)
 
 
