@@ -112,6 +112,16 @@ def check_num_of_complaints(book_id):
         return True
     else:
         return False
+
+def check_num_of_user_complaints(user_id):
+    i = 0
+    query = User.query.filter_by(id = user_id).first() 
+    for complain in db.session.query(User_Complaints.complainer_id).filter_by(complained_id = user_id).distinct(User_Complaints.complainer_id):
+        i+=1
+    if i > 3:
+        return True
+    else:
+        return False
 @app.route('/admin/suspend_book/<book_id>')
 def suspend_book(book_id):
     comp = User_Complaints()
@@ -804,13 +814,15 @@ def complain_user():
     if request.method == "POST":
         msg = request.form['message']
         complainer_id = int(username_query.id)
-        complainee_id = c.id
-        insert = User_Complaints(complainer_id = complainer_id, complained_id = int(complainee_id),
+        complainee_id = int(c.id)
+        insert = User_Complaints(complainer_id = complainer_id, complained_id = complainee_id,
          timestamp = datetime.utcnow(), comment = msg)
         db.session.add(insert)
         db.session.commit()
         flash('Your complaint has been sent to the SU')
         username_query.send_msg(1,msg)
+        if check_num_of_user_complaints(complainee_id):
+            suspend_user(complainee_id)
         return render_template('complain_success.html')
     return render_template('complain_user.html',user_query = user_query, form = form)
 
