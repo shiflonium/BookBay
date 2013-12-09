@@ -122,6 +122,10 @@ class User(db.Model):
     def return_credits(self):
         return self.credits
 
+    def num_books_sold(self):
+        trans = Transaction.query.filter_by(seller = self).all()
+        return len(trans)
+
     def num_user_comments_made(self):
         user_comments = User_Comments.query.filter_by(commenter = self).all()
         return len(user_comments)
