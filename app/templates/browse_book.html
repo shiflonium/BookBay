@@ -78,13 +78,13 @@
 		{% if book.get_buyable() == True %}
 			<label> Buy Now Price: {{book.get_buyout_price() }}</label> <br>
 		{% endif %}
-		<label> Book Type: {{ book.get_booktype() }}</label><br>
-		<label> <Strong>Current Bid:</Strong> {{ book.get_current_bid() }} </label><br> -->
+		<label> Book Type: {{ book.get_booktype() }}</label><br> -->
 		<label> ISBN: {{book.get_isbn()}} </label><br>
 		<label> Edition: {{book.get_edition() }}</label><br>
 		<label> Number of Pages: {{ book.get_numOfPages() }} </label><br>
 		{% if g.user.is_authenticated() %}
-			<label> StartingBid: {{ book.get_starting_bid()}} </label><br>
+		<label> StartingBid: {{ book.get_starting_bid()}} </label><br>
+		<label> <Strong>Current Bid:</Strong> {{ book.get_current_bid() }} </label><br>
 		{% else %}
 			<label> Price: <a href="{{ url_for('login') }}">Log in</a> to see price</label><br>
 		{% endif %}

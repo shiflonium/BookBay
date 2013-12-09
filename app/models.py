@@ -110,6 +110,12 @@ class User(db.Model):
     def is_approved(self):
         return self.apr_by_admin
 
+    def has_enough_credits(self, book_price):
+        if self.credits < book_price:
+            return False
+        else:
+            return True
+
     def return_credits(self):
         return self.credits
 
@@ -454,9 +460,12 @@ class Book(db.Model):
         
     def create_buy_now_transcation(self, buyer):
         """buyer is passed in user object"""
-
         seller = self.owner
         book_cost = self.buyout_price
+
+        if not(buyer.has_enough_credits(book_cost)):
+            return 'user cannot afford this book'
+    
         transac_time = datetime.utcnow()
 
         trans = Transaction(seller=seller, buyer=buyer,book=self,
