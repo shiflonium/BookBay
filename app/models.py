@@ -582,7 +582,7 @@ class Book_Ratings(db.Model):
     __tablename__ = "book_ratings"
     id = db.Column(db.Integer, primary_key=True)
     book_id = db.Column(db.Integer, db.ForeignKey('book.id'), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), unique=True, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), unique=False, nullable=False)
     rating = db.Column(db.Integer, nullable=False)
     timestamp = db.Column(db.DateTime)
 

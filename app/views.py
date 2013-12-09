@@ -733,7 +733,6 @@ def rate_book():
     user_query_html = User.query.filter_by(id = int(book_dict['owner_id']))
     user_query = User.query.filter_by(username = g.user).first()
     user_id = user_query.id
-    print user_id
     check_if_rated = Book_Ratings.query.filter_by(user_id = user_id, book_id = int(book_dict['id'])).first()
     print type(check_if_rated)
     if check_if_rated == None:
@@ -757,7 +756,7 @@ def submit_rating():
     query_user = User.query.filter_by(username = g.user).first()
     query.rating = float(ratings) + float(query.rating)
     query.num_of_rating = num_of_ratings + 1
-    r = Book_Ratings(book_id = int(book_dict['id']), user_id = int(query_user.id), rating = float(ratings)+float(query.rating), timestamp = datetime.utcnow())
+    r = Book_Ratings(book_id = int(book_dict['id']), user_id = int(query_user.id), rating = float(ratings), timestamp = datetime.utcnow())
     db.session.add(r)
     db.session.commit()
 
