@@ -93,6 +93,9 @@ class User(db.Model):
     def get_credit(self):
         return self.credits
 
+    def get_num_purch(self):
+        return self.num_purchases
+
     def get_avg_rating(self):
         return round(self.rating / self.num_of_rating,1)
 
@@ -118,6 +121,18 @@ class User(db.Model):
 
     def return_credits(self):
         return self.credits
+
+    def num_user_comments_made(self):
+        user_comments = User_Comments.query.filter_by(commenter = self).all()
+        return len(user_comments)
+
+    def num_book_comments_made(self):
+        book_comments = Book_Comments.query.filter_by(user_id = self.id).all()
+        return len(book_comments)
+
+    def num_user_comments_directed(self):
+        user_comments = User_Comments.query.filter_by(commented = self).all()
+        return len(user_comments)
 
     def add_credits(self, amount):
         self.credits = self.credits + float(amount)

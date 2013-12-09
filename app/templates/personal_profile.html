@@ -6,9 +6,16 @@
 <label>First Name:</label> {{user.first_name}}<br>
 <label>Last Name:</label> {{user.last_name}}<br>
 {%if g.user.is_authenticated()%}
-<label>Last login:</label> {{user.last_login}}<br>
-<label>Number of bids:</label> {{user.num_bids}}<br>
-<label>Rating:</label> {{user.rating}} <!-- <img src="{{ url_for('static', filename='img/star.gif')}}"><br> --><br>
+
+<p>
+Last login:<strong> {{user.last_login}}</strong> <br>
+Number of bids: <strong> {{user.num_bids}} </strong> <br>
+Number of books purchased: <strong> {{user.get_num_purch() }} </strong> <br>
+Number of Book comments made: <strong> {{ user.num_book_comments_made() }} </strong> <br>
+Number of User comments made: <strong> {{ user.num_user_comments_made() }} </strong> <br>
+Number of User comments directed: <strong> {{ user.num_user_comments_directed() }} </strong> <br>
+Rating: <strong> {{user.rating}} </strong><!-- <img src="{{ url_for('static', filename='img/star.gif')}}"><br> --></p>
+<br>
 
 {% endif %}
 
