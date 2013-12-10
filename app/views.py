@@ -701,7 +701,6 @@ def browse_book(book_id):
             # if True. continue transaction, if false, redirect.
             if user.has_enough_credits(book.get_buyout_price()):
                 book.create_buy_now_transcation(user)
-                print user.id,"UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU"
                 flash ('you bought it, please provide your feedback')
                 return render_template('rate_transaction.html',user = u, book = b)
             else:
@@ -721,13 +720,18 @@ def browse_book(book_id):
     return render_template('browse_book.html', book=book, form=form, book_id=book_id, form2=form2, comments=comments)
 
 
-@app.route('/accepted_bid/<book_id>')
+@app.route('/accepted_bid/<book_id>',methods = ['POST','GET'])
 @login_required
 def accept_highest_bid(book_id):
     book = Book.query.filter_by(id = book_id).first()
     book.create_bid_win_transaction()
-
-    msg = "You Sucessfully sold book: %s to highest bidder: %s for %s" %(book.title, book.get_highest_bid().bidder.username, book.current_bid )
+    rating = int(request.form['user'])
+    msg = "You Sucessfully sold book: %s to highest bidder: %s for %s. Thank you for your feedback" %(book.title, 
+        book.get_highest_bid().bidder.username, book.current_bid )
+    buyer = User.query.filter_by(id = book.get_highest_bid().bidder.id).first()
+    buyer.rating = float(buyer.rating) + rating
+    buyer.num_of_rating = int(buyer.num_of_rating) + 1
+    db.session.commit()
     flash(msg)
     return render_template('home.html')
 
@@ -735,6 +739,18 @@ def accept_highest_bid(book_id):
 @app.route('/no_credit')
 def not_enough_credits():
     return render_template('no_credit.html')
+
+
+@app.route('/rate_buyer')
+@login_required
+def rate_buyer():
+    buyer_id = int(request.args.get('bidder'))
+    book_id = int(request.args.get('book'))
+    book_query = Book.query.filter_by(id = book_id).all()
+    user_query = User.query.filter_by(id = buyer_id).all()
+    return render_template('rate_buyer.html', user = user_query, book = book_query)
+    #return render_template('test.html')
+
 
 @app.route('/rate_transaction', methods = ['POST'])
 @login_required
