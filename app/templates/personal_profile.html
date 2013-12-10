@@ -38,6 +38,10 @@ Buyout Price: <strong>{{ book.get_buyout_price() }} </strong><br>
 Time Remaining: <strong> {{book.until_expire_in_mins() }} minutes</strong></p>
 {% if book.get_highest_bid() %}
 <p> Current Bid Price: <strong>{{ book.get_current_bid() }} </strong> by user: <strong>{{ book.get_highest_bid().bidder.username }}</strong> <a href="{{ url_for('accept_highest_bid', book_id=book.id) }}">click here</a> to accept bid and sell</p>
+<form>
+	<input type="hidden" name="bidder" value="{{book.get_highest_bid().bidder.username}}">
+	<button type="submit">TEST</button>
+</form>
 {% endif %}
 {% endfor %}
 
