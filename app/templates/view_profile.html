@@ -8,10 +8,10 @@
 {% if g.user.is_authenticated() %}
 <label>Last login:</label> {{user.last_login}}<br>
 <label>Number of bids:</label> {{user.num_bids}}<br>
-<label>Rating:</label> {{user.rating}} <img src="{{ url_for('static', filename='img/star_small.gif')}}"><br>
+<label>Rating:</label> {{user.rating/user.num_of_rating}} <img src="{{ url_for('static', filename='img/star_small.gif')}}"><br>
 <input type="hidden" name="rated_user">
 <input type="hidden" name="complainee_id">
-<a href="{{url_for('rate_transaction')}}?rated_user={{user.id}}">Rate This User</a>
+<a href="{{url_for('rate_transaction')}}?rated_user={{user.id}}">Rate This User</a><br>
 
 <a href="{{url_for('complain_user') }}?complainee_id={{user.id}}">Report this User</a>
 {%endif%}
