@@ -461,7 +461,6 @@ def get_all_suspended_books():
         return redirect(url_for('home'))
 
 @app.route('/view_profile/<user_id>', methods = ['GET', 'POST'])
-@login_required
 def view_profile(user_id):
     """PUBLIC PROFILE"""
     #username_from_get = request.args.get()
