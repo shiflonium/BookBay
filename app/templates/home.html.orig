@@ -1,0 +1,45 @@
+
+{% extends "base.html" %}
+{% block content %}
+{% include 'flash.html' %}
+
+{% if g.user.is_anonymous() == False %}
+	{% if g.user.is_suspended() == True %}
+	<header align="center" style="color:red;"> {{msg}} </header>
+	{% endif %}
+	{% if g.user.is_approved() == False %}
+	<header align="center" style="color:red;"> {{msg}} </header>
+	{% endif %}
+{% endif %}
+
+
+{% if g.user.is_authenticated() %}
+<p align='right'> last logged in {{ g.user.last_login }} </p>
+	{% if g.user.is_superuser() == True %}
+		<p> You are a <strong>Super User</strong> </p>
+		<a href="{{url_for('transaction_history') }}"> Transactions History Page </a><br>
+		<a href="{{url_for('bid_history') }}"> Bid History Page </a><br>
+		<a href="{{url_for('get_all_users') }}"> User Administration Page </a><br>
+		<a href="{{url_for('su_msg_list') }}"> Show All Messages to Super User</a><br>
+	{% else %}
+		<p> You are a <strong>Registered User</strong>.
+		{% if g.user.is_approved() == False %}
+		Your account has <strong>NOT</strong> been approved by an admin.
+		{% else %}
+		Your account has been approved by an admin.
+		</p>
+		click <a href="{{url_for('personal_profile', user_id = g.user.get_id() ) }}">Profile</a> to view personal statistics.<br>
+		<a href="{{url_for('get_all_users') }}"> Show All Users </a><br>
+
+
+		<a href="{{url_for('send_msg') }}"> Send message to Super Users </a><br>
+
+		{% endif %}
+	{% endif %}
+{% else %}
+<p align="center" style="color:green"> You are not logged in. </p>
+{% endif %}
+
+
+{% endblock %}
+
