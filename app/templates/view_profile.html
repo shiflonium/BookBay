@@ -1,5 +1,17 @@
 {% extends "base.html" %}
 {% block content %}
+
+<script type="text/javascript">
+
+	$(document).ready(function(){
+		var rateAmount = ({{user.rating/user.num_of_rating}} * 2) / 2;
+
+		$('input[type = radio]').rating('select',(rateAmount * 2)-1);
+		$('input[type = radio]').rating('readOnly')
+		
+	});
+
+</script>
 <label>Public Profile</label>
 <br>
 <label>Username:</label> {{user.username}}<br>
@@ -8,7 +20,19 @@
 {% if g.user.is_authenticated() %}
 <label>Last login:</label> {{user.last_login}}<br>
 <label>Number of bids:</label> {{user.num_bids}}<br>
-<label>Rating:</label> {{user.rating/user.num_of_rating}} <img src="{{ url_for('static', filename='img/star_small.gif')}}"><br>
+<label>Rating:</label> {{user.rating/user.num_of_rating}} <div>
+		<input name = "rate" type = "radio" class="star {split:2}"/>
+		<input name = "rate" type = "radio" class="star {split:2}"/>
+		<input name = "rate" type = "radio" class="star {split:2}"/>
+		<input name = "rate" type = "radio" class="star {split:2}"/>
+		<input name = "rate" type = "radio" class="star {split:2}"/>
+		<input name = "rate" type = "radio" class="star {split:2}"/>
+		<input name = "rate" type = "radio" class="star {split:2}"/>
+		<input name = "rate" type = "radio" class="star {split:2}"/>
+		<input name = "rate" type = "radio" class="star {split:2}"/>
+		<input name = "rate" type = "radio" class="star {split:2}"/>
+</div>
+<!-- <img src="{{ url_for('static', filename='img/star_small.gif')}}"> --><br>
 <input type="hidden" name="rated_user">
 <input type="hidden" name="complainee_id">
 <a href="{{url_for('rate_transaction')}}?rated_user={{user.id}}">Rate This User</a><br>
