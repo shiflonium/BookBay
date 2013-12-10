@@ -202,6 +202,9 @@ class User(db.Model):
         db.session.add(comment)
         db.session.commit()
         pass
+
+    def get_username(self):
+        return self.username
         
 
     def __repr__(self):
@@ -377,7 +380,7 @@ class Book(db.Model):
 
     def get_seller(self):
         """returns user that sold book"""
-        pass
+        return self.owner_id
 
     def get_buyer(self):
         """return user that bought the book, if there is a buyer"""
