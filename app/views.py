@@ -1,7 +1,7 @@
 from flask import render_template, flash, redirect, session, url_for, request, g
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from app import app, db, login_manager
-from models import User, Book, Transaction, Bid, User_Comments, Book_Comments, User_Complaints, SU_Messages, Book_Ratings, Book_Complaints
+from models import User, Book, Transaction, Bid, User_Comments, Book_Comments, User_Complaints, SU_Messages, Book_Ratings, Book_Complaints, Buyer_transaction_approval
 from forms import SignUpForm, LoginForm, ChangePassword, ChangePersonalDetails, SearchForm, sellForm, BidForm, PostForm, SUForm, ComplainForm
 from werkzeug import generate_password_hash, check_password_hash, secure_filename
 from datetime import datetime
@@ -495,14 +495,16 @@ def personal_profile(user_id):
     comments_made = User_Comments.query.filter_by(commenter=view_user).order_by(desc(User_Comments.timestamp)).all()
     book_user_selling = Book.query.filter_by(owner=view_user, sold=False).all()
     transacs = Transaction.query.filter_by(seller = view_user).all()
-
+    books_for_approval = Buyer_transaction_approval.query.filter_by(buyer_id = user.id, need_to_approve = True).all()
+    
     
     return render_template('personal_profile.html',
             comments_recieved = comments_recieved,
             comments_made = comments_made,
             user=view_user,
             book_user_selling = book_user_selling,
-            transacs = transacs)
+            transacs = transacs,
+            books_for_approval = books_for_approval)
 
 @app.route('/send_msg', methods=['GET', 'POST'])
 @login_required
@@ -735,11 +737,29 @@ def browse_book(book_id):
 def accept_highest_bid(book_id):
     book = Book.query.filter_by(id = book_id).first()
     book.create_bid_win_transaction()
-
-    msg = "You Sucessfully sold book: %s to highest bidder: %s for %s" %(book.title, book.get_highest_bid().bidder.username, book.current_bid )
+    seller_name = User.query.filter_by(id = book.owner_id).first().username
+    # msg = "You Sucessfully sold book: %s to highest bidder: %s for %s" %(book.title, book.get_highest_bid().bidder.username, book.current_bid )
+    bta = Buyer_transaction_approval.query.filter_by(book_id = book.id).first()
+    bta.need_to_approve = False
+    msg = "You Sucessfully bought book: %s to from: %s for %s" %(book.title, seller_name, book.current_bid )
     flash(msg)
+    db.session.commit()
     return render_template('home.html')
 
+''' 
+After seller approval the buyer need to approve the sale and pay the seller
+'''
+@app.route('/wait_for_buyer_approval/<book_id>')
+@login_required
+def wait_for_buyer_approval(book_id):
+    book = Book.query.filter_by(id = book_id).first()
+    transaction_to_approve = Buyer_transaction_approval()
+    transaction_to_approve.book_id = book.get_id()
+    transaction_to_approve.need_to_approve = True
+    transaction_to_approve.buyer_id = User.query.filter_by(username = book.get_highest_bid().bidder.username).first().get_id()
+    db.session.add(transaction_to_approve)
+    db.session.commit()
+    return render_template('home.html')
 
 @app.route('/no_credit')
 def not_enough_credits():
