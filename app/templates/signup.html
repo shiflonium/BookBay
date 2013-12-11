@@ -19,9 +19,6 @@
 		<div class="flash">{{ message }}</div>
 	{% endfor %}
 
-	{% for message in form.password.errors %}
-		<div class="flash">{{ message }}</div>
-	{% endfor %}
 
 	<form class="navbar-form navbar-left" role="search" action="{{ url_for('signup') }}" method=post>
 		<div class="form-group">
@@ -39,8 +36,6 @@
 		{{ form.email.label}}
 		{{ form.email}}<br>
 
-		{{ form.password.label}}
-		{{ form.password}}<br>
 </div>
 		{{ form.submit}}
 	</form>

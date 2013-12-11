@@ -1,0 +1,89 @@
+
+{% extends "base.html" %}
+{% block content %}
+{% include 'flash.html' %}
+<style>
+.images
+{
+	max-height: 20%;
+}
+.outer
+{
+	position: relative;
+	float: left;
+	width: 20%;
+	display: inline-block;
+	clear: both;
+	margin-left: 30px;
+	margin-bottom: 30px;
+	
+	
+}
+
+.inner
+{
+	display: inline-block;
+	position: relative;
+	float: left;
+	width: 20%;
+}
+	
+
+.inner2
+{
+	display: inline-block;
+	position: relative;
+	float: left;
+	width: 20%;
+}
+.inner3
+{
+	display: inline-block;
+	position: relative;
+	float: left;
+	width: 20%;
+}
+</style>
+{% for b in book %}
+{% for u in user %}
+<form action="{{url_for('accept_highest_bid',book_id = b.id)}}" method="POST">
+<div>
+<label class="outer">Rate Buyer: {{u.get_username()}}</label>
+
+	
+		<input name = "user" type = "radio" class="star" value="1"/>
+		<input name = "user" type = "radio" class="star" value="2"/>
+		<input name = "user" type = "radio" class="star" value="3"/>
+		<input name = "user" type = "radio" class="star" value="4"/>
+		<input name = "user" type = "radio" class="star" value="5"/>
+	</div>
+<div class="outer">
+<button type="submit">Rate & Sell</button>
+</div>
+<!-- <input type="hidden" name ="book_rated" id="book_rate_amount"></input> -->
+<input type="hidden" name ="book_id" value="{{b.get_id()}}"></input>
+<input type="hidden" name ="user_id" value="{{u.get_id()}}"></input>
+<!-- <input type="hidden" name ="user_rated" id="user_rate_amount"></input> -->
+</form>
+<br>
+<br><br>
+
+
+<script type="text/javascript">
+$(function() {
+	$("#submit_rate").click(function(){
+	var userSelectedVal = "";
+	var userSelected = $("input[type='radio'][name='user']:checked");
+
+	if (userSelected.length > 0) {
+    	userSelectedVal = userSelected.val();
+		}
+	document.getElementById("user_rate_amount").value = userSelectedVal;
+ 	});
+});
+</script>
+
+{% endfor %}
+{% endfor %}
+{% endblock %}
+
