@@ -15,7 +15,35 @@ Number of books sold: <strong> {{user.num_books_sold() }} </strong> <br>
 Number of Book comments made: <strong> {{ user.num_book_comments_made() }} </strong> <br>
 Number of User comments made: <strong> {{ user.num_user_comments_made() }} </strong> <br>
 Number of User comments directed: <strong> {{ user.num_user_comments_directed() }} </strong> <br>
-Rating: <strong> {{user.rating}} </strong><!-- <img src="{{ url_for('static', filename='img/star.gif')}}"><br> --></p>
+Rating: <strong></strong><label id="rate_value"></label></p>
+<div> 
+    <script type="text/javascript">
+  //incharge of stars rating calculations
+  $(document).ready(function(){
+    var avg = {{user.get_avg_rating()}};
+    if (avg != 0){
+    var rateAmount = (avg * 2) / 2;
+    $('input[name = rate]').rating('select',(rateAmount * 2)-1);
+    $('input[name = rate]').rating('readOnly');
+    $('#rate_value').text(rateAmount);
+    }
+    else{
+      $('input[name = rate]').rating('readOnly');
+      $('#rate_value').text('0');
+    }
+  });
+</script>
+    <input name = "rate" type = "radio" class="star {split:2}"/>
+    <input name = "rate" type = "radio" class="star {split:2}"/>
+    <input name = "rate" type = "radio" class="star {split:2}"/>
+    <input name = "rate" type = "radio" class="star {split:2}"/>
+    <input name = "rate" type = "radio" class="star {split:2}"/>
+    <input name = "rate" type = "radio" class="star {split:2}"/>
+    <input name = "rate" type = "radio" class="star {split:2}"/>
+    <input name = "rate" type = "radio" class="star {split:2}"/>
+    <input name = "rate" type = "radio" class="star {split:2}"/>
+    <input name = "rate" type = "radio" class="star {split:2}"/>
+</div>
 <br>
 
 {% endif %}

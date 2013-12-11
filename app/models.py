@@ -113,8 +113,14 @@ class User(db.Model):
         return self.num_purchases
 
     def get_avg_rating(self):
-        """returns the average rating of a user"""
-        return round(self.rating / self.num_of_rating,1)
+        """returns average rating of user."""
+        if self.num_of_rating == 0:
+            return 0
+        else:
+            avg = (self.rating / self.num_of_rating)*2
+            rounded = round(avg)
+            final = rounded/2
+            return final
 
     def increment_login(self):
         """increments User login_count"""
@@ -401,7 +407,10 @@ class Book(db.Model):
         if self.num_of_rating == 0:
             return 0
         else:
-            return round(self.rating / self.num_of_rating,1)
+            avg = (self.rating / self.num_of_rating)*2
+            rounded = round(avg)
+            final = rounded/2
+            return final
 
     def get_expr_date(self):
         """return date when book should run out of time.
