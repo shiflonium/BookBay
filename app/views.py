@@ -127,6 +127,9 @@ def check_num_of_user_complaints(user_id):
     else:
         return False
 @app.route('/admin/suspend_book/<book_id>')
+'''
+This function suspend a book
+'''
 def suspend_book(book_id):
     comp = User_Complaints()
     query = Book.query.filter_by(id = book_id).first()
@@ -144,6 +147,9 @@ def suspend_book(book_id):
         return redirect(url_for('get_all_suspended_books'))
 
 @app.route('/admin/unsuspend_book/<book_id>')
+'''
+This function reverse the suspension
+'''
 def unsuspend_book(book_id):
     query = Book.query.filter_by(id = book_id).first()
     query.suspended = False
@@ -196,6 +202,10 @@ def home():
 
 
 @app.route('/signup', methods = ['GET', 'POST'])
+'''
+This function inserts a new user to the database.
+The user need to wait for admin approval
+'''   
 def signup():
     form = SignUpForm()
     if request.method == 'POST' and form.validate():
@@ -227,6 +237,9 @@ def signup():
 
 
 @app.route('/login', methods = ['GET', 'POST'])
+'''
+This function is taking care of the login process
+'''
 def login():
     form = LoginForm()
     if form.validate_on_submit(): 
@@ -251,6 +264,9 @@ def login():
     return render_template("login.html",form=form)
 
 @app.route('/signout')
+'''
+This function signs the user out of the system
+'''
 @login_required
 def logout():
     user = User.query.filter_by(id = session['user_id']).first()
@@ -265,6 +281,10 @@ def logout():
 
 
 @app.route('/profile', methods = ['GET', 'POST'])
+'''
+This function displays the forms of changing personal details or changing password
+User is redirected to this page after initial login
+'''
 def profile():
     #return 'this is the profile page, if you can see this, you are logged in'
     form1 = ChangePassword()
@@ -574,6 +594,10 @@ def search_book():
 
 
 @app.route('/sell', methods = ['GET', 'POST'])
+''' 
+This function insert a book which the user sold to the database. Also, Checks if the user 
+has enough creadits to pay to the system for this sale.
+'''
 @login_required
 def sell():
     form = sellForm()
