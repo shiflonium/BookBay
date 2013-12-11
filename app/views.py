@@ -104,6 +104,8 @@ def do_book_removal_and_purchase_checking():
     check_book_expr_and_has_bids()
 
 def check_num_of_complaints(book_id):
+    """This function checks if number of book complaints
+    is more than 3"""
     i = 0
     query = Book.query.filter_by(id = book_id).first() 
     for complain in db.session.query(Book_Complaints.user_id).filter_by(book_id = book_id).distinct(Book_Complaints.user_id):
@@ -114,11 +116,12 @@ def check_num_of_complaints(book_id):
         return False
 
 def check_num_of_user_complaints(user_id):
+    """This function checks if number of user complaints
+    is more than 3"""
     i = 0
     query = User.query.filter_by(id = user_id).first() 
     for complain in db.session.query(User_Complaints.complainer_id).filter_by(complained_id = user_id).distinct(User_Complaints.complainer_id):
         i+=1
-    print i,"LLLLLLLLLLLLLLLLLLLLLLLL"
     if i > 3:
         return True
     else:
@@ -175,6 +178,7 @@ def request_for_search(path):
 def home():
     #SHOW THE MOST ACTIVE USERS
     #GET USERNAMES
+    """This functions renders the homepage of our web application"""
     all_users = User.query.order_by(desc(User.num_logins)).all()
     most_active_users = list()
     if len(all_users) > 2:
@@ -425,12 +429,14 @@ def su_msg_list():
 @app.route('/admin/view_complaints', methods=['GET','POST'])
 @login_required
 def complaints_list():
+    """This functions list all complaints a user has. available to admin only"""
     complaints = User_Complaints.query.order_by(desc(User_Complaints.timestamp)).all()
     return render_template("view_complaints.html", complaints = complaints)
 
 @app.route('/admin/deactivate_user_complaint', methods=['GET','POST'])
 @login_required
 def deactivate_user_complaint():
+    """this function deactivates user complaints. available to admin only"""
     username = request.args.get('username')
     complaint_id = int(request.args.get('complaint_id'))
     print complaint_id
@@ -790,6 +796,7 @@ def wait_for_buyer_approval(book_id):
 @app.route('/submit_bidder_rating', methods = ['POST'])
 @login_required
 def submit_bidder_rating():
+    """This function submits the rating bidder gets"""
     user_id = int(request.form['user_id'])
     user = User.query.filter_by(id = user_id).first()
     rating = int(request.form['user'])
@@ -806,6 +813,8 @@ def not_enough_credits():
 @app.route('/rate_buyer')
 @login_required
 def rate_buyer():
+    """this functions renders the rate buyer page after
+    buy now transaction"""
     buyer_id = int(request.args.get('bidder'))
     book_id = int(request.args.get('book'))
     book_query = Book.query.filter_by(id = book_id).all()
@@ -817,6 +826,8 @@ def rate_buyer():
 @app.route('/rate_transaction', methods = ['POST'])
 @login_required
 def rate_transaction():
+    """This function renders the rate book and seller after 
+    buy now transaction"""
     book_id = int(request.form['book_id'])
     user_id = int(request.form['user_id'])
     query_user = User.query.filter_by(id = user_id).all()
@@ -827,6 +838,7 @@ def rate_transaction():
 @app.route('/submit_trans_action', methods = ['POST','GET'])
 @login_required
 def submit_transaction_rating():
+    """This function submits buynow transaction rating to DB"""
     b = Book()
     book_rating = request.args.get('book')
     user_rating = request.args.get('user')
@@ -851,6 +863,7 @@ def submit_transaction_rating():
 @app.route('/rate_book')
 @login_required
 def rate_book():
+    """This function is for rating a book in general"""
     result=[]
     b=Book()
     book_id = request.args.get('id')
@@ -870,6 +883,7 @@ def rate_book():
 @app.route('/rate', methods = ['POST'])
 @login_required
 def submit_rating():
+    """Submit general rating for book to DB"""
     b = Book()
     r = Book_Ratings()
     id_num = request.form['id_num']
@@ -894,6 +908,7 @@ def submit_rating():
 @app.route('/complain', methods = ['POST', 'GET'])
 @login_required
 def complain():
+    """This function is to report books (complaints)"""
     b=Book()
     form = ComplainForm()
     book_id = request.args.get('id')
@@ -919,6 +934,7 @@ def complain():
 @app.route('/complain_user', methods = ['POST', 'GET'])
 @login_required
 def complain_user():
+    """This function is to report users (complaints)"""
     insert = User_Complaints()
     c = User.query.filter_by(id = request.args.get('complainee_id')).first()
     form = ComplainForm()
@@ -970,6 +986,8 @@ def create_admin_account():
 @app.route('/rate_bid_transaction', methods = ['POST','GET'])
 @login_required
 def rate_bid_transaction():
+    """This function rnders page for rate seller and book after
+    bid acceptance"""
     book_id = int(request.args.get('book_id'))
     book_query = Book.query.filter_by(id = book_id).all()
     for u in book_query:
@@ -982,6 +1000,7 @@ def rate_bid_transaction():
 @app.route('/rate_bid_transaction_success', methods = ['POST', 'GET'])
 @login_required
 def submit_seller_rating():
+    """This function submits seller rating after bid transaction to DB"""
     book_id = request.form['book_id']
     book_rating = int(request.form['book'])
     user_id = request.form['user_id']
