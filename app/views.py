@@ -215,7 +215,8 @@ def signup():
         db.session.commit()
         msg = "Your account password is %s. Please login and change your password." % password
         flash(msg)
-        return redirect(url_for('home'))
+        #return redirect(url_for('home'))
+        return render_template('tmp_home.html', password=password)
     # this executes if GET request
     return render_template('signup.html', form=form)
 
