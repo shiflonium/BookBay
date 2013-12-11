@@ -778,10 +778,22 @@ def wait_for_buyer_approval(book_id):
     transaction_to_approve = Buyer_transaction_approval()
     transaction_to_approve.book_id = book.get_id()
     transaction_to_approve.need_to_approve = True
+    user_query = User.query.filter_by(id = book.get_highest_bid().bidder.id).all()
     transaction_to_approve.buyer_id = User.query.filter_by(username = book.get_highest_bid().bidder.username).first().get_id()
     db.session.add(transaction_to_approve)
     db.session.commit()
-    return render_template('home.html')
+    return render_template('rate_bidder.html', user = user_query)
+
+@app.route('/submit_bidder_rating', methods = ['POST'])
+@login_required
+def submit_bidder_rating():
+    user_id = int(request.form['user_id'])
+    user = User.query.filter_by(id = user_id).first()
+    rating = int(request.form['user'])
+    user.rating = int(user.rating) + rating
+    user.num_of_rating = int(user.num_of_rating) + 1
+    db.session.commit()
+    return render_template('rate_success.html')
 
 @app.route('/no_credit')
 def not_enough_credits():
