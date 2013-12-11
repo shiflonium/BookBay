@@ -1,7 +1,7 @@
 from flask import render_template, flash, redirect, session, url_for, request, g
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from app import app, db, login_manager
-from models import User, Book, Transaction, Bid, User_Comments, Book_Comments, User_Complaints, SU_Messages, Book_Ratings, Book_Complaints, Buyer_transaction_approval
+from models import User, Book, Transaction, Bid, User_Comments, Book_Comments, User_Complaints, SU_Messages, Book_Ratings, Book_Complaints, Buyer_transaction_approval, Rec_Book
 from forms import SignUpForm, LoginForm, ChangePassword, ChangePersonalDetails, SearchForm, sellForm, BidForm, PostForm, SUForm, ComplainForm
 from werkzeug import generate_password_hash, check_password_hash, secure_filename
 from datetime import datetime
@@ -196,6 +196,47 @@ def home():
         most_active_users.append(all_users[i])
         #GET USER ID
         all_id = User.query.order_by(desc(User.num_logins)).all()
+
+        #SHOW TOP 3 BOOKS OF USER INETERST
+    try:
+        top_books = list()
+        user = User.query.filter_by(id = session['user_id']).first()
+        is_guest = False
+
+    except:
+        is_guest = True
+     
+    if (is_guest == False):
+    #CHECK IF USER HAS PREFRENCES
+        try :
+            user_pref = Rec_Book.query.filter_by(id = user.id).first().genre
+            top_books = list()
+        
+            #CASE HAS PREFRENCE
+            # if (user_pref != False):
+            all_books = Book.query.filter_by(genre = user_pref).all()
+
+            # else:
+                # all_books = Book.query.order_by(Book.rating).all()
+
+        except:
+            all_books = Book.query.order_by(Book.rating).all()
+
+        #PUT THE BOOKS IN A LIST FOR THE TEMPLATE
+        if len(all_books) < 3:
+            limit = len(all_books)
+
+        else:
+            limit = 3
+
+        for i in range (0, limit):
+            top_books.append(all_books[i])
+
+        print '********************************',top_books,'********************************'
+
+    if (is_guest):
+        return render_template('home.html', users_list = most_active_users)
+    return render_template('home.html', users_list = most_active_users, top_books = top_books)
 
     
     return render_template('home.html', users_list = most_active_users)
@@ -738,6 +779,23 @@ def browse_book(book_id):
             seller_rating = seller.get_avg_rating()
         except ZeroDivisionError:
             seller_rating = 0;
+
+        #COLLECTING DATA ABOUT THE USER
+        if (is_guest == False):
+        #CHECK IF USER HAVE PREFRENCE
+            pref = Rec_Book.query.filter_by(user_id = user.id).first()
+            if pref == None:
+                #ENTER PREFRENCE TO REC_BOOK TABLE
+                rb = Rec_Book()
+                rb.user_id = user.id
+                rb.genre = book.genre
+                db.session.add(rb)
+                db.session.commit()
+            else:
+                rb = Rec_Book.query.filter_by(user_id = user.id).first()
+                rb.genre = book.genre
+                db.session.commit()
+
         
         comments = Book_Comments.query.filter_by(book=book).order_by(desc(Book_Comments.timestamp)).all()
         if request.method == 'POST' and form.validate_on_submit() and form.bid_amount.data and is_guest == False and form.submit_bid:

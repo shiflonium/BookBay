@@ -75,10 +75,10 @@
 					<a href = "{{ url_for('browse') }}/{{book.get_id()}}">
 					<img src = "{{ url_for('static',filename='userImages/'+book.get_image_name()) }}"/></a>
 				</td>
-				<td style="width:10%">
+				<td >
 					<label>Title: {{ book.get_title() }}</label><br>
 					<label>Genre: {{ book.get_genre() }}</label><br>
-					<label style="width:30%">Rating: {{ book.get_rating() }}</label>
+					<label style="width:1%">Rating: {{ book.get_rating() }}</label>
 				</td>
 			<!-- </tr> -->
 			{% endfor %}
