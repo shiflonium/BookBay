@@ -4,7 +4,7 @@
 		{% if title %}
 		<title>{{title}}Soft Eng</title>
 		{% else %}
-		<title> BooksBay </title>
+		<title> BooksBay by Jonthan Shimrony, Brian Wu, Liron Shimrony</title>
 		{% endif %}
 		<link rel="stylesheet" href="{{url_for('static',filename='bootstrap/css/bootstrap.min.css') }}")>
 		<script type="text/javascript" src="{{ url_for('static', filename='JQuery/jquery-1.10.1.js') }}"></script>
@@ -31,7 +31,7 @@
 		      <span class="icon-bar"></span>
 		      <span class="icon-bar"></span>
 	      </button>
-		  <a href="{{ url_for('home') }}" class="navbar-brand">Book-Bay</a>
+		  <a href="{{ url_for('home') }}" class="navbar-brand"><strong>Book-Bay</strong></a>
 	  </div>
 
   <!-- Collect the nav links, forms, and other content for toggling -->
@@ -41,7 +41,7 @@
 	      <li id="home"><a href="{{ url_for ('home') }}">Home</a></li>	
 	    
 	      {% if g.user.is_authenticated() %}
-	      <li id="profile"><a href="{{ url_for('profile') }}">Profile</a></li>
+	      <li id="profile"><a href="{{ url_for('profile') }}">Update Profile</a></li>
 	      <li id="sellBooks"><a href="{{ url_for('sell') }}">Sell Your Books</a></li>
 				<!--<li id="logout"><a href="{{ url_for('logout') }}">Logout</a></li>--!>
 		  
@@ -116,6 +116,7 @@
 </body>
 
 </html>
+
 <!-- <div>BookBay:
 			<ul class="nav nav-pills">
 				<li class="active"><a href="{{ url_for('home') }}"<a><span class="glyphicon glyphicon-home">  Home</span></a></li>
