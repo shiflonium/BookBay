@@ -54,11 +54,8 @@ text-align: left;
 }
 </style>
 
-<input type="hidden" id>
-	{% if not query %}
-	
-	<strong>Your search did not return any results (search field was empty) </strong>
-	{%else%}
+	{% if query %}
+
 	{% for i in query %}
 	{% if i.is_sold() == False %}
 	{% if i.is_suspended() == False %}
@@ -143,7 +140,10 @@ text-align: left;
 
 	{% endfor %}
 
+	{%else%}
+	<strong>Your search did not return any results</strong>
 
+	
 	{%endif%}
 	
 

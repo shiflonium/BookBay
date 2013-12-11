@@ -548,7 +548,7 @@ def search():
         usernames=[u for u in query]
         return render_template("search.html", query = usernames, results = search_data)
     else:
-        return render_template("search.html",query = usernames, results = search_data)
+        return render_template("search.html",query = None, results = search_data)
 
 
 @app.route('/search_books', methods = ['GET','POST'])
@@ -559,12 +559,12 @@ def search_book():
     books = []
     search_data = ""
     search_data = session['parameter']
-    query = None
     if search_data != "":
         query = Book.query.filter(Book.title.like("%"+search_data+"%"))
         books = [b for b in query]
-        return render_template("search_books.html", query = query, results = search_data)
-    return render_template("search_books.html", query = query, results = search_data)    
+        return render_template("search_books.html", query = books, results = search_data)
+    else:
+        return render_template("search_books.html", query = None, results = search_data)    
 
 
 @app.route('/sell', methods = ['GET', 'POST'])
