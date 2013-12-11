@@ -71,3 +71,11 @@ mysql> flush privileges;
 
 for simplicity sake, the username and pw = softeng softeng
 After this, you can run python db_create
+
+After you completed the above steps, go to project directory and run the server:
+```
+$ python runserver.py
+```
+
+If your views.py contains no errors, you should be able to access your web application 
+by typing the address http://127.0.0.1:5000 in your browser's address bar.

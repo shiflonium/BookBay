@@ -1,7 +1,7 @@
 from flask import render_template, flash, redirect, session, url_for, request, g
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from app import app, db, login_manager
-from models import User, Book, Transaction, Bid, User_Comments, Book_Comments, User_Complaints, SU_Messages, Book_Ratings, Book_Complaints
+from models import User, Book, Transaction, Bid, User_Comments, Book_Comments, User_Complaints, SU_Messages, Book_Ratings, Book_Complaints, Buyer_transaction_approval, Rec_Book
 from forms import SignUpForm, LoginForm, ChangePassword, ChangePersonalDetails, SearchForm, sellForm, BidForm, PostForm, SUForm, ComplainForm
 from werkzeug import generate_password_hash, check_password_hash, secure_filename
 from datetime import datetime
@@ -186,8 +186,46 @@ def home():
         #GET USER ID
         all_id = User.query.order_by(desc(User.num_logins)).all()
 
+    #SHOW TOP 3 BOOKS OF USER INETERST
+    try:
+        user = User.query.filter_by(id = session['user_id']).first()
+        is_guest = False
+
+    except:
+        is_guest = True
     
-    return render_template('home.html', users_list = most_active_users)
+    if (is_guest == False):
+    
+        #CHECK IF USER HAS PREFRENCES
+        top_books = list()
+       
+        try:
+            user_pref = Rec_Book.query.filter_by(user_id = user.id).first().genre
+
+        #CASE HAS PREFRENCE
+            all_books = Book.query.filter_by(genre = user_pref).all()
+
+
+        except:
+            all_books = Book.query.order_by(desc(Book.rating)).all()
+
+        
+        #print "(((((",user_pref,')))))))'
+
+        #PUT THE BOOKS IN A LIST FOR THE TEMPLATE
+        if len(all_books) < 3:
+            limit = len(all_books)
+
+        else:
+            limit = 3
+
+        for i in range (0, limit):
+            top_books.append(all_books[i])
+
+        
+    if (is_guest):
+        return render_template('home.html', users_list = most_active_users)
+    return render_template('home.html', users_list = most_active_users, top_books = top_books)
 
 
 @app.route('/signup', methods = ['GET', 'POST'])
@@ -300,8 +338,8 @@ def changePass():
             redirect(url_for('profile'))
 
 
-        else: 
-            return "Passwords doesn't match, please click the back button and try again."
+        else:
+            return '<h3 style="color=red;">Passwords does not match, please click the back button and try again.<'
 
     else:
         return "Wrong Password, please use the back button."
@@ -504,14 +542,16 @@ def personal_profile(user_id):
     comments_made = User_Comments.query.filter_by(commenter=view_user).order_by(desc(User_Comments.timestamp)).all()
     book_user_selling = Book.query.filter_by(owner=view_user, sold=False).all()
     transacs = Transaction.query.filter_by(seller = view_user).all()
-
+    books_for_approval = Buyer_transaction_approval.query.filter_by(buyer_id = user.id, need_to_approve = True).all()
+    
     
     return render_template('personal_profile.html',
             comments_recieved = comments_recieved,
             comments_made = comments_made,
             user=view_user,
             book_user_selling = book_user_selling,
-            transacs = transacs)
+            transacs = transacs,
+            books_for_approval = books_for_approval)
 
 @app.route('/send_msg', methods=['GET', 'POST'])
 @login_required
@@ -540,9 +580,13 @@ def search():
     usernames = []
     search_data =""
     search_data = session['parameter']
-    query = User.query.filter(User.username.like("%"+search_data+"%")).all()
-    usernames=[u for u in query]
-    return render_template("search.html", query = usernames, results = search_data)
+    if search_data != "":
+        query = User.query.filter(User.username.like("%"+search_data+"%")).all()
+        usernames=[u for u in query]
+        return render_template("search.html", query = usernames, results = search_data)
+    else:
+        flash ('empty')
+        return render_template("search.html",query = usernames, results = search_data)
 
 
 @app.route('/search_books', methods = ['GET','POST'])
@@ -686,11 +730,37 @@ def browse_book(book_id):
             session['user_id'] = guest.id
 
     book = Book.query.filter_by(id = book_id).first()
+
     if book is None:
         # temporary
         return 'book does not exist'
     else:
-        
+        #GET SELLER NAME AND RATING FOR LINK IN THE BOOK PAGE
+        seller_id = book.get_seller()
+        seller = User.query.filter_by(id = seller_id).first()
+        seller_username = seller.get_username()
+        try:
+            seller_rating = seller.get_avg_rating()
+        except ZeroDivisionError:
+            seller_rating = 0;
+
+        #COLLECTING DATA ABOUT THE USER
+        if (is_guest == False):
+        #CHECK IF USER HAVE PREFRENCE
+            pref = Rec_Book.query.filter_by(user_id = user.id).first()
+            if pref == None:
+                #ENTER PREFRENCE TO REC_BOOK TABLE
+                rb = Rec_Book()
+                rb.user_id = user.id
+                rb.genre = book.genre
+                db.session.add(rb)
+                db.session.commit()
+            else:
+                rb = Rec_Book.query.filter_by(user_id = user.id).first()
+                rb.genre = book.genre
+                db.session.commit()
+
+
         comments = Book_Comments.query.filter_by(book=book).order_by(desc(Book_Comments.timestamp)).all()
         if request.method == 'POST' and form.validate_on_submit() and form.bid_amount.data and is_guest == False and form.submit_bid:
             bid_amount = request.form['bid_amount']
@@ -700,8 +770,8 @@ def browse_book(book_id):
             if not(u.has_enough_credits(book.current_bid)):
                 msg = 'You have %s credits. Current bid on book is %s.' % (u.return_credits(), book.current_bid)
                 flash(msg)
-                return render_template('browse_book.html', book=book, form=form, book_id=book_id, form2=form2, comments=comments)
-            return render_template('browse_book.html', book=book, form=form, book_id=book_id, form2=form2, comments=comments)
+                return render_template('browse_book.html', book=book, form=form, book_id=book_id, form2=form2, comments=comments, seller_name = seller_username, seller_rating = seller_rating, seller_id = seller_id)
+            return render_template('browse_book.html', book=book, form=form, book_id=book_id, form2=form2, comments=comments, seller_name = seller_username, seller_rating = seller_rating, seller_id = seller_id)
 
         if request.method == 'POST' and form.submit_buy_now.data and is_guest == False:
             u = User.query.filter_by(id = session['user_id']).all()
@@ -710,7 +780,6 @@ def browse_book(book_id):
             # if True. continue transaction, if false, redirect.
             if user.has_enough_credits(book.get_buyout_price()):
                 book.create_buy_now_transcation(user)
-                print user.id,"UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU"
                 flash ('you bought it, please provide your feedback')
                 return render_template('rate_transaction.html',user = u, book = b)
             else:
@@ -720,30 +789,82 @@ def browse_book(book_id):
             # have no idea why the other one doesnt work
             text = form2.post.data
             book.create_comment(session['user_id'], text)
-            return render_template('browse_book.html', book=book, form=form, book_id=book_id, form2=form2, comments=comments)
+            return render_template('browse_book.html', book=book, form=form, book_id=book_id, form2=form2, comments=comments, seller_name = seller_username, seller_rating = seller_rating, seller_id = seller_id)
 
     
     if is_guest is True:
         # delete session created by guest user
         del session['user_id']
         comments = Book_Comments.query.filter_by(book=book).order_by(desc(Book_Comments.timestamp)).all()
-    return render_template('browse_book.html', book=book, form=form, book_id=book_id, form2=form2, comments=comments)
+    return render_template('browse_book.html', book=book, form=form, book_id=book_id, form2=form2, comments=comments, seller_name = seller_username, seller_rating = seller_rating, seller_id = seller_id)
 
 
-@app.route('/accepted_bid/<book_id>')
+@app.route('/accepted_bid/<book_id>',methods = ['POST','GET'])
 @login_required
 def accept_highest_bid(book_id):
     book = Book.query.filter_by(id = book_id).first()
     book.create_bid_win_transaction()
-
-    msg = "You Sucessfully sold book: %s to highest bidder: %s for %s" %(book.title, book.get_highest_bid().bidder.username, book.current_bid )
+    # rating = int(request.form['user'])
+# <<<<<<< local
+    seller_name = User.query.filter_by(id = book.owner_id).first().username
+    # msg = "You Sucessfully sold book: %s to highest bidder: %s for %s" %(book.title, book.get_highest_bid().bidder.username, book.current_bid )
+    bta = Buyer_transaction_approval.query.filter_by(book_id = book.id).first()
+    bta.need_to_approve = False
+    msg = "You Sucessfully bought book: %s to from: %s for %s" %(book.title, seller_name, book.current_bid )
+# =======
+#     rating = int(request.form['user'])
+#     msg = "You Sucessfully sold book: %s to highest bidder: %s for %s. Thank you for your feedback" %(book.title, book.get_highest_bid().bidder.username, book.current_bid )
+    buyer = User.query.filter_by(id = book.get_highest_bid().bidder.id).first()
+    # buyer.rating = float(buyer.rating) + rating
+    # buyer.num_of_rating = int(buyer.num_of_rating) + 1
+#     db.session.commit()
+# >>>>>>> other
     flash(msg)
+    db.session.commit()
     return render_template('home.html')
 
+''' 
+After seller approval the buyer need to approve the sale and pay the seller
+'''
+@app.route('/wait_for_buyer_approval/<book_id>')
+@login_required
+def wait_for_buyer_approval(book_id):
+    book = Book.query.filter_by(id = book_id).first()
+    transaction_to_approve = Buyer_transaction_approval()
+    transaction_to_approve.book_id = book.get_id()
+    transaction_to_approve.need_to_approve = True
+    user_query = User.query.filter_by(id = book.get_highest_bid().bidder.id).all()
+    transaction_to_approve.buyer_id = User.query.filter_by(username = book.get_highest_bid().bidder.username).first().get_id()
+    db.session.add(transaction_to_approve)
+    db.session.commit()
+    return render_template('rate_bidder.html', user = user_query)
+
+@app.route('/submit_bidder_rating', methods = ['POST'])
+@login_required
+def submit_bidder_rating():
+    user_id = int(request.form['user_id'])
+    user = User.query.filter_by(id = user_id).first()
+    rating = int(request.form['user'])
+    user.rating = int(user.rating) + rating
+    user.num_of_rating = int(user.num_of_rating) + 1
+    db.session.commit()
+    return render_template('rate_success.html')
 
 @app.route('/no_credit')
 def not_enough_credits():
     return render_template('no_credit.html')
+
+
+@app.route('/rate_buyer')
+@login_required
+def rate_buyer():
+    buyer_id = int(request.args.get('bidder'))
+    book_id = int(request.args.get('book'))
+    book_query = Book.query.filter_by(id = book_id).all()
+    user_query = User.query.filter_by(id = buyer_id).all()
+    return render_template('rate_buyer.html', user = user_query, book = book_query)
+    #return render_template('test.html')
+
 
 @app.route('/rate_transaction', methods = ['POST'])
 @login_required
@@ -784,17 +905,16 @@ def submit_transaction_rating():
 def rate_book():
     result=[]
     b=Book()
-    isbn = request.args.get('isbn')
-    query = b.query.filter_by(isbn = isbn).all()
+    book_id = request.args.get('id')
+    query = b.query.filter_by(id = book_id).all()
     for u in query:
         book_dict=u.__dict__
     user_query_html = User.query.filter_by(id = int(book_dict['owner_id']))
     user_query = User.query.filter_by(username = g.user).first()
     user_id = user_query.id
     check_if_rated = Book_Ratings.query.filter_by(user_id = user_id, book_id = int(book_dict['id'])).first()
-    print type(check_if_rated)
     if check_if_rated == None:
-        return render_template('rate_book.html', query = query, user_query = user_query_html, isbn =isbn)
+        return render_template('rate_book.html', query = query, user_query = user_query_html)
     else:
         flash('You already submitted rating for this book')
         return redirect(url_for('home'))
@@ -804,10 +924,10 @@ def rate_book():
 def submit_rating():
     b = Book()
     r = Book_Ratings()
-    isbn = request.form['isbn_num']
+    id_num = request.form['id_num']
     ratings = request.form['rated']
-    query = b.query.filter_by(isbn = isbn).first()
-    book_query = b.query.filter_by(isbn = isbn).all()
+    query = b.query.filter_by(id = id_num).first()
+    book_query = b.query.filter_by(id = id_num).all()
     for r in book_query:
         book_dict=r.__dict__    
     num_of_ratings = int(book_dict['num_of_rating'])
@@ -897,6 +1017,33 @@ def create_admin_account():
     return render_template('home.html')
 
 
+@app.route('/rate_bid_transaction', methods = ['POST','GET'])
+@login_required
+def rate_bid_transaction():
+    book_id = int(request.args.get('book_id'))
+    book_query = Book.query.filter_by(id = book_id).all()
+    for u in book_query:
+        book_dict=u.__dict__
 
+    user_id = int(book_dict['owner_id'])
+    user_query = User.query.filter_by(id = user_id).all()
+    return render_template('rate_bid_transaction.html',book_info = book_query, user_info = user_query)
+
+@app.route('/rate_bid_transaction_success', methods = ['POST', 'GET'])
+@login_required
+def submit_seller_rating():
+    book_id = request.form['book_id']
+    book_rating = int(request.form['book'])
+    user_id = request.form['user_id']
+    user_rating = int(request.form['user'])
+    print user_rating,"KLKLKLKLKLKLKLKLKLKLK"
+    book_query = Book.query.filter_by(id = book_id).first()
+    user_query = User.query.filter_by(id = user_id).first()
+    book_query.rating = int(book_query.rating) + book_rating
+    book_query.num_of_rating = int(book_query.num_of_rating) + 1
+    user_query.rating = int(user_query.rating) + user_rating
+    user_query.num_of_rating = int(user_query.num_of_rating) + 1
+    db.session.commit()
+    return redirect(url_for('accept_highest_bid',book_id = book_id))
 
 
