@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+{% include 'flash.html' %}
+<style>
+div{	
+	top:50%;	
+	height: 100%;
+	vertical-align: middle;
+	text-align: center;
+	position: relative;
+}
+</style>
+
+
+<div >
+	<h1 style="color: #3366FF;"> Temp Password: {{ password }} <br></h1>
+</div>
+
+{% endblock %}
