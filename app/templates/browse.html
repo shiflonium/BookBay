@@ -123,7 +123,7 @@ text-align: left;
 		<input name = "rate{{loop.index}}" type = "radio" class="star {split:2}"/>
 </div><br>
 		<label>Do you like this book? </label> <a href="{{url_for('rate_book') }}?id={{i.get_id()}}"> Rate this Book</a>
-		<label>Is this book ofensive? </label><a href="{{url_for('complain') }}?isbn={{isbn_var}}"> Report this Book</a>
+		<label>Is this book ofensive? </label><a href="{{url_for('complain') }}?id={{i.get_id()}}"> Report this Book</a>
 		{%endif%}
 		{% if g.user.is_anonymous() == False %}
 			{% if g.user.is_superuser() == True %}

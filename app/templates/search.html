@@ -1,9 +1,11 @@
 {% extends "base.html" %}
 {% block content %}
-<p>Serach Results for "{{results}}"</p>
+
 {%if g.user.is_authenticated%}
+
+{% if query %}
+<p>Serach Results for "{{results}}"</p>
 <br><br>
-{% if query.length == 0%}
 <table border = "1">
 <tr><td><b>User</b></td></tr>
 {%for user in query%}
@@ -14,7 +16,7 @@
 {% endfor %}
 </table>
 {%else%}
-{{query.length}}
+<strong>Your search did not return any results (search field was empty) </strong>
 {%endif%}
 {%endif%}
 {% endblock %}

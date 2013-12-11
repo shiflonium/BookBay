@@ -56,7 +56,8 @@
 <form method="POST">
 {{form.message(rows = 7, cols = 50)}}
 <br>
-<br>	
+<br>
+<input type="hidden" name="book_id" value="{{book.get_id()}}">	
 {{form.submit}}
 </form>
 

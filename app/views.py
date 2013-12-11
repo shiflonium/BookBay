@@ -118,6 +118,7 @@ def check_num_of_user_complaints(user_id):
     query = User.query.filter_by(id = user_id).first() 
     for complain in db.session.query(User_Complaints.complainer_id).filter_by(complained_id = user_id).distinct(User_Complaints.complainer_id):
         i+=1
+    print i,"LLLLLLLLLLLLLLLLLLLLLLLL"
     if i > 3:
         return True
     else:
@@ -547,7 +548,6 @@ def search():
         usernames=[u for u in query]
         return render_template("search.html", query = usernames, results = search_data)
     else:
-        flash ('empty')
         return render_template("search.html",query = usernames, results = search_data)
 
 
@@ -559,8 +559,11 @@ def search_book():
     books = []
     search_data = ""
     search_data = session['parameter']
-    query = Book.query.filter(Book.title.like("%"+search_data+"%"))
-    books = [b for b in query]
+    query = None
+    if search_data != "":
+        query = Book.query.filter(Book.title.like("%"+search_data+"%"))
+        books = [b for b in query]
+        return render_template("search_books.html", query = query, results = search_data)
     return render_template("search_books.html", query = query, results = search_data)    
 
 
@@ -893,15 +896,15 @@ def submit_rating():
 def complain():
     b=Book()
     form = ComplainForm()
-    isbn = request.args.get('isbn')
-    query = b.query.filter_by(isbn = isbn).all()
-    b_insert = b.query.filter_by(isbn = isbn).first()
-    for u in query:
-        book_dict = u.__dict__
-    user_query = User.query.filter_by(id = int(book_dict['owner_id']))
+    book_id = request.args.get('id')
+    print book_id,"KLKLKLKLKLKLKLKLKL"
+    query = b.query.filter_by(id = book_id).all()
+    b_insert = b.query.filter_by(id = book_id).first()
+    #for u in query:
+    #    book_dict = u.__dict__
+    user_query = User.query.filter_by(id = b_insert.owner_id)
     username_query = User.query.filter_by(username = g.user).first()
     if request.method == "POST":
-        book_id = int(book_dict['id'])
         msg = request.form['message']
         complainer_id = int(username_query.id)
         b_insert.create_complaint(user_id = complainer_id, text = msg)
@@ -910,7 +913,7 @@ def complain():
         if check_num_of_complaints(book_id):
             suspend_book(book_id)
         return render_template('complain_success.html')
-    return render_template('complain.html', query = query, user_query = user_query, isbn =isbn, form = form)
+    return render_template('complain.html', query = query, user_query = user_query, form = form)
     
 
 @app.route('/complain_user', methods = ['POST', 'GET'])
@@ -925,14 +928,16 @@ def complain_user():
         msg = request.form['message']
         complainer_id = int(username_query.id)
         complainee_id = int(c.id)
+        print complainee_id,"LLLLLLLLLLLLDDDDDD"
         insert = User_Complaints(complainer_id = complainer_id, complained_id = complainee_id,
          timestamp = datetime.utcnow(), comment = msg)
         db.session.add(insert)
         db.session.commit()
         flash('Your complaint has been sent to the SU')
-        username_query.send_msg(1,msg)
+        username_query.send_msg(1,msg) 
         if check_num_of_user_complaints(complainee_id):
-            suspend_user(complainee_id)
+            c.suspended = True
+            db.session.commit()
         return render_template('complain_success.html')
     return render_template('complain_user.html',user_query = user_query, form = form)
 
