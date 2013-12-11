@@ -100,7 +100,8 @@ text-align: left;
 	$(document).ready(function(){
 		var avg = {{i.get_avg_rating()}};
 		if (avg != 0){
-		var rateAmount = (avg * 2) / 2;
+		//var rateAmount = (avg * 2) / 2;
+		var rateAmount = avg;
 		$('input[name = rate{{loop.index}}]').rating('select',(rateAmount * 2)-1);
 		$('input[name = rate{{loop.index}}]').rating('readOnly');
 		$('#rate_value{{loop.index}}').text(rateAmount);

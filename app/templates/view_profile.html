@@ -13,7 +13,8 @@
 	//incharge of stars rating calculations
 	$(document).ready(function(){
 		if ({{divider}} != 1){
-		var rateAmount = (({{user.rating}}/{{divider}}) * 2) / 2;
+
+		var rateAmount = {{user.get_avg_rating()}};
 
 		$('input[type = radio]').rating('select',(rateAmount * 2)-1);
 		$('input[type = radio]').rating('readOnly');
@@ -51,7 +52,7 @@
 <!-- <img src="{{ url_for('static', filename='img/star_small.gif')}}"> --><br>
 <input type="hidden" name="rated_user">
 <input type="hidden" name="complainee_id">
-<a href="{{url_for('rate_transaction')}}?rated_user={{user.id}}">Rate This User</a><br>
+
 
 <a href="{{url_for('complain_user') }}?complainee_id={{user.id}}">Report this User</a>
 {%endif%}
