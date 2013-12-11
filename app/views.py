@@ -980,7 +980,8 @@ def submit_seller_rating():
     book_id = request.form['book_id']
     book_rating = int(request.form['book'])
     user_id = request.form['user_id']
-    user_rating = int(request.form['user_id'])
+    user_rating = int(request.form['user'])
+    print user_rating,"KLKLKLKLKLKLKLKLKLKLK"
     book_query = Book.query.filter_by(id = book_id).first()
     user_query = User.query.filter_by(id = user_id).first()
     book_query.rating = int(book_query.rating) + book_rating
@@ -988,6 +989,6 @@ def submit_seller_rating():
     user_query.rating = int(user_query.rating) + user_rating
     user_query.num_of_rating = int(user_query.num_of_rating) + 1
     db.session.commit()
-    return render_template('rate_success.html')
+    return redirect(url_for('accept_highest_bid',book_id = book_id))
 
 
