@@ -49,18 +49,42 @@
 <p align="center" style="color:green"> You are not logged in. </p>
 {% endif %}
 {% if g.user.is_authenticated() %}
-	<div>
-			<h3> Most Active Users:</h3>
+<h3> Most Active Users:</h3>
+	<div style="margin-left:5%">
+			
 			<table>
 								
 			{% for user in users_list %}
-			<tr>
-				<td style="width:4%; font-size:30px;"><a href="{{ url_for('view_profile', user_id=user.get_id())}}">{{user}}</a> </td>
+			<!-- <tr> -->
+				<td style="width:4%; font-size:30px;"><a href="{{ url_for('view_profile', user_id=user.get_id())}}">{{user.get_username()}}</a> <label></td>
 				
-			</tr>
+			<!-- </tr> -->
 			{% endfor %}
 		</table>
 		</div>
+
+		<hr><hr>
+		<h3>Books you may like: </h3>
+		<div style="margin-left:5%">
+			
+			<table>
+				
+			{% for book in top_books %}
+			<!-- <tr> -->
+				<td>
+					<a href = "{{ url_for('browse') }}/{{book.get_id()}}">
+					<img src = "{{ url_for('static',filename='userImages/'+book.get_image_name()) }}"/></a>
+				</td>
+				<td style="width:10%">
+					<label>Title: {{ book.get_title() }}</label><br>
+					<label>Genre: {{ book.get_genre() }}</label><br>
+					<label style="width:30%">Rating: {{ book.get_rating() }}</label>
+				</td>
+			<!-- </tr> -->
+			{% endfor %}
+		</div>
+
+
 {% endif %}
 
 
