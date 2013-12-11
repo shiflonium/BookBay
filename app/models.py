@@ -167,7 +167,14 @@ class User(db.Model):
 
     def add_credits(self, amount):
         """method to add credits to a User."""
-        self.credits = self.credits + float(amount)
+        #lazy make it float
+        amount = float(amount)
+        user_amount = (amount * 0.95) # 5% taken by system
+        admin_amount = (amount * 0.05)
+        admin_user = User.query.filter_by(username = 'admin').first()
+        admin_user.credits += admin_amount
+
+        self.credits = self.credits + user_amount
         db.session.commit()
         
     def subtract_credits(self, amount):
@@ -539,8 +546,9 @@ class Book(db.Model):
         trans = Transaction(seller=seller, buyer=buyer,book=self,
             amt_sold_for=book_cost, bought_out=True,time_sold=transac_time)
         db.session.add(trans)
-
+        
         buyer.num_purchases += 1
+        book_cost = float(book_cost) * 0.95
         buyer.subtract_credits(book_cost)
         seller.add_credits(book_cost)
         self.sold = True
