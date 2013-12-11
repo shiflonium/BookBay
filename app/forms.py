@@ -11,7 +11,7 @@ class SignUpForm(Form):
     first_name = TextField('First name', validators=[validators.Required()])
     last_name = TextField('Last Name', validators=[validators.Required()])
     email = TextField('Email', validators=[validators.Required()])
-    password = PasswordField('Password', validators=[validators.Required()])
+    #password = PasswordField('Password', validators=[validators.Required()])
     submit = SubmitField("Submit")
 
     def __init__(self, *args, **kwargs):

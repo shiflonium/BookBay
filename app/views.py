@@ -194,6 +194,7 @@ def home():
 def signup():
     form = SignUpForm()
     if request.method == 'POST' and form.validate():
+        """
         u = User(
                 form.username.data,
                 form.first_name.data,
@@ -201,11 +202,21 @@ def signup():
                 form.email.data,
                 form.password.data
                 )
+        """
+        password = ''.join(random.choice(string.ascii_letters+string.digits) for x in range(5))
+        u = User(
+                username = form.username.data,
+                first_name = form.first_name.data,
+                last_name = form.last_name.data,
+                email = form.email.data,
+                password = password
+                )
         db.session.add(u)
         db.session.commit()
-        # adding email token to session, might use later.
-        #session['email'] = u.email
-        return redirect(url_for('home'))
+        msg = "Your account password is %s. Please login and change your password." % password
+        flash(msg)
+        #return redirect(url_for('home'))
+        return render_template('tmp_home.html', password=password)
     # this executes if GET request
     return render_template('signup.html', form=form)
 
@@ -431,8 +442,6 @@ def deactivate_user_complaint():
     db.session.commit()
     flash('complaint deactivated')
     return redirect(url_for('complaints_list'))
-
-
 
 
 @app.route('/admin/user_list', methods=['GET', 'POST'])
