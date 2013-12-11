@@ -834,17 +834,16 @@ def submit_transaction_rating():
 def rate_book():
     result=[]
     b=Book()
-    isbn = request.args.get('isbn')
-    query = b.query.filter_by(isbn = isbn).all()
+    book_id = request.args.get('id')
+    query = b.query.filter_by(id = book_id).all()
     for u in query:
         book_dict=u.__dict__
     user_query_html = User.query.filter_by(id = int(book_dict['owner_id']))
     user_query = User.query.filter_by(username = g.user).first()
     user_id = user_query.id
     check_if_rated = Book_Ratings.query.filter_by(user_id = user_id, book_id = int(book_dict['id'])).first()
-    print type(check_if_rated)
     if check_if_rated == None:
-        return render_template('rate_book.html', query = query, user_query = user_query_html, isbn =isbn)
+        return render_template('rate_book.html', query = query, user_query = user_query_html)
     else:
         flash('You already submitted rating for this book')
         return redirect(url_for('home'))
@@ -854,10 +853,10 @@ def rate_book():
 def submit_rating():
     b = Book()
     r = Book_Ratings()
-    isbn = request.form['isbn_num']
+    id_num = request.form['id_num']
     ratings = request.form['rated']
-    query = b.query.filter_by(isbn = isbn).first()
-    book_query = b.query.filter_by(isbn = isbn).all()
+    query = b.query.filter_by(id = id_num).first()
+    book_query = b.query.filter_by(id = id_num).all()
     for r in book_query:
         book_dict=r.__dict__    
     num_of_ratings = int(book_dict['num_of_rating'])

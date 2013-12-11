@@ -59,13 +59,14 @@ text-align: left;
 {% for i in obj %}
 {% if i.is_sold() == False %}
 {% if i.is_suspended() == False %}
-	{%set isbn_var = i.get_isbn() %}	
+	{%set isbn_var = i.get_isbn() %}
+		
 <div><hr class="hr1"></div>	
 	<div class="outer">
 		<a href = "{{ url_for('browse') }}/{{i.get_id()}}"> <img class = "images" src= "{{ url_for('static',filename='userImages/'+i.get_image_name()) }}" alt="TEST"></a>	
 		
 	</div>
-
+	<input type="hidden" value="{{j}}">
 	<div class="inner">
 		<label> Title: {{ i.get_title() }} </label><br>
 		<label> Author: {{ i.get_author() }} </label><br>
@@ -89,10 +90,39 @@ text-align: left;
 		<p> Expires in <strong>{{ i.until_expire_in_hrs() }}</strong> hours or <strong>{{i.until_expire_in_mins() }}</strong> minutes </p>
 	</div>
 	<div class="inner3">
-		<input name = "isbn" type = "hidden" value = "{{isbn_var}}"> 
-		<img src="{{ url_for('static',filename='img/star_small.gif')}}"><label id="avg_rating">{{i.get_avg_rating()}}</label><br>
+		
 		{% if g.user.is_authenticated() %}
-		<label>Do you like this book? </label> <a href="{{url_for('rate_book') }}?isbn={{isbn_var}}"> Rate this Book</a>
+		<label>Rating:</label> <label id="rate_value{{loop.index}}"></label>
+
+		<div> 
+		<script type="text/javascript">
+	//incharge of stars rating calculations
+	$(document).ready(function(){
+		var avg = {{i.get_avg_rating()}};
+		if (avg != 0){
+		var rateAmount = (avg * 2) / 2;
+		$('input[name = rate{{loop.index}}]').rating('select',(rateAmount * 2)-1);
+		$('input[name = rate{{loop.index}}]').rating('readOnly');
+		$('#rate_value{{loop.index}}').text(rateAmount);
+		}
+		else{
+			$('input[name = rate{{loop.index}}]').rating('readOnly');
+			$('#rate_value{{loop.index}}').text('0');
+		}
+	});
+</script>
+		<input name = "rate{{loop.index}}" type = "radio" class="star {split:2}"/>
+		<input name = "rate{{loop.index}}" type = "radio" class="star {split:2}"/>
+		<input name = "rate{{loop.index}}" type = "radio" class="star {split:2}"/>
+		<input name = "rate{{loop.index}}" type = "radio" class="star {split:2}"/>
+		<input name = "rate{{loop.index}}" type = "radio" class="star {split:2}"/>
+		<input name = "rate{{loop.index}}" type = "radio" class="star {split:2}"/>
+		<input name = "rate{{loop.index}}" type = "radio" class="star {split:2}"/>
+		<input name = "rate{{loop.index}}" type = "radio" class="star {split:2}"/>
+		<input name = "rate{{loop.index}}" type = "radio" class="star {split:2}"/>
+		<input name = "rate{{loop.index}}" type = "radio" class="star {split:2}"/>
+</div><br>
+		<label>Do you like this book? </label> <a href="{{url_for('rate_book') }}?id={{i.get_id()}}"> Rate this Book</a>
 		<label>Is this book ofensive? </label><a href="{{url_for('complain') }}?isbn={{isbn_var}}"> Report this Book</a>
 		{%endif%}
 		{% if g.user.is_anonymous() == False %}
