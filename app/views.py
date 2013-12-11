@@ -195,16 +195,22 @@ def home():
         is_guest = True
     
     if (is_guest == False):
-    #CHECK IF USER HAS PREFRENCES
-        user_pref = Rec_Book.query.filter_by(id = user.id).first().genre
+    
+        #CHECK IF USER HAS PREFRENCES
         top_books = list()
-        
+       
+        try:
+            user_pref = Rec_Book.query.filter_by(user_id = user.id).first().genre
+
         #CASE HAS PREFRENCE
-        if (user_pref != False):
             all_books = Book.query.filter_by(genre = user_pref).all()
 
-        else:
-            all_books = Book.query.order_by(book.get_avg_rating).all()
+
+        except:
+            all_books = Book.query.order_by(desc(Book.rating)).all()
+
+        
+        #print "(((((",user_pref,')))))))'
 
         #PUT THE BOOKS IN A LIST FOR THE TEMPLATE
         if len(all_books) < 3:
@@ -216,8 +222,7 @@ def home():
         for i in range (0, limit):
             top_books.append(all_books[i])
 
-        print '********************************',top_books,'********************************'
-
+        
     if (is_guest):
         return render_template('home.html', users_list = most_active_users)
     return render_template('home.html', users_list = most_active_users, top_books = top_books)
@@ -333,8 +338,8 @@ def changePass():
             redirect(url_for('profile'))
 
 
-        else: 
-            return "Passwords doesn't match, please click the back button and try again."
+        else:
+            return '<h3 style="color=red;">Passwords does not match, please click the back button and try again.<'
 
     else:
         return "Wrong Password, please use the back button."

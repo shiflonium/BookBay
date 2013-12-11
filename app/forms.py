@@ -52,9 +52,9 @@ class LoginForm(Form):
 
 
 class ChangePassword(Form):
-    oldPassword = TextField('Old Password:', validators=[validators.Required()])
-    newPassword = TextField('New Password:', validators=[validators.Required("Please enter a password")])
-    newPassword2 = TextField('New Password:', validators=[validators.Required("Passwords does not match")])
+    oldPassword = PasswordField('Old Password:', validators=[validators.Required()])
+    newPassword = PasswordField('New Password:', validators=[validators.Required("Please enter a password")])
+    newPassword2 = PasswordField('New Password:', validators=[validators.Required("Passwords does not match")])
     submit = SubmitField("Change Password")
 
     def __init__(self, *args, **kwargs):
