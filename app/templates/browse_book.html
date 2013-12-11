@@ -70,7 +70,38 @@
 		<label> Publisher: {{ book.get_publisher() }} </label><br>
 		<label> Condition: {{ book.get_condition() }}</label><br>
 		<label> Genre: {{ book.get_genre() }} </label><br>
-		<label> Seller: <a href="{{ url_for('view_profile', user_id = seller_id ) }}"> {{seller_name}}</a> <img src="{{ url_for('static',filename='img/star_small.gif')}}"/>{{seller_rating}}</label>
+		<label> Seller: <a href="{{ url_for('view_profile', user_id = seller_id ) }}"> {{seller_name}}</a><br> 
+		<label>Seller Rating:</label> <label id="rate_value_seller"></label>	
+		<div>	
+		<script type="text/javascript">
+	//incharge of stars rating calculations
+	$(document).ready(function(){
+		var avg = {{seller_rating}};
+		if (avg != 0){
+		var rateAmount = (avg * 2) / 2;
+		$('input[name = rate_seller]').rating('select',(rateAmount * 2)-1);
+		$('input[name = rate_seller]').rating('readOnly');
+		$('#rate_value_seller').text(rateAmount);
+		}
+		else{
+			$('input[name = rate_seller').rating('readOnly');
+			$('#rate_value_seller').text('0');
+		}
+	});
+</script>
+		<input name = "rate_seller" type = "radio" class="star {split:2}"/>
+		<input name = "rate_seller" type = "radio" class="star {split:2}"/>
+		<input name = "rate_seller" type = "radio" class="star {split:2}"/>
+		<input name = "rate_seller" type = "radio" class="star {split:2}"/>
+		<input name = "rate_seller" type = "radio" class="star {split:2}"/>
+		<input name = "rate_seller" type = "radio" class="star {split:2}"/>
+		<input name = "rate_seller" type = "radio" class="star {split:2}"/>
+		<input name = "rate_seller" type = "radio" class="star {split:2}"/>
+		<input name = "rate_seller" type = "radio" class="star {split:2}"/>
+		<input name = "rate_seller" type = "radio" class="star {split:2}"/>
+</div>
+<label id="rate_value_seller"></label>
+<br>
 	</div>
 
 	<div class="inner2">

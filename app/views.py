@@ -542,9 +542,13 @@ def search():
     usernames = []
     search_data =""
     search_data = session['parameter']
-    query = User.query.filter(User.username.like("%"+search_data+"%")).all()
-    usernames=[u for u in query]
-    return render_template("search.html", query = usernames, results = search_data)
+    if search_data != "":
+        query = User.query.filter(User.username.like("%"+search_data+"%")).all()
+        usernames=[u for u in query]
+        return render_template("search.html", query = usernames, results = search_data)
+    else:
+        flash ('empty')
+        return render_template("search.html",query = usernames, results = search_data)
 
 
 @app.route('/search_books', methods = ['GET','POST'])

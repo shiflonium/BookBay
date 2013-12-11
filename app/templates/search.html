@@ -3,6 +3,7 @@
 <p>Serach Results for "{{results}}"</p>
 {%if g.user.is_authenticated%}
 <br><br>
+{% if query.length == 0%}
 <table border = "1">
 <tr><td><b>User</b></td></tr>
 {%for user in query%}
@@ -12,5 +13,8 @@
 
 {% endfor %}
 </table>
+{%else%}
+{{query.length}}
+{%endif%}
 {%endif%}
 {% endblock %}
