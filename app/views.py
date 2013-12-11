@@ -357,6 +357,8 @@ def changeDetails():
 @app.route('/admin/transaction_history', methods=['GET', 'POST'])
 @login_required
 def transaction_history():
+    """displays all transactions made by all users. Only users with
+    superuser privileges can view this."""
     user = User.query.filter_by(id = session['user_id']).first()
     if user.superuser == True:
         trans = Transaction.query.all()
@@ -376,6 +378,8 @@ def remove_user(user_id):
 @app.route('/admin/suspend_user/<user_id>')
 @login_required
 def suspend_user(user_id):
+    """suspends a user. Takes user_id as a parameter suspends user.
+    suspended users cannot view site. only superuser can execute this."""
     user = User.query.filter_by(id = session['user_id']).first()
     if user.superuser == False:
         return redirect(url_for('home'))
@@ -388,6 +392,9 @@ def suspend_user(user_id):
 @app.route('/admin/unsuspend_user/<user_id>')
 @login_required
 def unsuspend_user(user_id):
+    """unsuspends a user. Takes user_id as a parameter and unsuspends user.
+    only superuser can execute this."""
+    
     user = User.query.filter_by(id = session['user_id']).first()
     if user.superuser == False:
         return redirect(url_for('home'))
@@ -400,6 +407,8 @@ def unsuspend_user(user_id):
 @app.route('/admin/approve_user/<user_id>')
 @login_required
 def approve_user(user_id):
+    """When a user first applies to our site, the user is not approved.
+    This function approves a user. Input parameter is user_id"""
     user = User.query.filter_by(id = session['user_id']).first()
     if user.is_superuser() == False:
         return redirect(url_for('home'))
@@ -411,6 +420,8 @@ def approve_user(user_id):
 @app.route('/admin/remove_book/<book_id>')
 @login_required
 def remove_book(book_id):
+    """removes a book using input parameter book_id. only superuser
+    can execute this function."""
     user = User.query.filter_by(id = session['user_id']).first()
     if user.superuser == False:
         return redirect(url_for('home'))
@@ -432,6 +443,8 @@ def remove_book(book_id):
 @app.route('/admin/bid_history', methods=['GET', 'POST'])
 @login_required
 def bid_history():
+    """shows bid history for all books by all users. only superusers
+    can view this."""
     user = User.query.filter_by(id = session['user_id']).first()
     if user.superuser == True:
         bids = Bid.query.order_by(desc(Bid.timestamp)).all()
@@ -442,6 +455,8 @@ def bid_history():
 @app.route('/admin/su_msg_list', methods=['GET','POST'])
 @login_required
 def su_msg_list():
+    """shows all messages to superuser.  only superusers
+    can view this."""
     msgs = SU_Messages.query.order_by(desc(SU_Messages.timestamp)).all()
 
     return render_template("view_msgs.html", msgs=msgs)
@@ -474,6 +489,8 @@ def deactivate_user_complaint():
 @app.route('/admin/user_list', methods=['GET', 'POST'])
 @login_required
 def get_all_users():
+    """this function shows all users on the site. only admins can access this.
+    this view has all admin actions ex: suspend, unsuspend."""
     user = User.query.filter_by(id = session['user_id']).first()
 
     # setting to false for now
@@ -488,6 +505,7 @@ def get_all_users():
 @app.route('/admin/book_list', methods=['GET', 'POST'])
 @login_required
 def get_all_suspended_books():
+    """shows all books that are suspended to admin."""
     user = User.query.filter_by(id = session['user_id']).first()
     if user.superuser == True:
         book_data = Book.query.filter_by(suspended = True).all()
@@ -498,7 +516,7 @@ def get_all_suspended_books():
 
 @app.route('/view_profile/<user_id>', methods = ['GET', 'POST'])
 def view_profile(user_id):
-    """PUBLIC PROFILE"""
+    """PUBLIC PROFILE. Shows users public profile. anyone can access this page."""
     #username_from_get = request.args.get()
     form = PostForm()
     user = User.query.filter_by(id = user_id).first()
@@ -518,7 +536,8 @@ def view_profile(user_id):
 @app.route('/personal_profile/<user_id>', methods=['GET', 'POST'])
 @login_required
 def personal_profile(user_id):
-    """PRIVATE PROFILE"""
+    """PRIVATE PROFILE. Shows users private profile. only superuser and self can
+    access this page."""
     user = User.query.filter_by(id = session['user_id']).first()
     if user.is_superuser() == False:
         # check if someone else is trying to access profile
@@ -545,6 +564,7 @@ def personal_profile(user_id):
 @app.route('/send_msg', methods=['GET', 'POST'])
 @login_required
 def send_msg():
+    """view function to send messages to superuser."""
     form = SUForm()
     user = User.query.filter_by(id = session['user_id']).first()
     if request.method == 'POST' and form.validate_on_submit():
@@ -683,6 +703,8 @@ def success():
 
 @app.route('/browse_user')
 def browse_users():
+    """shows all users that are approved by admin, not superuser, and not suspended, can be
+    viewed by all users."""
     users = User.query.filter_by(apr_by_admin=True, superuser=False, suspended=False).all()
     return render_template('browse_user.html', users=users)
 
@@ -780,6 +802,7 @@ def browse_book(book_id):
 @app.route('/accepted_bid/<book_id>',methods = ['POST','GET'])
 @login_required
 def accept_highest_bid(book_id):
+    """allows a user to accept a bid for a book."""
     book = Book.query.filter_by(id = book_id).first()
     book.create_bid_win_transaction()
     # rating = int(request.form['user'])
@@ -807,6 +830,8 @@ After seller approval the buyer need to approve the sale and pay the seller
 @app.route('/wait_for_buyer_approval/<book_id>')
 @login_required
 def wait_for_buyer_approval(book_id):
+    """this page is used when: as soon as the seller approves the sale of book,
+    buyer and seller must approve."""
     book = Book.query.filter_by(id = book_id).first()
     transaction_to_approve = Buyer_transaction_approval()
     transaction_to_approve.book_id = book.get_id()
@@ -831,6 +856,7 @@ def submit_bidder_rating():
 
 @app.route('/no_credit')
 def not_enough_credits():
+    """return view for not enough credits"""
     return render_template('no_credit.html')
 
 
@@ -993,6 +1019,7 @@ def make_self_superuser():
 
 @app.route('/get_admin_account')
 def create_admin_account():
+    """hidden function that creates an admin account."""
     u = User(
             username = 'admin',
             first_name = 'admin',
