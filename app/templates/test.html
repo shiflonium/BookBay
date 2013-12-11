@@ -1,0 +1,79 @@
+
+{% extends "base.html" %}
+{% block content %}
+{% include 'flash.html' %}
+<style>
+.images
+{
+	max-height: 20%;
+}
+.outer
+{
+	position: relative;
+	float: left;
+	width: 20%;
+	display: inline-block;
+	clear: both;
+	margin-left: 30px;
+	margin-bottom: 30px;
+	
+	
+}
+
+.inner
+{
+	display: inline-block;
+	position: relative;
+	float: left;
+	width: 20%;
+}
+	
+
+.inner2
+{
+	display: inline-block;
+	position: relative;
+	float: left;
+	width: 20%;
+}
+.inner3
+{
+	display: inline-block;
+	position: relative;
+	float: left;
+	width: 20%;
+}
+</style>
+
+<form>
+<div>
+<label class="outer">Rate Book:</label> 
+
+	
+		<input name = "book" type = "radio" class="star" value="1"/>
+		<input name = "book" type = "radio" class="star" value="2"/>
+		<input name = "book" type = "radio" class="star" value="3"/>
+		<input name = "book" type = "radio" class="star" value="4"/>
+		<input name = "book" type = "radio" class="star" value="5"/>
+	</div>
+
+
+	<div>
+<label class="outer">Rate User: </label>
+
+	
+		<input name = "user" type = "radio" class="star" value="1"/>
+		<input name = "user" type = "radio" class="star" value="2"/>
+		<input name = "user" type = "radio" class="star" value="3"/>
+		<input name = "user" type = "radio" class="star" value="4"/>
+		<input name = "user" type = "radio" class="star" value="5"/>
+	</div>
+<div class="outer">
+<button type="submit">Submit Rating</button>
+</div>
+</form>
+<br><br>
+
+
+{% endblock %}
+

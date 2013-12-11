@@ -962,6 +962,32 @@ def create_admin_account():
     return render_template('home.html')
 
 
+@app.route('/rate_bid_transaction', methods = ['POST','GET'])
+@login_required
+def rate_bid_transaction():
+    book_id = int(request.args.get('book_id'))
+    book_query = Book.query.filter_by(id = book_id).all()
+    for u in book_query:
+        book_dict=u.__dict__
 
+    user_id = int(book_dict['owner_id'])
+    user_query = User.query.filter_by(id = user_id).all()
+    return render_template('rate_bid_transaction.html',book_info = book_query, user_info = user_query)
+
+@app.route('/rate_bid_transaction_success', methods = ['POST', 'GET'])
+@login_required
+def submit_seller_rating():
+    book_id = request.form['book_id']
+    book_rating = int(request.form['book'])
+    user_id = request.form['user_id']
+    user_rating = int(request.form['user_id'])
+    book_query = Book.query.filter_by(id = book_id).first()
+    user_query = User.query.filter_by(id = user_id).first()
+    book_query.rating = int(book_query.rating) + book_rating
+    book_query.num_of_rating = int(book_query.num_of_rating) + 1
+    user_query.rating = int(user_query.rating) + user_rating
+    user_query.num_of_rating = int(user_query.num_of_rating) + 1
+    db.session.commit()
+    return render_template('rate_success.html')
 
 

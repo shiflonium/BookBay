@@ -75,7 +75,7 @@ Time Remaining: <strong> {{book.until_expire_in_mins() }} minutes</strong></p>
 
 <label> Books you bought </label>
 {% for bta in books_for_approval %}
-  <p> The seller of <strong> {{ bta.get_book_name() }} </strong> approved the sale. Please <a href = "{{ url_for('accept_highest_bid', book_id=bta.get_book_id()) }}">click here </a> to pay the seller</p>
+  <p> The seller of <strong> {{ bta.get_book_name() }} </strong> approved the sale. Please <a href = "{{ url_for('rate_bid_transaction', book_id=bta.get_book_id()) }}">click here </a> to pay the seller</p>
 {% endfor %}
 
 
