@@ -1,17 +1,32 @@
 {% extends "base.html" %}
 {% block content %}
 
-<script type="text/javascript">
+{% if user.num_of_rating == 0%}
+	{% set divider = 1%}
+	{%else%}
+	{%set divider = user.num_of_rating%}
+	{%endif%}
 
+
+
+	<script type="text/javascript">
+	//incharge of stars rating calculations
 	$(document).ready(function(){
-		var rateAmount = ({{user.rating/user.num_of_rating}} * 2) / 2;
+		if ({{divider}} != 1){
+		var rateAmount = (({{user.rating}}/{{divider}}) * 2) / 2;
 
 		$('input[type = radio]').rating('select',(rateAmount * 2)-1);
-		$('input[type = radio]').rating('readOnly')
-		
+		$('input[type = radio]').rating('readOnly');
+		$('#rate_value').text(rateAmount);
+		}
+		else{
+			$('input[type = radio]').rating('readOnly');
+			$('#rate_value').text('0');
+		}
 	});
-
 </script>
+
+
 <label>Public Profile</label>
 <br>
 <label>Username:</label> {{user.username}}<br>
@@ -20,7 +35,8 @@
 {% if g.user.is_authenticated() %}
 <label>Last login:</label> {{user.last_login}}<br>
 <label>Number of bids:</label> {{user.num_bids}}<br>
-<label>Rating:</label> {{user.rating/user.num_of_rating}} <div>
+<label>Rating:</label><label id="rate_value"></label> 
+<div> 
 		<input name = "rate" type = "radio" class="star {split:2}"/>
 		<input name = "rate" type = "radio" class="star {split:2}"/>
 		<input name = "rate" type = "radio" class="star {split:2}"/>
