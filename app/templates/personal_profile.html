@@ -37,12 +37,22 @@ Buyout Price: <strong>{{ book.get_buyout_price() }} </strong><br>
 {% endif %}
 Time Remaining: <strong> {{book.until_expire_in_mins() }} minutes</strong></p>
 {% if book.get_highest_bid() %}
+<!-- <<<<<<< local -->
+{% if not book.is_approved_by_seller()  %}
+<!-- <p> Current Bid Price: <strong>{{ book.get_current_bid() }} </strong> by user: <strong>{{ book.get_highest_bid().bidder.username }}</strong> <a href="{{ url_for('accept_highest_bid', book_id=book.id) }}">click here</a> to accept bid and sell</p>
+ -->
+
+<p> Current Bid Price: <strong>{{ book.get_current_bid() }} </strong> by user: <strong>{{ book.get_highest_bid().bidder.username }}</strong> <a href="{{ url_for('wait_for_buyer_approval', book_id=book.id) }}">click here</a> to accept bid and sell</p>
+
+{% endif %}
+<!-- =======
 <p> Current Bid Price: <strong>{{ book.get_current_bid() }} </strong> by user: <strong>{{ book.get_highest_bid().bidder.username }}</strong> <a href="{{ url_for('rate_buyer') }}?bidder={{book.get_highest_bid().bidder.id}}&book={{book.get_id()}}">click here</a> to provide feedback about the buyer, accept bid and sell</p>
-<!-- <form action="{{url_for('rate_buyer')}}">
+<form action="{{url_for('rate_buyer')}}">
 	<input type="hidden" name="bidder" value="{{book.get_highest_bid().bidder.id}}">
 	<input type="hidden" name="book" value="{{book.get_id()}}">
 	<button type="submit">TEST</button>
-</form> -->
+</form>
+>>>>>>> other -->
 {% endif %}
 {% endfor %}
 
@@ -60,6 +70,12 @@ Time Remaining: <strong> {{book.until_expire_in_mins() }} minutes</strong></p>
   </p>
   <p align="left"> <strong>Price Sold:</strong> {{ data.amt_sold_for }} </p>
   <br>
+{% endfor %}
+<hr>
+
+<label> Books you bought </label>
+{% for bta in books_for_approval %}
+  <p> The seller of <strong> {{ bta.get_book_name() }} </strong> approved the sale. Please <a href = "{{ url_for('accept_highest_bid', book_id=bta.get_book_id()) }}">click here </a> to pay the seller</p>
 {% endfor %}
 
 

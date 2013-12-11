@@ -70,6 +70,7 @@
 		<label> Publisher: {{ book.get_publisher() }} </label><br>
 		<label> Condition: {{ book.get_condition() }}</label><br>
 		<label> Genre: {{ book.get_genre() }} </label><br>
+		<label> Seller: <a href="{{ url_for('view_profile', user_id = seller_id ) }}"> {{seller_name}}</a> <img src="{{ url_for('static',filename='img/star_small.gif')}}"/>{{seller_rating}}</label>
 	</div>
 
 	<div class="inner2">
@@ -139,7 +140,6 @@
 			{{ form2.submit }}
 			</form>
 	</div>
-
 {% endblock %}
 
 

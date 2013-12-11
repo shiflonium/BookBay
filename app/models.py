@@ -202,6 +202,9 @@ class User(db.Model):
         db.session.add(comment)
         db.session.commit()
         pass
+
+    def get_username(self):
+        return self.username
         
 
     def __repr__(self):
@@ -377,7 +380,7 @@ class Book(db.Model):
 
     def get_seller(self):
         """returns user that sold book"""
-        pass
+        return self.owner_id
 
     def get_buyer(self):
         """return user that bought the book, if there is a buyer"""
@@ -523,7 +526,13 @@ class Book(db.Model):
         bid = Bid.query.filter_by(book=self).order_by(desc(Bid.bid_price)).first()
         return bid
 
-        
+    def is_approved_by_seller(self):
+        book_to_approve = Buyer_transaction_approval.query.filter_by(book_id = self.id).first()
+        if book_to_approve != None:
+            return book_to_approve.need_to_approve
+        else:
+            return False
+
     def create_buy_now_transcation(self, buyer):
         """creates a buy now transaction. Used when a User chooses to click
         'buy now' for a book. automatically purchasing the book and creating
@@ -578,6 +587,9 @@ class Book(db.Model):
         s = "*" * 10
         print "%s %s Transaction Created %s" % (s, transac_time, s)
         print "%s sold book: %s to %s @ price: %s" % (seller.username, self.title, buyer.username, self.current_bid)
+
+    
+
 
     def __repr__(self):
         return '<Title: %s Owner: %s>' %(self.title, self.owner)
@@ -738,7 +750,18 @@ class Rec_Book(db.Model):
     genre = db.Column(db.Text)
 
 
+class Buyer_transaction_approval(db.Model):
+    __tablename__ = 'buyer_transaction_approval'
+    id = db.Column(db.Integer, primary_key=True)
+    buyer_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    book_id = db.Column(db.Integer, db.ForeignKey('book.id'), nullable=False)
+    need_to_approve = db.Column(db.Boolean, nullable=False)   
 
+    def get_book_name(self):
+        return Book.query.filter_by(id = self.book_id).first().title
+
+    def get_book_id(self):
+        return self.book_id
 
 if __name__ == '__main__':
     pass
