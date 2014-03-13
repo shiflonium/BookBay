@@ -1,4 +1,6 @@
-# blah blah
+BookBay is CSC322 Software Engineering project for The City College of New York.
+BookBay is a web application designed using Flask and SQL Alchemy where users can buy and sell books. The web application was designed to support
+various featurs like ratings, comments, user administration, user profiles and a system for earning points.
 
 ## if you choose to install virtualenv in hidden folder, do this
 
